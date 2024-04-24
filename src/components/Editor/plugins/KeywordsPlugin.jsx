@@ -1,11 +1,12 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { useLexicalTextEntity } from '@lexical/react/useLexicalTextEntity';
 import { useCallback, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { $createKeywordNode, KeywordNode } from '../nodes/KeywordNode';
 
-const KEYWORDS_REGEX = /CEO|总|COO/i;
+export const KeywordsPlugin = ({ keywords }) => {
+  let keywordRegex = new RegExp(keywords.join('|'), 'gi');
 
-export function KeywordsPlugin() {
   const [editor] = useLexicalComposerContext();
 
   useEffect(() => {
@@ -19,7 +20,7 @@ export function KeywordsPlugin() {
   }, []);
 
   const getKeywordMatch = useCallback(text => {
-    const matchArr = KEYWORDS_REGEX.exec(text);
+    const matchArr = keywordRegex.exec(text);
 
     if (matchArr === null) {
       return null;
@@ -37,4 +38,8 @@ export function KeywordsPlugin() {
   useLexicalTextEntity(getKeywordMatch, KeywordNode, createKeywordNode);
 
   return null;
-}
+};
+
+KeywordsPlugin.propTypes = {
+  keywords: PropTypes.arrayOf(PropTypes.string)
+};

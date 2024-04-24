@@ -8,7 +8,7 @@ const App = () => {
   const [editor, setEditor] = useState(null);
   const [readValue, setReadValue] = useState('');
 
-  const uploadFile = useCallback(file => {
+  const handleFileUpload = useCallback(file => {
     if (file.size > 1024 * 1024 * 20) {
       message.warning('文件过大，最大可上传20M的文件。');
       return Promise.reject();
@@ -38,7 +38,11 @@ const App = () => {
         namespace="ReasonEditor"
         value={readValue}
         onChange={setEditor}
-        uploadFile={uploadFile}
+        config={{
+          onFileUpload: handleFileUpload,
+          mentions: ['Jace'],
+          keywords: ['@', '#']
+        }}
       />
       <Button
         onClick={() =>

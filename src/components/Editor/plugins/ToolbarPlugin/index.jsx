@@ -1,3 +1,4 @@
+import './style.scss';
 import { useState, useEffect, useCallback } from 'react';
 import {
   $getSelection,
@@ -11,15 +12,8 @@ import {
   $findMatchingParent,
   $getNearestNodeOfType
 } from '@lexical/utils';
-import {
-  BoldOutlined,
-  ItalicOutlined,
-  FileImageOutlined,
-  OrderedListOutlined,
-  UnorderedListOutlined
-} from '@ant-design/icons';
-import { INSERT_IMAGE_COMMAND } from './ImagePlugin';
-import { INSERT_FILE_COMMAND } from './FilePlugin';
+import { INSERT_IMAGE_COMMAND } from '../ImagePlugin';
+import { INSERT_FILE_COMMAND } from '../FilePlugin';
 import {
   $isListNode,
   INSERT_ORDERED_LIST_COMMAND,
@@ -30,20 +24,29 @@ import {
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
+// icons
+import olIcon from '../../images/icons/ol.svg';
+import ulIcon from '../../images/icons/ul.svg';
+import textBoldIcon from '../../images/icons/text-bold.svg';
+import textItalicIcon from '../../images/icons/text-italic.svg';
+import textUnderlineIcon from '../../images/icons/text-underline.svg';
+import fileIcon from '../../images/icons/file.svg';
+
 const classNameMaps = {
   item: 'editor__toolbarItem',
   itemDisabled: 'editor__toolbarItem_disabled',
   itemActived: 'editor__toolbarItem_actived',
   divider: 'editor__toolbarDivider',
-  hidden: 'editor__hiddenNode'
+  fileInput: 'editor__toolbarFileInput'
 };
 
-export const ToolbarPlugin = ({ uploadFile }) => {
+export const ToolbarPlugin = ({ onFileUpload }) => {
   const [editor] = useLexicalComposerContext();
 
   const [blockType, setBlockType] = useState('paragraph');
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
+  const [isUnderline, setIsUnderline] = useState(false);
 
   const $updateToolbar = useCallback(() => {
     const selection = $getSelection();
@@ -79,6 +82,7 @@ export const ToolbarPlugin = ({ uploadFile }) => {
       // text format
       setIsBold(selection.hasFormat('bold'));
       setIsItalic(selection.hasFormat('italic'));
+      setIsUnderline(selection.hasFormat('underline'));
     }
   }, [editor]);
   useEffect(() => {
@@ -95,7 +99,7 @@ export const ToolbarPlugin = ({ uploadFile }) => {
     try {
       const [file] = e.target.files;
       if (!file) return;
-      const image = await uploadFile(file);
+      const image = await onFileUpload(file);
       if (!image) return;
       if (/^image\/.+$/.test(file.type)) {
         editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
@@ -125,7 +129,7 @@ export const ToolbarPlugin = ({ uploadFile }) => {
           }
         }}
       >
-        <OrderedListOutlined />
+        <img src={olIcon} alt="ol" />
       </button>
       <button
         className={classNames(classNameMaps.item, {
@@ -139,7 +143,7 @@ export const ToolbarPlugin = ({ uploadFile }) => {
           }
         }}
       >
-        <UnorderedListOutlined />
+        <img src={ulIcon} alt="ul" />
       </button>
       <div className={classNameMaps.divider} />
       <button
@@ -150,7 +154,7 @@ export const ToolbarPlugin = ({ uploadFile }) => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
         }}
       >
-        <BoldOutlined />
+        <img src={textBoldIcon} alt="bold" />
       </button>
       <button
         className={classNames(classNameMaps.item, {
@@ -160,24 +164,38 @@ export const ToolbarPlugin = ({ uploadFile }) => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic');
         }}
       >
-        <ItalicOutlined />
+        <img src={textItalicIcon} alt="italic" />
       </button>
-      <div className={classNameMaps.divider} />
-      <label>
-        <input
-          type="file"
-          value=""
-          onChange={onUpload}
-          className={classNameMaps.hidden}
-        />
-        <div className={classNameMaps.item}>
-          <FileImageOutlined />
-        </div>
-      </label>
+      <button
+        className={classNames(classNameMaps.item, {
+          [classNameMaps.itemActived]: isUnderline
+        })}
+        onClick={() => {
+          editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline');
+        }}
+      >
+        <img src={textUnderlineIcon} alt="underline" />
+      </button>
+      {typeof onFileUpload === 'function' && (
+        <>
+          <div className={classNameMaps.divider} />
+          <label>
+            <input
+              type="file"
+              value=""
+              onChange={onUpload}
+              className={classNameMaps.fileInput}
+            />
+            <div className={classNameMaps.item}>
+              <img src={fileIcon} alt="file" />
+            </div>
+          </label>
+        </>
+      )}
     </div>
   );
 };
 
 ToolbarPlugin.propTypes = {
-  uploadFile: PropTypes.func
+  onFileUpload: PropTypes.func
 };

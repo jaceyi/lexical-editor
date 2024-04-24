@@ -72,7 +72,7 @@ export const FileComponent = ({ nodeKey, url, name }) => {
   }, [clearSelection, editor, isSelected, nodeKey, onDelete, setSelected]);
 
   return (
-    <span className={isSelected ? 'focused' : ''} ref={nodeRef}>
+    <span className={isSelected ? 'editor__Node_focused' : ''} ref={nodeRef}>
       <span className="editor__pointerEvent_none">{name}</span>
       <a target="_blank" rel="noopener noreferrer" href={url}>
         点击查看

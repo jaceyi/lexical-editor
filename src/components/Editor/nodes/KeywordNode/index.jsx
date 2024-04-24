@@ -47,10 +47,10 @@ export class KeywordNode extends TextNode {
   }
 }
 
-export function $createKeywordNode(keyword) {
+export const $createKeywordNode = keyword => {
   return new KeywordNode(keyword);
-}
+};
 
-export function $isKeywordNode(node) {
+export const $isKeywordNode = node => {
   return node instanceof KeywordNode;
-}
+};

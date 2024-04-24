@@ -4,13 +4,12 @@ import PropTypes from 'prop-types';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
-import { ListItemNode, ListNode } from '@lexical/list';
+import { ListNode, ListItemNode } from '@lexical/list';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { BeautifulMentionNode } from 'lexical-beautiful-mentions';
-
 import { ReadValuePlugin } from './plugins/ReadValuePlugin';
 import { ToolbarPlugin } from './plugins/ToolbarPlugin';
 import { ImagePlugin } from './plugins/ImagePlugin';
@@ -18,14 +17,17 @@ import { FilePlugin } from './plugins/FilePlugin';
 import { MentionsPlugin, mentionsPluginTheme } from './plugins/MentionsPlugin';
 import { DragDropPastePlugin } from './plugins/DragDropPastePlugin';
 import { KeywordsPlugin } from './plugins/KeywordsPlugin';
-import nodes from './nodes';
+import baseNodes from './nodes';
 
 const Editor = ({
   namespace,
+  isEditable = true,
   value,
   onChange,
-  uploadFile,
-  isEditable = true
+  placeholder = '请输入内容',
+  nodes = [],
+  plugins = [],
+  config = {}
 }) => {
   return (
     <div
@@ -35,13 +37,20 @@ const Editor = ({
         initialConfig={{
           namespace,
           onError: console.log,
-          nodes: [BeautifulMentionNode, ListItemNode, ListNode, ...nodes],
+          nodes: [
+            ListNode,
+            ListItemNode,
+            BeautifulMentionNode,
+            ...baseNodes,
+            ...nodes
+          ],
           theme: {
             image: 'theme__image',
             file: 'theme__file',
             text: {
               bold: 'theme__textBold',
               italic: 'theme__textItalic',
+              underline: 'theme__textUnderline',
               keyword: 'theme__textKeyword'
             },
             beautifulMentions: mentionsPluginTheme
@@ -49,13 +58,13 @@ const Editor = ({
         }}
       >
         <ReadValuePlugin value={value} isEditable={isEditable} />
-        {isEditable && <ToolbarPlugin uploadFile={uploadFile} />}
+        {isEditable && <ToolbarPlugin onFileUpload={config.onFileUpload} />}
         <div className="editor__main">
           <RichTextPlugin
             contentEditable={<ContentEditable className="editor__content" />}
             placeholder={
               isEditable ? (
-                <div className="editor__placeholder">请输入内容</div>
+                <div className="editor__placeholder">{placeholder}</div>
               ) : null
             }
             ErrorBoundary={LexicalErrorBoundary}
@@ -68,9 +77,10 @@ const Editor = ({
           <ImagePlugin />
           <FilePlugin />
           <ListPlugin />
-          <DragDropPastePlugin uploadFile={uploadFile} />
-          <MentionsPlugin mentionsItems={['Jace', 'Hean']} />
-          <KeywordsPlugin />
+          <DragDropPastePlugin onFileUpload={config.onFileUpload} />
+          <MentionsPlugin mentions={config.mentions} />
+          <KeywordsPlugin keywords={config.keywords} />
+          {plugins}
         </div>
       </LexicalComposer>
     </div>
@@ -79,10 +89,17 @@ const Editor = ({
 
 Editor.propTypes = {
   namespace: PropTypes.string.isRequired,
+  isEditable: PropTypes.bool,
   value: PropTypes.string,
   onChange: PropTypes.func,
-  uploadFile: PropTypes.func,
-  isEditable: PropTypes.bool
+  placeholder: PropTypes.string,
+  nodes: PropTypes.array,
+  plugins: PropTypes.array,
+  config: PropTypes.shape({
+    onFileUpload: PropTypes.func,
+    mentions: PropTypes.array,
+    keyword: PropTypes.array
+  })
 };
 
 export default React.memo(Editor);

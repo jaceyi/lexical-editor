@@ -73,7 +73,7 @@ export const ImageComponent = ({ nodeKey, src, altText }) => {
 
   return (
     <img
-      className={isSelected ? 'focused' : ''}
+      className={isSelected ? 'editor__Node_focused' : ''}
       ref={nodeRef}
       src={src}
       alt={altText}

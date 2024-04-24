@@ -1,0 +1,45 @@
+.editor__toolbar {
+  display: flex;
+  font-size: 16px;
+  padding: 4px 2px;
+  border-bottom: 0;
+  border-bottom: 1px solid #e1e1e1;
+
+  &Item {
+    background-color: transparent;
+    border: none;
+    border-radius: 8px;
+    line-height: 1;
+    padding: 6px;
+    margin: 0 2px;
+    cursor: pointer;
+    color: red;
+
+    img {
+      width: 16px;
+      height: 16px;
+    }
+
+    &:hover {
+      background-color: #e9e8e7;
+    }
+
+    &_disabled {
+      color: #bbb;
+    }
+
+    &_actived {
+      background-color: #f1f2f3;
+    }
+  }
+
+  &Divider {
+    width: 1px;
+    background-color: #e9e8e7;
+    margin: 0 4px;
+  }
+
+  &FileInput {
+    display: none;
+  }
+}

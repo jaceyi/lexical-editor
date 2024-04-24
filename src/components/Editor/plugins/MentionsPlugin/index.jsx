@@ -1,3 +1,4 @@
+import './style.scss';
 import React from 'react';
 import { BeautifulMentionsPlugin } from 'lexical-beautiful-mentions';
 import PropTypes from 'prop-types';
@@ -10,12 +11,12 @@ export const mentionsPluginTheme = {
   }
 };
 
-export const MentionsPlugin = ({ mentionsItems }) => {
+export const MentionsPlugin = ({ mentions }) => {
   return (
     <BeautifulMentionsPlugin
       triggers={['@']}
       items={{
-        '@': mentionsItems
+        '@': mentions
       }}
       menuComponent={CustomMenu}
       menuItemComponent={CustomMenuItem}
@@ -24,7 +25,7 @@ export const MentionsPlugin = ({ mentionsItems }) => {
 };
 
 MentionsPlugin.propTypes = {
-  mentionsItems: PropTypes.array
+  mentions: PropTypes.array.isRequired
 };
 
 // eslint-disable-next-line no-unused-vars
