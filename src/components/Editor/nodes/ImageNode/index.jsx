@@ -22,6 +22,22 @@ export class ImageNode extends DecoratorNode {
     });
   }
 
+  static importDOM() {
+    return {
+      img: () => ({
+        conversion: img => {
+          return {
+            node: $createImageNode({
+              src: img.src,
+              altText: img.alt
+            })
+          };
+        },
+        priority: 1
+      })
+    };
+  }
+
   constructor({ key, src, altText }) {
     super(key);
     this.__src = src;
@@ -38,44 +54,17 @@ export class ImageNode extends DecoratorNode {
   }
 
   createDOM(config) {
-    const span = document.createElement('span');
-    const theme = config.theme;
-    const className = theme.image;
-    if (className !== undefined) {
-      span.className = className;
+    const dom = document.createElement('span');
+    const className = config.theme.image;
+    if (className) {
+      dom.className = className;
     }
-    return span;
-  }
-
-  static importDOM() {
-    return {
-      span: domNode => {
-        if (
-          domNode.getAttribute('data-lexical-type') === 'image' &&
-          domNode.querySelector('img')
-        ) {
-          return {
-            conversion: domNode => {
-              const img = domNode.querySelector('img');
-              return {
-                node: $createImageNode({
-                  src: img.src,
-                  altText: img.alt
-                })
-              };
-            },
-            priority: 1
-          };
-        }
-        return null;
-      }
-    };
+    return dom;
   }
 
   exportDOM(editor) {
     const element = editor.getElementByKey(this.getKey());
     if (!element) return;
-    element.setAttribute('data-lexical-type', 'image');
     return {
       element
     };

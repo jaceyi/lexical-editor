@@ -3,11 +3,6 @@ import {
   $getSelection,
   $isRangeSelection,
   $isRootOrShadowRoot,
-  UNDO_COMMAND,
-  REDO_COMMAND,
-  CAN_UNDO_COMMAND,
-  CAN_REDO_COMMAND,
-  COMMAND_PRIORITY_CRITICAL,
   FORMAT_TEXT_COMMAND
 } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
@@ -17,17 +12,14 @@ import {
   $getNearestNodeOfType
 } from '@lexical/utils';
 import {
-  UndoOutlined,
-  RedoOutlined,
   BoldOutlined,
   ItalicOutlined,
   FileImageOutlined,
   OrderedListOutlined,
   UnorderedListOutlined
 } from '@ant-design/icons';
-import { Tooltip, message } from 'antd';
 import { INSERT_IMAGE_COMMAND } from './ImagePlugin';
-import Upload from 'antd/lib/upload/Upload';
+import { INSERT_FILE_COMMAND } from './FilePlugin';
 import {
   $isListNode,
   INSERT_ORDERED_LIST_COMMAND,
@@ -36,19 +28,19 @@ import {
   REMOVE_LIST_COMMAND
 } from '@lexical/list';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
 
 const classNameMaps = {
-  item: 'editor-toolbar-item',
-  itemDisabled: 'editor-toolbar-item-disabled',
-  itemActived: 'editor-toolbar-item-actived',
-  divider: 'editor-toolbar-divider'
+  item: 'editor__toolbarItem',
+  itemDisabled: 'editor__toolbarItem_disabled',
+  itemActived: 'editor__toolbarItem_actived',
+  divider: 'editor__toolbarDivider',
+  hidden: 'editor__hiddenNode'
 };
 
-export const ToolbarPlugin = () => {
+export const ToolbarPlugin = ({ uploadFile }) => {
   const [editor] = useLexicalComposerContext();
 
-  const [canUndo, setCanUndo] = useState(false);
-  const [canRedo, setCanRedo] = useState(false);
   const [blockType, setBlockType] = useState('paragraph');
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
@@ -95,138 +87,97 @@ export const ToolbarPlugin = () => {
         editorState.read(() => {
           $updateToolbar();
         });
-      }),
-      editor.registerCommand(
-        CAN_UNDO_COMMAND,
-        payload => {
-          setCanUndo(payload);
-          return false;
-        },
-        COMMAND_PRIORITY_CRITICAL
-      ),
-      editor.registerCommand(
-        CAN_REDO_COMMAND,
-        payload => {
-          setCanRedo(payload);
-          return false;
-        },
-        COMMAND_PRIORITY_CRITICAL
-      )
+      })
     );
   }, [$updateToolbar, editor]);
 
-  const onUpload = async file => {
-    if (file.size > 1024 * 1024 * 20) {
-      message.warning('文件过大，最大可上传20M的文件。');
-      return false;
-    }
-    if (encodeURI(file.name).length >= 150) {
-      message.warning('文件名过长！');
-      return false;
-    }
-    // const [image] = await uploadFileList([file]);
-    // image &&
-    //   editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
-    //     src: image.url,
-    //     altText: image.name
-    //   });
-    return false;
+  const onUpload = async e => {
+    try {
+      const [file] = e.target.files;
+      if (!file) return;
+      const image = await uploadFile(file);
+      if (!image) return;
+      if (/^image\/.+$/.test(file.type)) {
+        editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
+          src: image.url,
+          altText: image.name
+        });
+      } else {
+        editor.dispatchCommand(INSERT_FILE_COMMAND, {
+          url: image.url,
+          name: image.name
+        });
+      }
+    } catch {}
   };
 
   return (
-    <div className="editor-toolbar">
-      <Tooltip title="撤销">
-        <button
-          className={classNames(classNameMaps.item, {
-            [classNameMaps.itemDisabled]: !canUndo
-          })}
-          disabled={!canUndo}
-          onClick={() => {
-            editor.dispatchCommand(UNDO_COMMAND, undefined);
-          }}
-        >
-          <UndoOutlined />
-        </button>
-      </Tooltip>
-      <Tooltip title="重做">
-        <button
-          className={classNames(classNameMaps.item, {
-            [classNameMaps.itemDisabled]: !canRedo
-          })}
-          disabled={!canRedo}
-          onClick={() => {
-            editor.dispatchCommand(REDO_COMMAND, undefined);
-          }}
-        >
-          <RedoOutlined />
-        </button>
-      </Tooltip>
+    <div className="editor__toolbar">
+      <button
+        className={classNames(classNameMaps.item, {
+          [classNameMaps.itemActived]: blockType === 'number'
+        })}
+        onClick={() => {
+          if (blockType !== 'number') {
+            editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
+          } else {
+            editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
+          }
+        }}
+      >
+        <OrderedListOutlined />
+      </button>
+      <button
+        className={classNames(classNameMaps.item, {
+          [classNameMaps.itemActived]: blockType === 'bullet'
+        })}
+        onClick={() => {
+          if (blockType !== 'bullet') {
+            editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
+          } else {
+            editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
+          }
+        }}
+      >
+        <UnorderedListOutlined />
+      </button>
       <div className={classNameMaps.divider} />
-      <Tooltip title="有序列表">
-        <button
-          className={classNames(classNameMaps.item, {
-            [classNameMaps.itemActived]: blockType === 'number'
-          })}
-          onClick={() => {
-            if (blockType !== 'number') {
-              editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
-            } else {
-              editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
-            }
-          }}
-        >
-          <OrderedListOutlined />
-        </button>
-      </Tooltip>
-      <Tooltip title="无序列表">
-        <button
-          className={classNames(classNameMaps.item, {
-            [classNameMaps.itemActived]: blockType === 'bullet'
-          })}
-          onClick={() => {
-            if (blockType !== 'bullet') {
-              editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
-            } else {
-              editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
-            }
-          }}
-        >
-          <UnorderedListOutlined />
-        </button>
-      </Tooltip>
+      <button
+        className={classNames(classNameMaps.item, {
+          [classNameMaps.itemActived]: isBold
+        })}
+        onClick={() => {
+          editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
+        }}
+      >
+        <BoldOutlined />
+      </button>
+      <button
+        className={classNames(classNameMaps.item, {
+          [classNameMaps.itemActived]: isItalic
+        })}
+        onClick={() => {
+          editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic');
+        }}
+      >
+        <ItalicOutlined />
+      </button>
       <div className={classNameMaps.divider} />
-      <Tooltip title="粗体">
-        <button
-          className={classNames(classNameMaps.item, {
-            [classNameMaps.itemActived]: isBold
-          })}
-          onClick={() => {
-            editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
-          }}
-        >
-          <BoldOutlined />
-        </button>
-      </Tooltip>
-      <Tooltip title="斜体">
-        <button
-          className={classNames(classNameMaps.item, {
-            [classNameMaps.itemActived]: isItalic
-          })}
-          onClick={() => {
-            editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic');
-          }}
-        >
-          <ItalicOutlined />
-        </button>
-      </Tooltip>
-      <div className={classNameMaps.divider} />
-      <Tooltip title="上传图片">
-        <Upload accept="images/*" beforeUpload={onUpload} fileList={[]}>
-          <button className={classNameMaps.item}>
-            <FileImageOutlined />
-          </button>
-        </Upload>
-      </Tooltip>
+      <label>
+        <input
+          type="file"
+          value=""
+          onChange={onUpload}
+          className={classNameMaps.hidden}
+        />
+        <div className={classNameMaps.item}>
+          <FileImageOutlined />
+        </div>
+      </label>
     </div>
   );
+};
+
+ToolbarPlugin.propTypes = {
+  uploadFile: PropTypes.func
 };

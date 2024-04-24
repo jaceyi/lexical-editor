@@ -12,5 +12,9 @@ export default defineConfig({
       // eslint-disable-next-line no-undef
       '@': resolve(__dirname, 'src')
     }
+  },
+  server: {
+    port: 8000,
+    host: 'local.ucloudadmin.com'
   }
 });

@@ -12,9 +12,9 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { mergeRegister } from '@lexical/utils';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 import PropTypes from 'prop-types';
-import { $isImageNode } from '.';
+import { $isFileNode } from '.';
 
-export const ImageComponent = ({ nodeKey, src, altText }) => {
+export const FileComponent = ({ nodeKey, url, name }) => {
   const [editor] = useLexicalComposerContext();
   const [isSelected, setSelected, clearSelection] =
     useLexicalNodeSelection(nodeKey);
@@ -24,7 +24,7 @@ export const ImageComponent = ({ nodeKey, src, altText }) => {
         const event = payload;
         event.preventDefault();
         const node = $getNodeByKey(nodeKey);
-        if ($isImageNode(node)) {
+        if ($isFileNode(node)) {
           node.remove();
           return true;
         }
@@ -72,17 +72,17 @@ export const ImageComponent = ({ nodeKey, src, altText }) => {
   }, [clearSelection, editor, isSelected, nodeKey, onDelete, setSelected]);
 
   return (
-    <img
-      className={isSelected ? 'focused' : ''}
-      ref={nodeRef}
-      src={src}
-      alt={altText}
-    />
+    <span className={isSelected ? 'focused' : ''} ref={nodeRef}>
+      <span className="editor__pointerEvent_none">{name}</span>
+      <a target="_blank" rel="noopener noreferrer" href={url}>
+        点击查看
+      </a>
+    </span>
   );
 };
 
-ImageComponent.propTypes = {
+FileComponent.propTypes = {
   nodeKey: PropTypes.string.isRequired,
-  src: PropTypes.string.isRequired,
-  altText: PropTypes.string
+  url: PropTypes.string.isRequired,
+  name: PropTypes.string
 };
