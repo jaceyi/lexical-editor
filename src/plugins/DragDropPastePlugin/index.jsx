@@ -3,7 +3,7 @@ import { DRAG_DROP_PASTE } from '@lexical/rich-text';
 import { COMMAND_PRIORITY_LOW } from 'lexical';
 import { useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { INSERT_IMAGE_COMMAND } from './ImagePlugin';
+import { INSERT_IMAGE_COMMAND } from '../ImagePlugin';
 
 export const DragDropPastePlugin = ({ onFileUpload }) => {
   const [editor] = useLexicalComposerContext();

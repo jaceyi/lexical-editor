@@ -8,13 +8,17 @@ export default defineConfig({
   resolve: {
     alias: {
       // eslint-disable-next-line no-undef
-      '~': resolve(__dirname),
-      // eslint-disable-next-line no-undef
       '@': resolve(__dirname, 'src')
     }
   },
-  server: {
-    port: 8000,
-    host: 'local.ucloudadmin.com'
+  build: {
+    lib: {
+      entry: 'src/index.jsx',
+      formats: ['es'],
+      fileName: () => 'index.js'
+    },
+    rollupOptions: {
+      external: ['react', 'react-dom']
+    }
   }
 });

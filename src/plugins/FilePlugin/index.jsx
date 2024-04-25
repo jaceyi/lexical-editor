@@ -8,7 +8,7 @@ import {
 } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $wrapNodeInElement, mergeRegister } from '@lexical/utils';
-import { $createFileNode } from '../nodes/FileNode';
+import { $createFileNode } from '@/nodes/FileNode';
 
 export const INSERT_FILE_COMMAND = createCommand('INSERT_FILE_COMMAND');
 

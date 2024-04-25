@@ -6,8 +6,8 @@
   background-color: #fff;
   position: relative;
   font-size: 13px;
-  border: 1px solid #e1e1e1;
   border-radius: 2px;
+  box-shadow: 0 0 10px rgba(#000, 0.15);
 
   * {
     margin: 0;
@@ -67,17 +67,9 @@
     }
   }
 
-  &.editable {
-    border-radius: 8px;
-
-    .editor {
-      min-height: 160px;
-    }
-  }
-
   // common start
   .editor__Node_focused {
-    outline: 2px solid var(--editorColorPrimary);
+    outline: 1px solid var(--editorColorPrimary);
     user-select: none;
     border-radius: 1px;
   }
@@ -156,7 +148,7 @@
 
   .theme__mentionFocused {
     @extend .theme__mentionAt;
-    outline: 1px solid var(--editorColorPrimary);
+    @extend .editor__Node_focused;
   }
   // theme end
 }

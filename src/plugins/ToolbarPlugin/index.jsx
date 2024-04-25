@@ -23,14 +23,7 @@ import {
 } from '@lexical/list';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-
-// icons
-import olIcon from '../../images/icons/ol.svg';
-import ulIcon from '../../images/icons/ul.svg';
-import textBoldIcon from '../../images/icons/text-bold.svg';
-import textItalicIcon from '../../images/icons/text-italic.svg';
-import textUnderlineIcon from '../../images/icons/text-underline.svg';
-import fileIcon from '../../images/icons/file.svg';
+import { Icon } from '@/components';
 
 const classNameMaps = {
   item: 'editor__toolbarItem',
@@ -129,7 +122,7 @@ export const ToolbarPlugin = ({ onFileUpload }) => {
           }
         }}
       >
-        <img src={olIcon} alt="ol" />
+        <Icon type="ol" />
       </button>
       <button
         className={classNames(classNameMaps.item, {
@@ -143,7 +136,7 @@ export const ToolbarPlugin = ({ onFileUpload }) => {
           }
         }}
       >
-        <img src={ulIcon} alt="ul" />
+        <Icon type="ul" />
       </button>
       <div className={classNameMaps.divider} />
       <button
@@ -154,7 +147,7 @@ export const ToolbarPlugin = ({ onFileUpload }) => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
         }}
       >
-        <img src={textBoldIcon} alt="bold" />
+        <Icon type="textBold" />
       </button>
       <button
         className={classNames(classNameMaps.item, {
@@ -164,7 +157,7 @@ export const ToolbarPlugin = ({ onFileUpload }) => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic');
         }}
       >
-        <img src={textItalicIcon} alt="italic" />
+        <Icon type="textItalic" />
       </button>
       <button
         className={classNames(classNameMaps.item, {
@@ -174,7 +167,7 @@ export const ToolbarPlugin = ({ onFileUpload }) => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline');
         }}
       >
-        <img src={textUnderlineIcon} alt="underline" />
+        <Icon type="textUnderline" />
       </button>
       {typeof onFileUpload === 'function' && (
         <>
@@ -187,7 +180,7 @@ export const ToolbarPlugin = ({ onFileUpload }) => {
               className={classNameMaps.fileInput}
             />
             <div className={classNameMaps.item}>
-              <img src={fileIcon} alt="file" />
+              <Icon type="file" />
             </div>
           </label>
         </>

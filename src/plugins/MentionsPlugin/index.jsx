@@ -25,7 +25,7 @@ export const MentionsPlugin = ({ mentions }) => {
 };
 
 MentionsPlugin.propTypes = {
-  mentions: PropTypes.array.isRequired
+  mentions: PropTypes.array
 };
 
 // eslint-disable-next-line no-unused-vars

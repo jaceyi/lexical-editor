@@ -8,7 +8,7 @@ import {
 } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $wrapNodeInElement, mergeRegister } from '@lexical/utils';
-import { $createImageNode } from '../nodes/ImageNode';
+import { $createImageNode } from '@/nodes/ImageNode';
 
 export const INSERT_IMAGE_COMMAND = createCommand('INSERT_IMAGE_COMMAND');
 
