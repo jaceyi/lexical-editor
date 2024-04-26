@@ -1,12 +1,10 @@
-import { useCallback, useState } from 'react';
-import { $generateHtmlFromNodes } from '@lexical/html';
+import { useCallback, useMemo, useState } from 'react';
 
 import '../../dist/style.css';
 import Editor from '../../dist';
 
 const App = () => {
-  const [editor, setEditor] = useState(null);
-  const [readValue, setReadValue] = useState('');
+  const [html, setHtml] = useState('');
 
   const handleFileUpload = useCallback(file => {
     if (file.size > 1024 * 1024 * 20) {
@@ -24,8 +22,7 @@ const App = () => {
         reader.onload = function () {
           resolve({
             url: reader.result,
-            name: file.name,
-            type: file.type
+            name: file.name
           });
         };
       }, 0);
@@ -34,26 +31,22 @@ const App = () => {
 
   return (
     <div>
-      <Editor
-        namespace="ReasonEditor"
-        value={readValue}
-        onChange={setEditor}
-        config={{
-          onFileUpload: handleFileUpload,
-          mentions: ['Jace'],
-          keywords: ['Hean']
-        }}
-      />
-      <button
-        onClick={() =>
-          editor.update(async () => {
-            const html = $generateHtmlFromNodes(editor);
-            console.log(html);
-          })
-        }
-      >
-        Export
-      </button>
+      {useMemo(
+        () => (
+          <Editor
+            namespace="ReasonEditor"
+            initialValue={html}
+            onChangeHtml={setHtml}
+            config={{
+              onFileUpload: handleFileUpload,
+              mentions: ['Jace'],
+              keywords: ['Hean']
+            }}
+          />
+        ),
+        []
+      )}
+      <button onClick={() => console.log(html)}>Export</button>
     </div>
   );
 };

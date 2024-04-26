@@ -18,6 +18,7 @@ export const MentionsPlugin = ({ mentions }) => {
       items={{
         '@': mentions
       }}
+      insertOnBlur={false}
       menuComponent={CustomMenu}
       menuItemComponent={CustomMenuItem}
     />

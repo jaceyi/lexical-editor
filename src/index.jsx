@@ -19,20 +19,34 @@ import { DragDropPastePlugin } from './plugins/DragDropPastePlugin';
 import { KeywordsPlugin } from './plugins/KeywordsPlugin';
 import baseNodes from './nodes';
 import { FilterWithProps } from './components';
+import { $generateHtmlFromNodes } from '@lexical/html';
+import classNames from 'classnames';
 
 const Editor = ({
   namespace,
   isEditable = true,
+  initialValue,
   value,
   onChange,
+  onChangeHtml,
   placeholder = '请输入内容',
   nodes = [],
   plugins = [],
-  config = {}
+  config = {},
+  className,
+  style,
+  contentStyle
 }) => {
+  console.log('render');
+
   return (
     <div
-      className={`editor__container ${isEditable ? 'editable' : 'no-editable'}`}
+      className={classNames(
+        'editor__container',
+        isEditable ? 'editable' : 'no-editable',
+        className
+      )}
+      style={style}
     >
       <LexicalComposer
         initialConfig={{
@@ -48,21 +62,25 @@ const Editor = ({
           theme: {
             image: 'theme__image',
             file: 'theme__file',
-            text: {
-              bold: 'theme__textBold',
-              italic: 'theme__textItalic',
-              underline: 'theme__textUnderline',
-              keyword: 'theme__textKeyword'
-            },
+            keyword: 'theme__textKeyword',
             beautifulMentions: mentionsPluginTheme
           }
         }}
       >
-        <ReadValuePlugin value={value} isEditable={isEditable} />
+        <ReadValuePlugin
+          initialValue={initialValue}
+          value={value}
+          isEditable={isEditable}
+        />
         {isEditable && <ToolbarPlugin onFileUpload={config.onFileUpload} />}
         <div className="editor__main">
           <RichTextPlugin
-            contentEditable={<ContentEditable className="editor__content" />}
+            contentEditable={
+              <ContentEditable
+                className="editor__content"
+                style={contentStyle}
+              />
+            }
             placeholder={
               isEditable ? (
                 <div className="editor__placeholder">{placeholder}</div>
@@ -71,7 +89,16 @@ const Editor = ({
             ErrorBoundary={LexicalErrorBoundary}
           />
           <OnChangePlugin
-            onChange={(_, editor) => onChange(editor)}
+            onChange={(_, editor) => {
+              typeof onChange === 'function' && onChange(editor);
+
+              if (typeof onChangeHtml === 'function') {
+                editor.update(() => {
+                  const html = $generateHtmlFromNodes(editor, null);
+                  onChangeHtml(html);
+                });
+              }
+            }}
             ignoreSelectionChange
           />
           <HistoryPlugin />
@@ -97,8 +124,10 @@ const Editor = ({
 Editor.propTypes = {
   namespace: PropTypes.string.isRequired,
   isEditable: PropTypes.bool,
+  initialValue: PropTypes.string,
   value: PropTypes.string,
   onChange: PropTypes.func,
+  onChangeHtml: PropTypes.func,
   placeholder: PropTypes.string,
   nodes: PropTypes.array,
   plugins: PropTypes.array,
@@ -106,7 +135,10 @@ Editor.propTypes = {
     onFileUpload: PropTypes.func,
     mentions: PropTypes.array,
     keyword: PropTypes.array
-  })
+  }),
+  className: PropTypes.string,
+  style: PropTypes.object,
+  contentStyle: PropTypes.object
 };
 
 export default React.memo(Editor);

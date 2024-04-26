@@ -25,9 +25,14 @@ export class KeywordNode extends TextNode {
     };
   }
 
+  exportDOM() {
+    const span = document.createElement('span');
+    return span;
+  }
+
   createDOM(config) {
     const dom = super.createDOM(config);
-    const className = config.theme.text.keyword;
+    const className = config.theme.keyword;
     if (className) {
       dom.className = className;
     }

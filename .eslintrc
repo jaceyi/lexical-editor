@@ -7,7 +7,6 @@
   "extends": [
     "plugin:prettier/recommended",
     "plugin:react/recommended",
-    "plugin:react/jsx-runtime",
     "plugin:react-hooks/recommended"
   ],
   "parserOptions": {
@@ -20,7 +19,7 @@
   "plugins": ["react-refresh", "prettier"],
   "settings": {
     "react": {
-      "version": "detect"
+      "version": "17"
     }
   },
   "rules": {
