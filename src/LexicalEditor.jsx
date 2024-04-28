@@ -16,6 +16,7 @@ import { ReadHTMLValuePlugin } from './plugins/ReadHTMLValuePlugin';
 import { ToolbarPlugin } from './plugins/ToolbarPlugin';
 import { ImagePlugin } from './plugins/ImagePlugin';
 import { FilePlugin } from './plugins/FilePlugin';
+import { ConnectEditorPlugin } from './plugins/ConnectEditorPlugin';
 import { MentionsPlugin, mentionsPluginTheme } from './plugins/MentionsPlugin';
 import { DragDropPastePlugin } from './plugins/DragDropPastePlugin';
 import { KeywordsPlugin } from './plugins/KeywordsPlugin';
@@ -120,7 +121,7 @@ const LexicalEditor = ({
           <FilterWithProps>
             <KeywordsPlugin keywords={config.keywords} />
           </FilterWithProps>
-          {plugins}
+          <ConnectEditorPlugin plugins={plugins} />
         </div>
       </LexicalComposer>
     </div>

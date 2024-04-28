@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { CustomePlugin } from './CustomePlugin';
 
 import '../../dist/style.css';
 import Editor, { useHTMLHandle } from '../../dist';
@@ -42,6 +43,7 @@ const App = () => {
           mentions: ['Jace'],
           keywords: ['Hean']
         }}
+        plugins={[<CustomePlugin key="custom-plugin" type="inline" />]}
         {...editorHandleProps}
       />
       <button

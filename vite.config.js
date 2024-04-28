@@ -19,7 +19,14 @@ export default defineConfig({
       fileName: () => 'index.js'
     },
     rollupOptions: {
-      external: ['react', 'react/jsx-runtime', 'react-dom']
+      external: [
+        'react',
+        'react/jsx-runtime',
+        'react-dom',
+        'lexical',
+        '@lexical/react',
+        '@lexical/utils'
+      ]
     }
   }
 });
