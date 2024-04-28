@@ -3,9 +3,12 @@
 > 基于 [lexical](https://lexical.dev/) 开发的富文本编辑器
 
 ```jsx
+import Editor, { useHTMLHandle } from 'lexical-editor';
+
 const App = () => {
-  const [editor, setEditor] = useState(null);
-  const [readValue, setReadValue] = useState('');
+  const [{ value, onChange }, editorHandleProps] = useHTMLHandle({
+    initialValue: 'Hello World!'
+  });
 
   const handleFileUpload = useCallback(file => {
     return new Promise(resolve => {
@@ -15,35 +18,32 @@ const App = () => {
         reader.onload = function () {
           resolve({
             url: reader.result,
-            name: file.name,
-            type: file.type
+            name: file.name
           });
         };
       }, 0);
     });
   }, []);
 
+  console.log(value);
+
   return (
     <div>
       <Editor
         namespace="ReasonEditor"
-        value={readValue}
-        onChange={setEditor}
         config={{
           onFileUpload: handleFileUpload,
           mentions: ['Jace'],
           keywords: ['Hean']
         }}
+        {...editorHandleProps}
       />
       <button
-        onClick={() =>
-          editor.update(async () => {
-            const html = $generateHtmlFromNodes(editor);
-            console.log(html);
-          })
-        }
+        onClick={() => {
+          onChange('你好 世界！');
+        }}
       >
-        Export HTML
+        Set HTML
       </button>
     </div>
   );

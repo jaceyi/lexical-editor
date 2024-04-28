@@ -1,10 +1,12 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback } from 'react';
 
 import '../../dist/style.css';
-import Editor from '../../dist';
+import Editor, { useHTMLHandle } from '../../dist';
 
 const App = () => {
-  const [html, setHtml] = useState('');
+  const [{ value, onChange }, editorHandleProps] = useHTMLHandle({
+    initialValue: 'Hello World!'
+  });
 
   const handleFileUpload = useCallback(file => {
     if (file.size > 1024 * 1024 * 20) {
@@ -29,24 +31,26 @@ const App = () => {
     });
   }, []);
 
+  console.log(value);
+
   return (
     <div>
-      {useMemo(
-        () => (
-          <Editor
-            namespace="ReasonEditor"
-            initialValue={html}
-            onChangeHtml={setHtml}
-            config={{
-              onFileUpload: handleFileUpload,
-              mentions: ['Jace'],
-              keywords: ['Hean']
-            }}
-          />
-        ),
-        []
-      )}
-      <button onClick={() => console.log(html)}>Export</button>
+      <Editor
+        namespace="ReasonEditor"
+        config={{
+          onFileUpload: handleFileUpload,
+          mentions: ['Jace'],
+          keywords: ['Hean']
+        }}
+        {...editorHandleProps}
+      />
+      <button
+        onClick={() => {
+          onChange('你好 世界！');
+        }}
+      >
+        Set HTML
+      </button>
     </div>
   );
 };

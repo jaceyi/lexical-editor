@@ -12,6 +12,7 @@ export default defineConfig({
     }
   },
   build: {
+    sourcemap: true,
     lib: {
       entry: 'src/index.jsx',
       formats: ['es'],
