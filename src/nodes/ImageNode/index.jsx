@@ -66,7 +66,7 @@ export class ImageNode extends DecoratorNode {
     const element = editor.getElementByKey(this.getKey());
     if (!element) return;
     return {
-      element: element.cloneNode()
+      element: element.cloneNode(true)
     };
   }
 

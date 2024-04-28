@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 
-export const useHTMLHandle = ({ initialValue }) => {
+export const useHTMLHandle = ({ initialValue = '' }) => {
   const [{ inputValue, forceKey }, setInputState] = useState({
     inputValue: initialValue,
     forceKey: 0
