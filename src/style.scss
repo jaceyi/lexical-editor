@@ -16,26 +16,27 @@
     box-sizing: border-box;
   }
 
-  .editor__main {
+  .editor__main,
+  .editor__content {
     position: relative;
-
-    .editor__placeholder {
-      color: #999;
-      position: absolute;
-      text-overflow: ellipsis;
-      top: 10px;
-      left: 10px;
-      right: 28px;
-      user-select: none;
-      white-space: nowrap;
-      display: inline-block;
-      pointer-events: none;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
   }
 
-  .editor__content {
+  .editor__placeholder {
+    color: #999;
+    position: absolute;
+    text-overflow: ellipsis;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    user-select: none;
+    white-space: nowrap;
+    display: inline-block;
+    pointer-events: none;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .editor__editable {
     outline: none;
     padding: 10px;
 

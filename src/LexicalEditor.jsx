@@ -90,22 +90,26 @@ const LexicalEditor = ({
             forceUpdateValueKey={forceUpdateValueKey}
           />
         )}
-        {isEditable && <ToolbarPlugin onFileUpload={config.onFileUpload} />}
+        {isEditable ? (
+          <ToolbarPlugin onFileUpload={config.onFileUpload} />
+        ) : null}
         <div className="editor__main">
-          <RichTextPlugin
-            contentEditable={
-              <ContentEditable
-                className="editor__content"
-                style={contentStyle}
-              />
-            }
-            placeholder={
-              isEditable ? (
-                <div className="editor__placeholder">{placeholder}</div>
-              ) : null
-            }
-            ErrorBoundary={LexicalErrorBoundary}
-          />
+          <div className="editor__content">
+            <RichTextPlugin
+              contentEditable={
+                <ContentEditable
+                  className="editor__editable"
+                  style={contentStyle}
+                />
+              }
+              placeholder={
+                isEditable ? (
+                  <div className="editor__placeholder">{placeholder}</div>
+                ) : null
+              }
+              ErrorBoundary={LexicalErrorBoundary}
+            />
+          </div>
           <OnChangePlugin onChange={handleChange} ignoreSelectionChange />
           {autoFocus && <AutoFocusPlugin />}
           <HistoryPlugin />

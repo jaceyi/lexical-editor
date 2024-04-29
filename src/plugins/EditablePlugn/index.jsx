@@ -6,7 +6,7 @@ export const EditablePlugn = ({ isEditable }) => {
   const [editor] = useLexicalComposerContext();
 
   useEffect(() => {
-    editor.setEditable(isEditable);
+    editor.setEditable(!!isEditable);
   }, [editor, isEditable]);
 
   return null;
