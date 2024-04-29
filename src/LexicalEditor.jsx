@@ -80,7 +80,8 @@ const LexicalEditor = ({
             keyword: 'theme__textKeyword',
             text: {
               bold: 'theme__textBold',
-              italic: 'theme__textItalic'
+              italic: 'theme__textItalic',
+              underline: 'theme__textUnderline'
             },
             beautifulMentions: mentionsPluginTheme
           }
