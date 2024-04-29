@@ -4,7 +4,9 @@ import {
   $getSelection,
   $isRangeSelection,
   $isRootOrShadowRoot,
-  FORMAT_TEXT_COMMAND
+  $insertNodes,
+  FORMAT_TEXT_COMMAND,
+  TextNode
 } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
@@ -33,7 +35,7 @@ const classNameMaps = {
   fileInput: 'editor__toolbarFileInput'
 };
 
-export const ToolbarPlugin = ({ onFileUpload }) => {
+export const ToolbarPlugin = ({ config = {} }) => {
   const [editor] = useLexicalComposerContext();
 
   const [blockType, setBlockType] = useState('paragraph');
@@ -88,11 +90,19 @@ export const ToolbarPlugin = ({ onFileUpload }) => {
     );
   }, [$updateToolbar, editor]);
 
+  const handleInsertMention = () => {
+    editor.update(() => {
+      const node = new TextNode(' @');
+      $getSelection();
+      $insertNodes([node]);
+    });
+  };
+
   const onUpload = async e => {
     try {
       const [file] = e.target.files;
       if (!file) return;
-      const image = await onFileUpload(file);
+      const image = await config.onFileUpload(file);
       if (!image) return;
       if (/^image\/.+$/.test(file.type)) {
         editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
@@ -169,7 +179,12 @@ export const ToolbarPlugin = ({ onFileUpload }) => {
       >
         <Icon type="textUnderline" />
       </button>
-      {typeof onFileUpload === 'function' && (
+      {config.hasOwnProperty('mentions') && !!config.mentions.length && (
+        <button className={classNameMaps.item} onClick={handleInsertMention}>
+          <Icon type="mention" />
+        </button>
+      )}
+      {typeof config.onFileUpload === 'function' && (
         <>
           <div className={classNameMaps.divider} />
           <label>
@@ -190,5 +205,5 @@ export const ToolbarPlugin = ({ onFileUpload }) => {
 };
 
 ToolbarPlugin.propTypes = {
-  onFileUpload: PropTypes.func
+  config: PropTypes.object
 };

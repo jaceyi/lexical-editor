@@ -5,15 +5,18 @@ import PropTypes from 'prop-types';
 export const ConnectEditorPlugin = ({ plugins = [] }) => {
   const [editor] = useLexicalComposerContext();
 
-  return plugins.map(plugin => {
-    if (isValidElement(plugin)) {
-      return cloneElement(plugin, {
-        ...plugin.props,
-        editor
-      });
-    }
-    return null;
-  });
+  if (Array.isArray(plugins)) {
+    return plugins.map(plugin => {
+      if (isValidElement(plugin)) {
+        return cloneElement(plugin, {
+          ...plugin.props,
+          editor
+        });
+      }
+      return null;
+    });
+  }
+  return null;
 };
 
 ConnectEditorPlugin.propTypes = {

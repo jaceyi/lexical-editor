@@ -11,7 +11,7 @@ export const mentionsPluginTheme = {
   }
 };
 
-export const MentionsPlugin = ({ mentions }) => {
+export const MentionsPlugin = ({ mentions = [] }) => {
   return (
     <BeautifulMentionsPlugin
       triggers={['@']}

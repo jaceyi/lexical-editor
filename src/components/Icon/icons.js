@@ -4,5 +4,6 @@ import ul from '@/images/icons/ul.svg';
 import textBold from '@/images/icons/text-bold.svg';
 import textItalic from '@/images/icons/text-italic.svg';
 import textUnderline from '@/images/icons/text-underline.svg';
+import mention from '@/images/icons/mention.svg';
 
-export { file, ol, ul, textBold, textItalic, textUnderline };
+export { file, ol, ul, textBold, textItalic, textUnderline, mention };

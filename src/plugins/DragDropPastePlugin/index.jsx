@@ -11,18 +11,21 @@ export const DragDropPastePlugin = ({ onFileUpload }) => {
     return editor.registerCommand(
       DRAG_DROP_PASTE,
       files => {
-        (async () => {
-          for (const file of files) {
-            try {
-              const image = await onFileUpload(file);
-              editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
-                src: image.url,
-                altText: image.name
-              });
-            } catch {}
-          }
-        })();
-        return true;
+        if (typeof onFileUpload === 'function') {
+          (async () => {
+            for (const file of files) {
+              try {
+                const image = await onFileUpload(file);
+                editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
+                  src: image.url,
+                  altText: image.name
+                });
+              } catch {}
+            }
+          })();
+          return true;
+        }
+        return false;
       },
       COMMAND_PRIORITY_LOW
     );

@@ -2,6 +2,12 @@
 
 > 基于 [lexical](https://lexical.dev/) 开发的富文本编辑器
 
+## 使用方法
+
+项目依赖 `react` `react-dom` `lexical` `@lexical/react` `@lexical/utils`
+
+### 示例
+
 ```jsx
 import Editor, { useHTMLHandle } from 'lexical-editor';
 

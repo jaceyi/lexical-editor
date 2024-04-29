@@ -78,6 +78,10 @@ const LexicalEditor = ({
             image: 'theme__image',
             file: 'theme__file',
             keyword: 'theme__textKeyword',
+            text: {
+              bold: 'theme__textBold',
+              italic: 'theme__textItalic'
+            },
             beautifulMentions: mentionsPluginTheme
           }
         }}
@@ -90,9 +94,7 @@ const LexicalEditor = ({
             forceUpdateValueKey={forceUpdateValueKey}
           />
         )}
-        {isEditable ? (
-          <ToolbarPlugin onFileUpload={config.onFileUpload} />
-        ) : null}
+        {isEditable ? <ToolbarPlugin config={config} /> : null}
         <div className="editor__main">
           <div className="editor__content">
             <RichTextPlugin
