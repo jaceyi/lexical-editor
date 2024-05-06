@@ -25,9 +25,12 @@ export class KeywordNode extends TextNode {
     };
   }
 
-  exportDOM() {
-    const span = document.createElement('span');
-    return span;
+  exportDOM(editor) {
+    const element = editor.getElementByKey(this.getKey());
+    if (!element) return;
+    return {
+      element: element.cloneNode(true)
+    };
   }
 
   createDOM(config) {

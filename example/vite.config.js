@@ -5,7 +5,6 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 8000,
-    host: 'local.ucloudadmin.com'
+    port: 8000
   }
 });
