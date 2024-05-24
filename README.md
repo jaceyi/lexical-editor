@@ -4,7 +4,7 @@
 
 ## 使用方法
 
-项目依赖 `react` `react-dom` `lexical` `@lexical/react` `@lexical/utils`
+项目依赖 `react` `react-dom`
 
 ### 示例
 

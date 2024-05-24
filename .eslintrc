@@ -19,7 +19,7 @@
   "plugins": ["react-refresh", "prettier"],
   "settings": {
     "react": {
-      "version": "17"
+      "version": "18"
     }
   },
   "rules": {

@@ -1,7 +1,10 @@
 # See https://help.github.com/ignore-files/ for more about ignoring files.
 
+/es
+/lib
 /dist
 /build
+/style.css
 
 # dependencies
 node_modules

@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
 import { CustomePlugin } from './CustomePlugin';
 
-import '../../dist/style.css';
-import Editor, { useHTMLHandle } from '../../dist';
+import '../../style.css';
+import Editor, { useHTMLHandle } from '../../es';
 
 const App = () => {
   const [{ value, onChange }, editorHandleProps] = useHTMLHandle({

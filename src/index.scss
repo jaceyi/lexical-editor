@@ -1,0 +1,240 @@
+:root {
+  --lexicalEditorColorPrimary: #2483ff;
+  --lexicalEditorBorderColor: rgba(0, 0, 0, 0.07);
+}
+
+.editor__container {
+  background-color: #fff;
+  position: relative;
+  font-size: 13px;
+  line-height: 1.4;
+  border-radius: 2px;
+  border: 1px solid var(--lexicalEditorBorderColor);
+
+  * {
+    margin: 0;
+    box-sizing: border-box;
+  }
+
+  .editor__main,
+  .editor__content {
+    position: relative;
+  }
+
+  .editor__placeholder {
+    color: #999;
+    position: absolute;
+    text-overflow: ellipsis;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    user-select: none;
+    white-space: nowrap;
+    display: inline-block;
+    pointer-events: none;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .editor__editable {
+    outline: none;
+    padding: 10px;
+
+    p,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      margin: 0;
+    }
+
+    ol {
+      padding-left: 18px;
+
+      li {
+        list-style: auto;
+      }
+    }
+
+    ul {
+      padding-left: 18px;
+
+      li {
+        list-style: disc;
+      }
+    }
+
+    & > *:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  // common start
+  .editor__Node_focused {
+    outline: 1px solid var(--lexicalEditorColorPrimary);
+    user-select: none;
+    border-radius: 1px;
+  }
+
+  .editor__pointerEvent_none {
+    pointer-events: none;
+  }
+  // common end
+
+  // theme start
+  .theme__image {
+    cursor: default;
+    display: inline-block;
+    position: relative;
+    user-select: none;
+    padding: 1px;
+
+    img {
+      max-width: 100%;
+      max-height: 300px;
+      width: inherit;
+      height: inherit;
+      vertical-align: bottom;
+    }
+  }
+
+  .theme__file {
+    & > span {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 2px;
+      padding: 6px 10px;
+      cursor: pointer;
+      background-color: rgba(#fff, 0.5);
+      border: 1px solid var(--lexicalEditorBorderColor);
+      transition: box-shadow 0.3s;
+      font-size: 13px;
+
+      &:hover {
+        box-shadow: 0 0 10px rgba(#000, 0.1);
+      }
+
+      a {
+        margin-left: 6px;
+        text-decoration: none;
+        color: var(--lexicalEditorColorPrimary);
+        font-size: 12px;
+      }
+    }
+  }
+
+  .theme__textBold {
+    font-weight: 700;
+  }
+
+  .theme__textItalic {
+    font-style: italic;
+  }
+
+  .theme__textUnderline {
+    text-decoration: underline;
+  }
+
+  .theme__textKeyword {
+    color: #f1765e;
+  }
+
+  .theme__mentionAt {
+    background-color: rgb(#888, 0.1);
+    padding: 0 3px;
+    border-radius: 3px;
+    color: var(--lexicalEditorColorPrimary);
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+
+  .theme__mentionFocused {
+    @extend .theme__mentionAt;
+    @extend .editor__Node_focused;
+  }
+  // theme end
+}
+
+.editor__toolbar {
+  display: flex;
+  gap: 2px;
+  padding: 4px;
+  border-bottom: 0;
+  border-bottom: 1px solid var(--lexicalEditorBorderColor);
+
+  &Item {
+    background-color: transparent;
+    border: none;
+    border-radius: 8px;
+    line-height: 1;
+    padding: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    color: #282828;
+
+    img {
+      width: 18px;
+      height: 18px;
+    }
+
+    &:hover {
+      background-color: #e9e8e7;
+    }
+
+    &_disabled {
+      color: #bbb;
+    }
+
+    &_actived {
+      background-color: #f1f2f3;
+    }
+  }
+
+  &Divider {
+    width: 1px;
+    background-color: #e9e8e7;
+    margin: 0 4px;
+  }
+
+  &FileInput {
+    display: none;
+  }
+}
+
+.editor__mentionsMenu {
+  padding: 6px;
+  box-shadow: 0 0 8px rgba(#000, 0.2);
+  border-radius: 6px;
+  background: #fff;
+  position: absolute;
+  z-index: 999999;
+  text-align: left;
+  max-height: 150px;
+  overflow: auto;
+  font-size: 13px;
+  margin: 0;
+
+  .editor__mentionsMenuItem {
+    list-style: none;
+    padding: 6px 8px;
+    border-radius: 3px;
+    background-color: #fff;
+    transition: background-color 0.3s;
+    cursor: pointer;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &.selected {
+      color: #3860f4;
+      background-color: rgba(#000, 0.05);
+    }
+
+    &:hover {
+      background-color: rgba(#000, 0.08);
+    }
+  }
+}
