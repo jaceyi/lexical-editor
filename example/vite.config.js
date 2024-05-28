@@ -5,14 +5,6 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 8000,
-    watch: {
-      ignored: ['!**/node_modules/lexical-editor/**']
-    }
-  },
-  optimizeDeps: {
-    force: true,
-    include: ['lexical-editor'],
-    needsInterop: ['lexical-editor']
+    port: 8000
   }
 });

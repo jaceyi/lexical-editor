@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
 import { CustomePlugin } from './CustomePlugin';
 
-import '../../style.css';
-import Editor, { useHTMLHandle } from '../../es';
+import 'lexical-editor/style.css';
+import Editor, { useHTMLHandle } from 'lexical-editor';
 
 const App = () => {
   const [{ value, onChange }, editorHandleProps] = useHTMLHandle({

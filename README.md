@@ -1,6 +1,6 @@
 # Lexical-Editor
 
-> 基于 [lexical](https://lexical.dev/) 开发的富文本编辑器
+> 基于 [lexical](https://lexical.dev/) 开发的富文本编辑器，注意：该项目禁支持可允许 ES6+ 浏览器。
 
 ## 使用方法
 

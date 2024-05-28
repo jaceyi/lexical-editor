@@ -157,4 +157,6 @@ const Editor: React.FC<EditorProps> = ({
   );
 };
 
+Editor.displayName = 'Editor';
+
 export default React.memo(Editor);

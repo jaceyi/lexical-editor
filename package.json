@@ -15,7 +15,7 @@
   ],
   "scripts": {
     "build": "yarn build:ts && yarn build:style",
-    "build:ts": "babel src --out-dir es --extensions '.ts,.tsx' && tsc --emitDeclarationOnly",
+    "build:ts": "yarn tsc",
     "build:style": "sass --no-source-map --style compressed src/index.scss style.css && yarn postcss --no-map style.css --use=autoprefixer --output=style.css",
     "watch": "chokidar \"src/**/*\" -c \"yarn build\"",
     "prettier": "prettier --write 'src/**/*.{js,jsx,scss,css}'",
@@ -29,12 +29,6 @@
     "lexical-beautiful-mentions": "^0.1.36"
   },
   "devDependencies": {
-    "@babel/cli": "^7.24.5",
-    "@babel/core": "^7.24.5",
-    "@babel/plugin-transform-runtime": "^7.24.3",
-    "@babel/preset-env": "^7.24.5",
-    "@babel/preset-react": "^7.24.1",
-    "@babel/preset-typescript": "^7.24.1",
     "@types/react": "^18.3.2",
     "@types/react-dom": "^18.3.0",
     "autoprefixer": "^10.4.19",
