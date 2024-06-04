@@ -2,7 +2,8 @@ import React, {
   useState,
   useEffect,
   useCallback,
-  ChangeEventHandler
+  ChangeEventHandler,
+  useRef
 } from 'react';
 import {
   $getSelection,
@@ -19,7 +20,7 @@ import {
   $getNearestNodeOfType
 } from '@lexical/utils';
 import { INSERT_IMAGE_COMMAND } from './ImagePlugin';
-import { INSERT_FILE_COMMAND } from './FilePlugin';
+import { INSERT_FILE_LINK_COMMAND } from './LinkPlugin';
 import {
   $isListNode,
   INSERT_ORDERED_LIST_COMMAND,
@@ -54,6 +55,8 @@ export interface ToolbarPluginProps {
 export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({
   config = {}
 }) => {
+  const { onUploadFile, mentions } = config;
+
   const [editor] = useLexicalComposerContext();
 
   const [blockType, setBlockType] = useState('paragraph');
@@ -98,6 +101,7 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({
       setIsUnderline(selection.hasFormat('underline'));
     }
   }, [editor]);
+
   useEffect(() => {
     return mergeRegister(
       editor.registerUpdateListener(({ editorState }) => {
@@ -110,7 +114,7 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({
 
   const handleInsertMention = () => {
     editor.update(() => {
-      const node = new TextNode(' @');
+      const node = new TextNode('@');
       $getSelection();
       $insertNodes([node]);
     });
@@ -119,10 +123,9 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({
   const onUpload: ChangeEventHandler<HTMLInputElement> = async e => {
     try {
       const files = e.target.files;
-      if (!files || !files.length || typeof config.onFileUpload !== 'function')
-        return;
+      if (!files || !files.length || typeof onUploadFile !== 'function') return;
       const file = files[0];
-      const image = await config.onFileUpload(file);
+      const image = await onUploadFile(file);
       if (!image) return;
       if (/^image\/.+$/.test(file.type)) {
         editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
@@ -130,13 +133,15 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({
           altText: image.name
         });
       } else {
-        editor.dispatchCommand(INSERT_FILE_COMMAND, {
+        editor.dispatchCommand(INSERT_FILE_LINK_COMMAND, {
           url: image.url,
           name: image.name
         });
       }
     } catch {}
   };
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   return (
     <div className="editor__toolbar">
@@ -151,7 +156,7 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({
             editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
           }
         }}
-        title='Numbered List'
+        title="Numbered List"
       >
         <OrderedListOutlined />
       </button>
@@ -166,7 +171,7 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({
             editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
           }
         }}
-        title='Bulleted List'
+        title="Bulleted List"
       >
         <UnorderedListOutlined />
       </button>
@@ -178,7 +183,7 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
         }}
-        title='Bold Text'
+        title="Bold Text"
       >
         <TextBoldOutlined />
       </button>
@@ -189,7 +194,7 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic');
         }}
-        title='Italic Text'
+        title="Italic Text"
       >
         <TextItalicOutlined />
       </button>
@@ -200,29 +205,38 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline');
         }}
-        title='Underline Text'
+        title="Underline Text"
       >
         <TextUnderlineOutlined />
       </button>
-      {Array.isArray(config.mentions) && (
-        <button className={classNameMaps.item} onClick={handleInsertMention} title="Mention">
-          <MentionOutlined />
-        </button>
-      )}
-      {typeof config.onFileUpload === 'function' && (
+      {typeof mentions === 'object' &&
+        mentions &&
+        (Array.isArray(mentions) || Array.isArray(mentions.mentions)) && (
+          <button
+            className={classNameMaps.item}
+            onClick={handleInsertMention}
+            title="Mention"
+          >
+            <MentionOutlined />
+          </button>
+        )}
+      {typeof onUploadFile === 'function' && (
         <>
           <div className={classNameMaps.divider} />
-          <label title="Upload File">
+          <button
+            className={classNameMaps.item}
+            title="Upload File"
+            onClick={() => fileInputRef.current?.click()}
+          >
             <input
+              ref={fileInputRef}
               type="file"
               value=""
               onChange={onUpload}
               className={classNameMaps.fileInput}
             />
-            <div className={classNameMaps.item}>
-              <FileOutlined />
-            </div>
-          </label>
+            <FileOutlined />
+          </button>
         </>
       )}
     </div>

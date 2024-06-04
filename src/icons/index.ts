@@ -1,5 +1,5 @@
 import React from 'react';
-export type IconComponentType = React.FC<React.SVGProps<SVGSVGElement>>
+export type IconComponentType = React.FC<React.SVGProps<SVGSVGElement>>;
 
 export { default as OrderedListOutlined } from './OrderedListOutlined';
 export { default as UnorderedListOutlined } from './UnorderedListOutlined';

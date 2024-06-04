@@ -26,12 +26,14 @@ export const ReadHTMLValuePlugin: React.FC<ReadHTMLValuePluginProps> = ({
       $getSelection();
       $insertNodes(nodes);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (typeof value !== 'string') {
       insertHTML(initialValue);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

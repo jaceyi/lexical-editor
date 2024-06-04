@@ -7,8 +7,15 @@
   "extends": [
     "plugin:prettier/recommended",
     "plugin:react/recommended",
-    "plugin:react-hooks/recommended"
+    "plugin:react-hooks/recommended",
+    "plugin:@typescript-eslint/recommended"
   ],
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
+  "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaFeatures": {
       "jsx": true
@@ -16,24 +23,15 @@
     "ecmaVersion": "latest",
     "sourceType": "module"
   },
-  "plugins": ["react-refresh", "prettier"],
-  "settings": {
-    "react": {
-      "version": "18"
-    }
-  },
   "rules": {
-    "react/react-in-jsx-scope": "off",
-    "react/display-name": "off",
+    "@typescript-eslint/consistent-type-definitions": ["error", "interface"],
+    "@typescript-eslint/no-explicit-any": "off",
     "array-bracket-newline": ["error", "consistent"],
     "brace-style": ["error", "1tbs"],
     "array-bracket-spacing": ["error", "never"],
     "quotes": ["error", "single"],
     "semi": ["error", "always"],
     "arrow-parens": 0,
-    "jsx-quotes": ["error", "prefer-double"],
-    "no-var": "error",
-    "no-undef": "error",
-    "no-unused-vars": "warn"
+    "jsx-quotes": ["error", "prefer-double"]
   }
 }

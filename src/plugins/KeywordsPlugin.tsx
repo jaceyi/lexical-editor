@@ -1,23 +1,23 @@
+import React, { useRef, useCallback, useEffect, useMemo } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { useLexicalTextEntity } from '@lexical/react/useLexicalTextEntity';
-import { useCallback, useEffect } from 'react';
 import { $createKeywordNode, KeywordNode } from '../nodes/KeywordNode';
 import { TextNode } from 'lexical';
 
 export interface KeywordsPluginProps {
-  keywords: string | string[] | RegExp;
+  keywords: string[] | RegExp;
 }
 
 export const KeywordsPlugin: React.FC<KeywordsPluginProps> = ({ keywords }) => {
-  let keywordRegex = null;
-  // array and string default to case insensitive
-  if (Array.isArray(keywords)) {
-    keywordRegex = new RegExp(`${keywords.join('|')}`, 'i');
-  } else if (typeof keywords === 'string') {
-    keywordRegex = new RegExp(keywords, 'i');
-  } else if (keywords instanceof RegExp) {
-    keywordRegex = new RegExp(keywords);
-  }
+  const keywordRegexRef = useRef<RegExp | undefined>();
+  keywordRegexRef.current = useMemo(() => {
+    if (Array.isArray(keywords)) {
+      // array default to case insensitive
+      return new RegExp(`${keywords.join('|')}`, 'i');
+    } else if (keywords instanceof RegExp) {
+      return new RegExp(keywords);
+    }
+  }, [keywords]);
 
   const [editor] = useLexicalComposerContext();
 
@@ -31,20 +31,24 @@ export const KeywordsPlugin: React.FC<KeywordsPluginProps> = ({ keywords }) => {
     return $createKeywordNode(textNode.getTextContent());
   }, []);
 
-  const getKeywordMatch = useCallback((text: string) => {
-    if (!keywordRegex) return null;
-    const matchArr = keywordRegex.exec(text);
+  const getKeywordMatch = useCallback(
+    (text: string) => {
+      const keywordRegex = keywordRegexRef.current;
+      if (!keywordRegex) return null;
+      const matchArr = keywordRegex.exec(text);
 
-    if (!matchArr) return null;
+      if (!matchArr) return null;
 
-    const keywordLength = matchArr[0].length;
-    const startOffset = matchArr.index;
-    const endOffset = startOffset + keywordLength;
-    return {
-      end: endOffset,
-      start: startOffset
-    };
-  }, []);
+      const keywordLength = matchArr[0].length;
+      const startOffset = matchArr.index;
+      const endOffset = startOffset + keywordLength;
+      return {
+        end: endOffset,
+        start: startOffset
+      };
+    },
+    [keywordRegexRef]
+  );
 
   useLexicalTextEntity(getKeywordMatch, KeywordNode, createKeywordNode);
 

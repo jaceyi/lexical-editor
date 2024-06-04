@@ -18,6 +18,7 @@ export interface ImageComponentProps {
   nodeKey: NodeKey;
   src: string;
   altText?: string;
+  className?: string;
 }
 
 export const ImageComponent: React.FC<ImageComponentProps> = ({

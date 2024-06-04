@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { Suspense } from 'react';
+import type { EditorConfig, Spread } from 'lexical';
 import {
   $applyNodeReplacement,
   DecoratorNode,
-  Spread,
-  EditorConfig,
   SerializedLexicalNode,
   NodeKey,
   DOMConversionMap,
@@ -35,17 +34,15 @@ export class ImageNode extends DecoratorNode<React.JSX.Element> {
 
   static clone(node: ImageNode) {
     return new ImageNode({
-      key: node.__key,
       src: node.__src,
       altText: node.__altText
     });
   }
 
   static importJSON(serializedNode: SerializedImageNode) {
-    const { src, altText } = serializedNode;
     return $createImageNode({
-      src,
-      altText
+      src: serializedNode.src,
+      altText: serializedNode.altText
     });
   }
 
@@ -83,12 +80,13 @@ export class ImageNode extends DecoratorNode<React.JSX.Element> {
   }
 
   createDOM(config: EditorConfig) {
-    const dom = document.createElement('span');
-    const className = config.theme.image;
-    if (className) {
-      dom.className = className;
+    const span = document.createElement('span');
+    const theme = config.theme;
+    const className = theme.image;
+    if (className !== undefined) {
+      span.className = className;
     }
-    return dom;
+    return span;
   }
 
   exportDOM() {
@@ -107,11 +105,13 @@ export class ImageNode extends DecoratorNode<React.JSX.Element> {
 
   decorate() {
     return (
-      <ImageComponent
-        src={this.__src}
-        altText={this.__altText}
-        nodeKey={this.getKey()}
-      />
+      <Suspense fallback={null}>
+        <ImageComponent
+          src={this.__src}
+          altText={this.__altText}
+          nodeKey={this.getKey()}
+        />
+      </Suspense>
     );
   }
 }

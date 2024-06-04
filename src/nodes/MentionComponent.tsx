@@ -12,18 +12,18 @@ import {
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 import { mergeRegister } from '@lexical/utils';
-import { $isFileNode } from './FileNode';
+import { $isMentionNode } from './MentionNode';
 
-export interface FileComponentProps {
+export interface MentionComponentProps {
   nodeKey: NodeKey;
-  url: string;
-  name: string;
+  text: string;
+  value: string | number;
 }
 
-export const FileComponent: React.FC<FileComponentProps> = ({
+export const MentionComponent: React.FC<MentionComponentProps> = ({
   nodeKey,
-  url,
-  name
+  text,
+  value
 }) => {
   const [editor] = useLexicalComposerContext();
   const [isSelected, setSelected, clearSelection] =
@@ -34,7 +34,7 @@ export const FileComponent: React.FC<FileComponentProps> = ({
         const event = payload;
         event.preventDefault();
         const node = $getNodeByKey(nodeKey);
-        if ($isFileNode(node)) {
+        if ($isMentionNode(node)) {
           node.remove();
           return true;
         }
@@ -52,12 +52,8 @@ export const FileComponent: React.FC<FileComponentProps> = ({
         payload => {
           const event = payload;
           if (event.target === nodeRef.current) {
-            if (event.shiftKey) {
-              setSelected(!isSelected);
-            } else {
-              clearSelection();
-              setSelected(true);
-            }
+            clearSelection();
+            setSelected(true);
             return true;
           }
 
@@ -79,14 +75,16 @@ export const FileComponent: React.FC<FileComponentProps> = ({
     return () => {
       unregister();
     };
-  }, [clearSelection, editor, isSelected, nodeKey, onDelete, setSelected]);
+  }, [clearSelection, editor, onDelete, setSelected]);
 
   return (
-    <span className={isSelected ? 'editor__Node_focused' : ''} ref={nodeRef}>
-      <span className="editor__pointerEvent_none">{name}</span>
-      <a target="_blank" rel="noopener noreferrer" href={url}>
-        点击查看
-      </a>
+    <span
+      tabIndex={1}
+      className={isSelected ? 'editor__Node_focused' : ''}
+      data-mention-value={value}
+      ref={nodeRef}
+    >
+      {text}
     </span>
   );
 };

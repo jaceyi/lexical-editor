@@ -52,7 +52,9 @@ export class KeywordNode extends TextNode {
   }
 }
 
-export const $isKeywordNode = (node: LexicalNode | null | undefined) => {
+export const $isKeywordNode = (
+  node: LexicalNode | null | undefined
+): node is KeywordNode => {
   return node instanceof KeywordNode;
 };
 

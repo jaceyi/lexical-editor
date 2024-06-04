@@ -28,7 +28,7 @@ export const useHTMLHandle = ({ initialValue = '' }) => {
       }
     }),
     [outputValue, setInputState]
-  )
+  );
 
   /**
    * 编辑器使用的 Props
@@ -41,14 +41,9 @@ export const useHTMLHandle = ({ initialValue = '' }) => {
       onChange: setOutputValue,
       forceUpdateValueKey: forceKey
     }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [forceKey, inputValue, setOutputValue]
-  )
+  );
 
-  return [
-    outputProps,
-    editorProps
-  ] as [
-    typeof outputProps,
-    typeof editorProps
-  ];
+  return [outputProps, editorProps] as [typeof outputProps, typeof editorProps];
 };

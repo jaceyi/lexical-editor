@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
     "target": "ES6",
-    "module": "ESNext",
+    "module": "CommonJS",
     "lib": ["DOM", "ESNext"],
     "baseUrl": "./",
     "sourceMap": false,
     "esModuleInterop": true,
     "declaration": true,
-    "outDir": "es",
+    "outDir": "lib",
     "jsx": "react",
     "isolatedModules": true,
     "strict": true,

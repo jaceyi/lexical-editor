@@ -1,15 +1,16 @@
+import React, { useEffect } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { DRAG_DROP_PASTE } from '@lexical/rich-text';
 import { COMMAND_PRIORITY_LOW } from 'lexical';
-import React, { useEffect } from 'react';
 import { INSERT_IMAGE_COMMAND } from './ImagePlugin';
+import type { UploadFile } from '../types';
 
 export interface DragDropPastePluginProps {
-  onFileUpload: (file: File) => Promise<{ url: string; name: string }>;
+  onUploadFile: UploadFile;
 }
 
 export const DragDropPastePlugin: React.FC<DragDropPastePluginProps> = ({
-  onFileUpload
+  onUploadFile
 }) => {
   const [editor] = useLexicalComposerContext();
 
@@ -17,11 +18,11 @@ export const DragDropPastePlugin: React.FC<DragDropPastePluginProps> = ({
     return editor.registerCommand(
       DRAG_DROP_PASTE,
       files => {
-        if (typeof onFileUpload === 'function') {
+        if (typeof onUploadFile === 'function') {
           (async () => {
             for (const file of files) {
               try {
-                const image = await onFileUpload(file);
+                const image = await onUploadFile(file);
                 editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
                   src: image.url,
                   altText: image.name
@@ -35,7 +36,7 @@ export const DragDropPastePlugin: React.FC<DragDropPastePluginProps> = ({
       },
       COMMAND_PRIORITY_LOW
     );
-  }, [editor, onFileUpload]);
+  }, [editor, onUploadFile]);
 
   return null;
 };

@@ -9,6 +9,7 @@
 ### 示例
 
 ```jsx
+import 'lexical-editor/style.css';
 import Editor, { useHTMLHandle } from 'lexical-editor';
 
 const App = () => {
@@ -16,7 +17,7 @@ const App = () => {
     initialValue: 'Hello World!'
   });
 
-  const handleFileUpload = useCallback(file => {
+  const handleUploadFile = useCallback(file => {
     return new Promise(resolve => {
       setTimeout(() => {
         const reader = new FileReader();
@@ -38,9 +39,9 @@ const App = () => {
       <Editor
         namespace="ReasonEditor"
         config={{
-          onFileUpload: handleFileUpload,
-          mentions: ['Jace'],
-          keywords: ['Hean']
+          onUploadFile: handleUploadFile,
+          mentions: ['Jace', 'Liliana', 'Chandra', 'Gideon', 'Nissa', 'Ajani'],
+          keywords: ['editor']
         }}
         {...editorHandleProps}
       />
