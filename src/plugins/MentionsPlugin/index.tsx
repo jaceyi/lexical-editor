@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { LexicalTypeaheadMenuPlugin } from '@lexical/react/LexicalTypeaheadMenuPlugin';
-import { TextNode, $insertNodes } from 'lexical';
+import { TextNode } from 'lexical';
 import { useCallback, useMemo, useState } from 'react';
 import { $createMentionNode } from '../../nodes/MentionNode';
 import {
@@ -32,11 +32,11 @@ export const MentionsPlugin: React.FC<MentionsPluginProps> = ({
   validCharsLength = 50,
   suggestionListLength = 5
 }) => {
-  const _trigger = Array.isArray(trigger) ? trigger.join('') : trigger;
+  const _trigger = Array.isArray(trigger) ? trigger.join('|') : trigger;
   const AtMentionsRegex = useMemo(
     () =>
       new RegExp(
-        `([${_trigger}])((?:[^${_trigger}\\s]){0,${validCharsLength}})$`
+        `(^|\\s)(${_trigger})((?:[^ ${_trigger}\\s]){0,${validCharsLength}})$`
       ),
     [_trigger, validCharsLength]
   );
@@ -48,8 +48,9 @@ export const MentionsPlugin: React.FC<MentionsPluginProps> = ({
   const options = useMemo(() => {
     if (!mentions.length || !queryString) return [];
     const match = AtMentionsRegex.exec(queryString);
+
     if (!match) return [];
-    const [, trigger, matchingString] = match;
+    const [, , trigger, inputText] = match;
     return mentions
       .filter(mention => {
         let text = '';
@@ -58,9 +59,7 @@ export const MentionsPlugin: React.FC<MentionsPluginProps> = ({
         } else {
           text = mention;
         }
-        return String(text)
-          .toLowerCase()
-          .includes(matchingString.toLowerCase());
+        return String(text).toLowerCase().includes(inputText.toLowerCase());
       })
       .map(mention => new MentionOption(mention, trigger))
       .slice(0, suggestionListLength);
@@ -81,7 +80,6 @@ export const MentionsPlugin: React.FC<MentionsPluginProps> = ({
         if (nodeToReplace) {
           nodeToReplace.replace(mentionNode);
         }
-        $insertNodes([new TextNode(' ')]);
         closeMenu();
       });
     },
@@ -94,11 +92,11 @@ export const MentionsPlugin: React.FC<MentionsPluginProps> = ({
       const match = AtMentionsRegex.exec(text);
 
       if (match !== null) {
-        const matchingString = match[2];
+        const matchingString = match[2] + match[3];
         return {
-          leadOffset: match.index,
-          matchingString: match[1] + matchingString,
-          replaceableString: match[0]
+          leadOffset: match.index + match[1].length,
+          matchingString,
+          replaceableString: matchingString
         };
       }
       return null;

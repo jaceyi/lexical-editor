@@ -1,18 +1,16 @@
 import React from 'react';
-import { $generateHtmlFromNodes } from '@lexical/html';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { INSERT_LINK_COMMAND } from '../../src/plugins/LinkPlugin';
 
-export interface CustomePluginProps {
-  type: string;
-}
-
-export const CustomePlugin: React.FC<CustomePluginProps> = ({ type }) => {
+export const CustomePlugin = () => {
   const [editor] = useLexicalComposerContext();
 
-  editor.update(() => {
-    const html = $generateHtmlFromNodes(editor, null);
-    console.log(type, html);
-  });
+  const insertLink = () => {
+    editor.dispatchCommand(INSERT_LINK_COMMAND, {
+      url: 'https://jaceyi.com',
+      text: "Jace's Blog"
+    });
+  };
 
-  return null;
+  return <button onClick={insertLink}>插入链接</button>;
 };

@@ -1,16 +1,13 @@
 import React, { useCallback } from 'react';
 import { CustomePlugin } from './CustomePlugin';
 
-// import 'lexical-editor/style.css';
-// import Editor, { useHTMLHandle } from 'lexical-editor';
-
-import '../../style.css';
+import '../../src/index.scss';
 import Editor, { useHTMLHandle } from '../../src';
 
 const App = () => {
   const [{ value, onChange }, editorHandleProps] = useHTMLHandle({
     initialValue:
-      '<p dir="ltr"><span style="white-space: pre-wrap;">Hello World! </span><span data-lexical-mention="true" data-lexical-mention-trigger="@" lexical-mention-value="Jace">@Jace</span><span style="white-space: pre-wrap;"> </span><span class="theme__textKeyword" style="white-space: pre-wrap;">editor</span></p><p><img src="https://lexical.dev/img/favicon.ico"></p>'
+      '<p dir="ltr"><span style="white-space: pre-wrap;">Hello World! </span><span data-lexical-mention="true" data-lexical-mention-trigger="@" data-lexical-mention-value="Jace">@Jace</span><span style="white-space: pre-wrap;"> </span><span class="theme__textKeyword" style="white-space: pre-wrap;">editor</span></p>'
   });
 
   const handleUploadFile = useCallback(file => {
@@ -39,21 +36,17 @@ const App = () => {
   return (
     <div>
       <Editor
-        namespace="ReasonEditor"
+        namespace="Editor"
+        autoFocus={false}
         config={{
           onUploadFile: handleUploadFile,
           mentions: ['Jace', 'Liliana', 'Chandra', 'Gideon', 'Nissa', 'Ajani'],
           keywords: ['editor']
         }}
-        plugins={[
-          {
-            Component: CustomePlugin,
-            key: 'CustomePlugin',
-            props: { type: 'inline' }
-          }
-        ]}
         {...editorHandleProps}
-      />
+      >
+        <CustomePlugin />
+      </Editor>
       <button
         onClick={() => {
           onChange('你好 世界！');
@@ -61,6 +54,14 @@ const App = () => {
       >
         Set HTML
       </button>
+      <Editor
+        namespace="ReadEditor"
+        isEditable={false}
+        value={value}
+        config={{
+          keywords: ['editor']
+        }}
+      />
     </div>
   );
 };

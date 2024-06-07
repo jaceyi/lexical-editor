@@ -1,17 +1,11 @@
-import React, {
-  CSSProperties,
-  ComponentType,
-  useCallback,
-  useMemo
-} from 'react';
+import React, { CSSProperties, ReactNode, useCallback, useMemo } from 'react';
 import {
   LexicalComposer,
   InitialConfigType
 } from '@lexical/react/LexicalComposer';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
-import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
+import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
-import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
@@ -27,6 +21,7 @@ import {
   MentionsPluginProps,
   MentionsThemeClasses
 } from './plugins/MentionsPlugin';
+import { AutoFocusPlugin } from './plugins/AutoFocusPlugin';
 import baseNodes from './nodes';
 import { $generateHtmlFromNodes } from '@lexical/html';
 import classNames from 'classnames';
@@ -41,12 +36,6 @@ export interface EditorConfig {
   keywords?: KeywordsPluginProps['keywords'];
 }
 
-export interface Plugin {
-  Component: ComponentType<any>;
-  key: string;
-  props?: Record<string, any>;
-}
-
 export type EditorThemeClasses = LexicalEditorThemeClasses & {
   mentions?: MentionsThemeClasses;
 };
@@ -58,16 +47,15 @@ export interface EditorProps {
   initialValue?: string;
   value?: string;
   onChange?: (value: string) => void;
-  forceUpdateValueKey?: string | number;
   autoFocus?: boolean;
   placeholder?: string;
   nodes?: InitialConfigType['nodes'];
-  plugins?: Plugin[];
   config?: EditorConfig;
   theme?: EditorThemeClasses;
   className?: string;
   style?: CSSProperties;
   contentStyle?: CSSProperties;
+  children?: ReactNode;
 }
 
 const Editor: React.FC<EditorProps> = ({
@@ -77,16 +65,15 @@ const Editor: React.FC<EditorProps> = ({
   initialValue,
   value,
   onChange,
-  forceUpdateValueKey,
   autoFocus = true,
   placeholder = '请输入内容',
   nodes = [],
-  plugins = [],
   config = {},
   theme = {},
   className,
   style,
-  contentStyle
+  contentStyle,
+  children
 }) => {
   const handleChange = useCallback(
     (_: EditorState, editor: LexicalEditor) => {
@@ -117,6 +104,7 @@ const Editor: React.FC<EditorProps> = ({
         <LexicalComposer
           initialConfig={{
             namespace,
+            editable: isEditable,
             onError: console.log,
             nodes: [...baseNodes, ...nodes],
             theme: {
@@ -141,11 +129,7 @@ const Editor: React.FC<EditorProps> = ({
         >
           <EditablePlugn isEditable={isEditable} />
           {mode === 'html' && (
-            <ReadHTMLValuePlugin
-              initialValue={initialValue}
-              value={value}
-              forceUpdateValueKey={forceUpdateValueKey}
-            />
+            <ReadHTMLValuePlugin initialValue={initialValue} value={value} />
           )}
           {isEditable ? <ToolbarPlugin config={config} /> : null}
           <div className="editor__main">
@@ -166,7 +150,7 @@ const Editor: React.FC<EditorProps> = ({
               />
             </div>
             <OnChangePlugin onChange={handleChange} ignoreSelectionChange />
-            {autoFocus && <AutoFocusPlugin />}
+            <AutoFocusPlugin autoFocus={autoFocus} />
             <HistoryPlugin />
             <ImagePlugin />
             <ListPlugin />
@@ -187,9 +171,7 @@ const Editor: React.FC<EditorProps> = ({
             {config.keywords !== undefined && (
               <KeywordsPlugin keywords={config.keywords} />
             )}
-            {plugins.map(({ Component, props, key }) => (
-              <Component key={key} {...props} />
-            ))}
+            {children}
           </div>
         </LexicalComposer>
       </div>

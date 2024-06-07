@@ -122,9 +122,10 @@ export class MentionNode extends DecoratorNode<React.JSX.Element> {
   decorate() {
     return (
       <MentionComponent
+        nodeKey={this.getKey()}
+        trigger={this.__trigger}
         text={this.__text}
         value={this.__value}
-        nodeKey={this.getKey()}
       />
     );
   }

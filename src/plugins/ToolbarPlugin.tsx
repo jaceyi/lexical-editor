@@ -14,13 +14,9 @@ import {
   TextNode
 } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import {
-  mergeRegister,
-  $findMatchingParent,
-  $getNearestNodeOfType
-} from '@lexical/utils';
+import { $findMatchingParent, $getNearestNodeOfType } from '@lexical/utils';
 import { INSERT_IMAGE_COMMAND } from './ImagePlugin';
-import { INSERT_FILE_LINK_COMMAND } from './LinkPlugin';
+import { INSERT_LINK_COMMAND } from './LinkPlugin';
 import {
   $isListNode,
   INSERT_ORDERED_LIST_COMMAND,
@@ -39,6 +35,7 @@ import {
   MentionOutlined,
   FileOutlined
 } from '../icons';
+import { $getSelectionPrevNextState } from '../utils';
 
 const classNameMaps = {
   item: 'editor__toolbarItem',
@@ -103,20 +100,24 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({
   }, [editor]);
 
   useEffect(() => {
-    return mergeRegister(
-      editor.registerUpdateListener(({ editorState }) => {
-        editorState.read(() => {
-          $updateToolbar();
-        });
-      })
-    );
+    return editor.registerUpdateListener(({ editorState }) => {
+      editorState.read(() => {
+        $updateToolbar();
+      });
+    });
   }, [$updateToolbar, editor]);
 
   const handleInsertMention = () => {
     editor.update(() => {
-      const node = new TextNode('@');
-      $getSelection();
-      $insertNodes([node]);
+      let space = '';
+      const selectionState = $getSelectionPrevNextState();
+      if (
+        !selectionState.prevTextIsSpace &&
+        !selectionState.startPointIsFirst
+      ) {
+        space = ' ';
+      }
+      $insertNodes([new TextNode(`${space}@`)]);
     });
   };
 
@@ -133,9 +134,9 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({
           altText: image.name
         });
       } else {
-        editor.dispatchCommand(INSERT_FILE_LINK_COMMAND, {
+        editor.dispatchCommand(INSERT_LINK_COMMAND, {
           url: image.url,
-          name: image.name
+          text: image.name
         });
       }
     } catch {}

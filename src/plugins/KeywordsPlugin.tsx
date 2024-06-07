@@ -35,12 +35,12 @@ export const KeywordsPlugin: React.FC<KeywordsPluginProps> = ({ keywords }) => {
     (text: string) => {
       const keywordRegex = keywordRegexRef.current;
       if (!keywordRegex) return null;
-      const matchArr = keywordRegex.exec(text);
+      const match = keywordRegex.exec(text);
 
-      if (!matchArr) return null;
+      if (!match) return null;
 
-      const keywordLength = matchArr[0].length;
-      const startOffset = matchArr.index;
+      const keywordLength = match[0].length;
+      const startOffset = match.index;
       const endOffset = startOffset + keywordLength;
       return {
         end: endOffset,

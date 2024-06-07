@@ -1,6 +1,6 @@
 {
   "name": "lexical-editor",
-  "version": "1.5.5",
+  "version": "1.5.8",
   "license": "MIT",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -17,15 +17,16 @@
     "build:ts": "yarn tsc",
     "build:style": "sass --no-source-map --style compressed src/index.scss style.css && yarn postcss --no-map style.css --use=autoprefixer --output=style.css",
     "watch": "chokidar \"src/**/*\" -c \"yarn build\"",
+    "watch:ts": "chokidar \"src/**/*.{ts,tsx}\" -c \"yarn build:ts\"",
     "watch:style": "chokidar \"src/**/*.scss\" -c \"yarn build:style\"",
     "prettier": "prettier --write 'src/**/*.{ts,tsx,js,jsx,scss,css}'",
     "lint": "eslint 'src/**/*.{ts,tsx,js,jsx}' --quiet --fix"
   },
   "dependencies": {
-    "@lexical/react": "^0.14.5",
-    "@lexical/utils": "^0.14.5",
+    "@lexical/react": "^0.16.0",
+    "@lexical/utils": "^0.16.0",
     "classnames": "^2.5.1",
-    "lexical": "^0.14.5"
+    "lexical": "^0.16.0"
   },
   "devDependencies": {
     "@types/react": "^18.3.2",

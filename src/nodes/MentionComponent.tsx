@@ -16,12 +16,14 @@ import { $isMentionNode } from './MentionNode';
 
 export interface MentionComponentProps {
   nodeKey: NodeKey;
+  trigger: string;
   text: string;
   value: string | number;
 }
 
 export const MentionComponent: React.FC<MentionComponentProps> = ({
   nodeKey,
+  trigger,
   text,
   value
 }) => {
@@ -46,7 +48,7 @@ export const MentionComponent: React.FC<MentionComponentProps> = ({
 
   const nodeRef = useRef(null);
   useEffect(() => {
-    const unregister = mergeRegister(
+    return mergeRegister(
       editor.registerCommand(
         CLICK_COMMAND,
         payload => {
@@ -72,16 +74,13 @@ export const MentionComponent: React.FC<MentionComponentProps> = ({
         COMMAND_PRIORITY_LOW
       )
     );
-    return () => {
-      unregister();
-    };
   }, [clearSelection, editor, onDelete, setSelected]);
 
   return (
     <span
-      tabIndex={1}
       className={isSelected ? 'editor__Node_focused' : ''}
-      data-mention-value={value}
+      data-lexical-mention-trigger={trigger}
+      data-lexical-mention-value={value}
       ref={nodeRef}
     >
       {text}

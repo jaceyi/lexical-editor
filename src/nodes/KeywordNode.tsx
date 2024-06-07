@@ -48,7 +48,7 @@ export class KeywordNode extends TextNode {
   }
 
   isTextEntity() {
-    return true;
+    return false;
   }
 }
 

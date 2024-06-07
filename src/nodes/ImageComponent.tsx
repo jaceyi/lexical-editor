@@ -48,7 +48,7 @@ export const ImageComponent: React.FC<ImageComponentProps> = ({
 
   const nodeRef = useRef(null);
   useEffect(() => {
-    const unregister = mergeRegister(
+    return mergeRegister(
       editor.registerCommand(
         CLICK_COMMAND,
         payload => {
@@ -78,9 +78,6 @@ export const ImageComponent: React.FC<ImageComponentProps> = ({
         COMMAND_PRIORITY_LOW
       )
     );
-    return () => {
-      unregister();
-    };
   }, [clearSelection, editor, isSelected, nodeKey, onDelete, setSelected]);
 
   return (

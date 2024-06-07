@@ -1,46 +1,39 @@
-import React, { useEffect, useCallback } from 'react';
-import { $selectAll, $getSelection, $insertNodes } from 'lexical';
+import React, { useEffect, useRef } from 'react';
+import { $selectAll, $insertNodes } from 'lexical';
 import { $generateNodesFromDOM } from '@lexical/html';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 
 export interface ReadHTMLValuePluginProps {
   initialValue?: string;
-  value?: string | null;
-  forceUpdateValueKey?: string | number;
+  value?: string;
 }
 
 export const ReadHTMLValuePlugin: React.FC<ReadHTMLValuePluginProps> = ({
-  initialValue = '',
-  value,
-  forceUpdateValueKey
+  initialValue,
+  value
 }) => {
   const [editor] = useLexicalComposerContext();
 
-  const insertHTML = useCallback((html: string) => {
+  const isMountRef = useRef(false);
+  useEffect(() => {
+    let html = '';
+    if (isMountRef.current) {
+      html = value ?? '';
+    } else {
+      html = value ?? initialValue ?? '';
+    }
     editor.update(() => {
       const parser = new DOMParser();
       const dom = parser.parseFromString(html, 'text/html');
       const nodes = $generateNodesFromDOM(editor, dom);
 
       $selectAll();
-      $getSelection();
       $insertNodes(nodes);
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
-  useEffect(() => {
-    if (typeof value !== 'string') {
-      insertHTML(initialValue);
-    }
+    isMountRef.current = true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    if (typeof value === 'string') {
-      insertHTML(value);
-    }
-  }, [insertHTML, value, forceUpdateValueKey]);
+  }, [value]);
 
   return null;
 };

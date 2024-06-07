@@ -1,10 +1,7 @@
 import { useState, useMemo } from 'react';
 
 export const useHTMLHandle = ({ initialValue = '' }) => {
-  const [{ inputValue, forceKey }, setInputState] = useState({
-    inputValue: initialValue,
-    forceKey: 0 // 强制更新编辑器值的 Key
-  });
+  const [inputValue, setInputValue] = useState(initialValue);
   const [outputValue, setOutputValue] = useState(initialValue);
 
   /**
@@ -20,14 +17,9 @@ export const useHTMLHandle = ({ initialValue = '' }) => {
       /**
        * 调用此方法可以设置编辑器值
        */
-      onChange: (value: string) => {
-        setInputState(({ forceKey }) => ({
-          inputValue: value,
-          forceKey: forceKey + 1
-        }));
-      }
+      onChange: setInputValue
     }),
-    [outputValue, setInputState]
+    [outputValue, setInputValue]
   );
 
   /**
@@ -38,11 +30,10 @@ export const useHTMLHandle = ({ initialValue = '' }) => {
     () => ({
       initialValue,
       value: inputValue,
-      onChange: setOutputValue,
-      forceUpdateValueKey: forceKey
+      onChange: setOutputValue
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [forceKey, inputValue, setOutputValue]
+    [inputValue, setOutputValue]
   );
 
   return [outputProps, editorProps] as [typeof outputProps, typeof editorProps];
