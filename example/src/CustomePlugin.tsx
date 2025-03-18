@@ -7,8 +7,8 @@ export const CustomePlugin = () => {
 
   const insertLink = () => {
     editor.dispatchCommand(INSERT_LINK_COMMAND, {
-      url: 'https://jaceyi.com',
-      text: "Jace's Blog"
+      url: 'https://google.com',
+      text: "Google"
     });
   };
 

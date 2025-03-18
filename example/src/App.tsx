@@ -10,7 +10,7 @@ const App = () => {
       '<p dir="ltr"><span style="white-space: pre-wrap;">Hello World! </span><span data-lexical-mention="true" data-lexical-mention-trigger="@" data-lexical-mention-value="Jace">@Jace</span><span style="white-space: pre-wrap;"> </span><span class="theme__textKeyword" style="white-space: pre-wrap;">editor</span></p>'
   });
 
-  const handleUploadFile = useCallback(file => {
+  const handleUploadFile = useCallback((file: File) => {
     if (file.size > 1024 * 1024 * 20) {
       console.log('文件过大，最大可上传20M的文件。');
       return Promise.reject();

@@ -40,15 +40,15 @@ export class KeywordNode extends TextNode {
   }
 
   canInsertTextBefore() {
-    return false;
+    return true;
   }
 
   canInsertTextAfter() {
-    return false;
+    return true;
   }
 
   isTextEntity() {
-    return false;
+    return true;
   }
 }
 
