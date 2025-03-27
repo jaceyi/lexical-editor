@@ -1,6 +1,14 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
+import { EditorRef } from '../Editor';
 
-export const useHTMLHandle = ({ initialValue = '' }) => {
+interface UseHTMLHandleOptions {
+  initialValue?: string;
+}
+
+export const useHTMLHandle = ({
+  initialValue = ''
+}: UseHTMLHandleOptions = {}) => {
+  const editorRef = useRef<EditorRef>(null);
   const [inputValue, setInputValue] = useState(initialValue);
   const [outputValue, setOutputValue] = useState(initialValue);
 
@@ -28,6 +36,7 @@ export const useHTMLHandle = ({ initialValue = '' }) => {
    */
   const editorProps = useMemo(
     () => ({
+      ref: editorRef,
       initialValue,
       value: inputValue,
       onChange: setOutputValue
@@ -36,5 +45,9 @@ export const useHTMLHandle = ({ initialValue = '' }) => {
     [inputValue, setOutputValue]
   );
 
-  return [outputProps, editorProps] as [typeof outputProps, typeof editorProps];
+  return [outputProps, editorProps, editorRef] as [
+    typeof outputProps,
+    typeof editorProps,
+    typeof editorRef
+  ];
 };

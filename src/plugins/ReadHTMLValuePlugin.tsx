@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { $selectAll, $insertNodes } from 'lexical';
+import { $selectAll, $insertNodes, $getRoot } from 'lexical';
 import { $generateNodesFromDOM } from '@lexical/html';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 
@@ -22,13 +22,19 @@ export const ReadHTMLValuePlugin: React.FC<ReadHTMLValuePluginProps> = ({
     } else {
       html = value ?? initialValue ?? '';
     }
+
     editor.update(() => {
       const parser = new DOMParser();
       const dom = parser.parseFromString(html, 'text/html');
       const nodes = $generateNodesFromDOM(editor, dom);
-
-      $selectAll();
-      $insertNodes(nodes);
+      if (nodes.length) {
+        $selectAll();
+        $insertNodes(nodes);
+      } else {
+        const root = $getRoot();
+        root.clear(); // 清空编辑器内容
+        $insertNodes([]); // 防止编辑器内容为空时的报错
+      }
     });
 
     isMountRef.current = true;

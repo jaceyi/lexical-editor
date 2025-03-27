@@ -1,14 +1,20 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { CustomePlugin } from './CustomePlugin';
+import { CLEAR_EDITOR_COMMAND } from 'lexical';
 
 import '../../src/index.scss';
 import Editor, { useHTMLHandle } from '../../src';
 
 const App = () => {
-  const [{ value, onChange }, editorHandleProps] = useHTMLHandle({
-    initialValue:
-      '<p dir="ltr"><span style="white-space: pre-wrap;">Hello World! </span><span data-lexical-mention="true" data-lexical-mention-trigger="@" data-lexical-mention-value="Jace">@Jace</span><span style="white-space: pre-wrap;"> </span><span class="theme__textKeyword" style="white-space: pre-wrap;">editor</span></p>'
+  const [{ value, onChange }, editorHandleProps, editorRef] = useHTMLHandle({
+    initialValue: 'Initial Value'
   });
+
+  useEffect(() => {
+    setTimeout(() => {
+      onChange('Loaded Value');
+    }, 2000);
+  }, []);
 
   const handleUploadFile = useCallback((file: File) => {
     if (file.size > 1024 * 1024 * 20) {
@@ -49,10 +55,14 @@ const App = () => {
       </Editor>
       <button
         onClick={() => {
-          onChange('你好 世界！');
+          onChange('');
+          editorRef.current?.editor?.dispatchCommand(
+            CLEAR_EDITOR_COMMAND,
+            undefined
+          );
         }}
       >
-        Set HTML
+        清空内容并清空历史记录
       </button>
       <Editor
         namespace="ReadEditor"

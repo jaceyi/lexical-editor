@@ -19,7 +19,6 @@ export type SerializedImageNode = Spread<
 >;
 
 export interface ImagePayload {
-  key?: NodeKey;
   src: string;
   altText: string;
 }
@@ -33,10 +32,13 @@ export class ImageNode extends DecoratorNode<React.JSX.Element> {
   }
 
   static clone(node: ImageNode) {
-    return new ImageNode({
-      src: node.__src,
-      altText: node.__altText
-    });
+    return new ImageNode(
+      {
+        src: node.__src,
+        altText: node.__altText
+      },
+      node.__key
+    );
   }
 
   static importJSON(serializedNode: SerializedImageNode) {
@@ -63,7 +65,7 @@ export class ImageNode extends DecoratorNode<React.JSX.Element> {
     };
   }
 
-  constructor({ key, src, altText }: ImagePayload) {
+  constructor({ src, altText }: ImagePayload, key?: NodeKey) {
     super(key);
     this.__src = src;
     this.__altText = altText;

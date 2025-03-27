@@ -20,7 +20,6 @@ export type SerializedMentionNode = Spread<
 >;
 
 export interface MentionPayload {
-  key?: NodeKey;
   trigger: string;
   text: string;
   value: string | number;
@@ -36,11 +35,14 @@ export class MentionNode extends DecoratorNode<React.JSX.Element> {
   }
 
   static clone(node: MentionNode): MentionNode {
-    return new MentionNode({
-      trigger: node.__trigger,
-      value: node.__value,
-      text: node.__text
-    });
+    return new MentionNode(
+      {
+        trigger: node.__trigger,
+        value: node.__value,
+        text: node.__text
+      },
+      node.__key
+    );
   }
 
   static importJSON(serializedNode: SerializedMentionNode) {
@@ -72,7 +74,7 @@ export class MentionNode extends DecoratorNode<React.JSX.Element> {
     };
   }
 
-  constructor({ key, trigger, text, value }: MentionPayload) {
+  constructor({ trigger, text, value }: MentionPayload, key?: NodeKey) {
     super(key);
     this.__trigger = trigger;
     this.__value = value;

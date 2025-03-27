@@ -1,4 +1,11 @@
-import React, { CSSProperties, ReactNode, useCallback, useMemo } from 'react';
+import React, {
+  CSSProperties,
+  ReactNode,
+  useCallback,
+  useMemo,
+  useRef,
+  useImperativeHandle
+} from 'react';
 import {
   LexicalComposer,
   InitialConfigType
@@ -9,6 +16,7 @@ import { ListPlugin } from '@lexical/react/LexicalListPlugin';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
+import { EditorRefPlugin } from '@lexical/react/LexicalEditorRefPlugin';
 import { EditablePlugn } from './plugins/EditablePlugn';
 import { ReadHTMLValuePlugin } from './plugins/ReadHTMLValuePlugin';
 import { ToolbarPlugin } from './plugins/ToolbarPlugin';
@@ -58,23 +66,30 @@ export interface EditorProps {
   children?: ReactNode;
 }
 
-const Editor: React.FC<EditorProps> = ({
-  mode = 'html',
-  namespace,
-  isEditable = true,
-  initialValue,
-  value,
-  onChange,
-  autoFocus = true,
-  placeholder = '请输入内容',
-  nodes = [],
-  config = {},
-  theme = {},
-  className,
-  style,
-  contentStyle,
-  children
-}) => {
+export interface EditorRef {
+  editor: LexicalEditor | null;
+}
+
+const Editor = React.forwardRef<EditorRef, EditorProps>(function Editor(
+  {
+    mode = 'html',
+    namespace,
+    isEditable = true,
+    initialValue,
+    value,
+    onChange,
+    autoFocus = true,
+    placeholder = '请输入内容',
+    nodes = [],
+    config = {},
+    theme = {},
+    className,
+    style,
+    contentStyle,
+    children
+  },
+  ref
+) {
   const handleChange = useCallback(
     (_: EditorState, editor: LexicalEditor) => {
       if (typeof onChange === 'function') {
@@ -90,6 +105,11 @@ const Editor: React.FC<EditorProps> = ({
   );
 
   const { text, mentions, ...themeRest } = theme;
+
+  const editorRef = useRef<LexicalEditor>(null);
+  useImperativeHandle(ref, () => ({
+    editor: editorRef.current
+  }));
 
   return (
     <div className={EDITOR_CLASSNAME_NAMESPACE}>
@@ -150,6 +170,7 @@ const Editor: React.FC<EditorProps> = ({
               />
             </div>
             <OnChangePlugin onChange={handleChange} ignoreSelectionChange />
+            <EditorRefPlugin editorRef={editorRef} />
             <AutoFocusPlugin autoFocus={autoFocus} />
             <HistoryPlugin />
             <ImagePlugin />
@@ -177,6 +198,6 @@ const Editor: React.FC<EditorProps> = ({
       </div>
     </div>
   );
-};
+});
 
 export default React.memo(Editor);
