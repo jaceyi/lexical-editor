@@ -12,7 +12,7 @@ const App = () => {
 
   useEffect(() => {
     setTimeout(() => {
-      onChange('Loaded Value');
+      onChange('Loaded Value <br/> two lines');
     }, 2000);
   }, []);
 
@@ -43,7 +43,7 @@ const App = () => {
     <div>
       <Editor
         namespace="Editor"
-        autoFocus={false}
+        autoFocus={true}
         config={{
           onUploadFile: handleUploadFile,
           mentions: ['Jace', 'Liliana', 'Chandra', 'Gideon', 'Nissa', 'Ajani'],

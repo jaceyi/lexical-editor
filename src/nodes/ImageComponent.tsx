@@ -79,10 +79,11 @@ export const ImageComponent: React.FC<ImageComponentProps> = ({
       )
     );
   }, [clearSelection, editor, isSelected, nodeKey, onDelete, setSelected]);
+  const isEditable = editor.isEditable();
 
   return (
     <img
-      className={isSelected ? 'editor__Node_focused' : ''}
+      className={isEditable && isSelected ? 'editor__Node_focused' : ''}
       ref={nodeRef}
       src={src}
       alt={altText}

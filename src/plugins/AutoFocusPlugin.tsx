@@ -1,24 +1,18 @@
-import React, { useEffect } from 'react';
+import React, { useLayoutEffect } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { EditorFocusOptions } from 'lexical/LexicalEditor';
 
 interface AutoFocusPluginProps {
   autoFocus: boolean;
-  defaultSelection?: EditorFocusOptions['defaultSelection'];
 }
 
 export const AutoFocusPlugin: React.FC<AutoFocusPluginProps> = ({
-  autoFocus,
-  defaultSelection
+  autoFocus
 }) => {
   const [editor] = useLexicalComposerContext();
 
-  useEffect(() => {
-    if (editor.isEditable()) {
-      setTimeout(() => editor.blur());
-      if (autoFocus) {
-        setTimeout(() => editor.focus(undefined, { defaultSelection }));
-      }
+  useLayoutEffect(() => {
+    if (editor.isEditable() && autoFocus) {
+      editor.focus();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
