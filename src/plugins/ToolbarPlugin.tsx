@@ -108,17 +108,22 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({
   }, [$updateToolbar, editor]);
 
   const handleInsertMention = () => {
-    editor.update(() => {
-      let space = '';
-      const selectionState = $getSelectionPrevNextState();
-      if (
-        !selectionState.prevTextIsSpace &&
-        !selectionState.startPointIsFirst
-      ) {
-        space = ' ';
+    editor.update(
+      () => {
+        let space = '';
+        const selectionState = $getSelectionPrevNextState();
+        if (
+          !selectionState.prevTextIsSpace &&
+          !selectionState.startPointIsFirst
+        ) {
+          space = ' ';
+        }
+        $insertNodes([new TextNode(`${space}@`)]);
+      },
+      {
+        tag: ['skip-scroll-into-view']
       }
-      $insertNodes([new TextNode(`${space}@`)]);
-    });
+    );
   };
 
   const onUpload: ChangeEventHandler<HTMLInputElement> = async e => {

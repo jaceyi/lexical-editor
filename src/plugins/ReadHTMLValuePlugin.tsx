@@ -49,7 +49,8 @@ export const ReadHTMLValuePlugin: React.FC<ReadHTMLValuePluginProps> = ({
               editor.blur();
             }
           }
-        }
+        },
+        tag: ['skip-scroll-into-view']
       }
     );
 

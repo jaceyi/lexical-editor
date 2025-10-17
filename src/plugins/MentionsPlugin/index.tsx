@@ -71,17 +71,22 @@ export const MentionsPlugin: React.FC<MentionsPluginProps> = ({
       nodeToReplace: TextNode | null,
       closeMenu: () => void
     ) => {
-      editor.update(() => {
-        const mentionNode = $createMentionNode({
-          trigger: selectedOption.trigger,
-          text: `${selectedOption.trigger}${selectedOption.name}`,
-          value: selectedOption.value ?? selectedOption.name
-        });
-        if (nodeToReplace) {
-          nodeToReplace.replace(mentionNode);
+      editor.update(
+        () => {
+          const mentionNode = $createMentionNode({
+            trigger: selectedOption.trigger,
+            text: `${selectedOption.trigger}${selectedOption.name}`,
+            value: selectedOption.value ?? selectedOption.name
+          });
+          if (nodeToReplace) {
+            nodeToReplace.replace(mentionNode);
+          }
+          closeMenu();
+        },
+        {
+          tag: ['skip-scroll-into-view']
         }
-        closeMenu();
-      });
+      );
     },
     [editor]
   );
