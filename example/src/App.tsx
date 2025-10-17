@@ -41,10 +41,6 @@ const App = () => {
 
   return (
     <div>
-      <div style={{ width: 400, height: 400, background: 'pink' }} />
-      <div style={{ width: 400, height: 400, background: 'blue' }} />
-      <div style={{ width: 400, height: 400, background: 'green' }} />
-      <div style={{ width: 400, height: 400, background: 'black' }} />
       <Editor
         namespace="Editor"
         autoFocus={true}

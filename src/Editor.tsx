@@ -94,15 +94,10 @@ const Editor = React.forwardRef<EditorRef, EditorProps>(function Editor(
     (_: EditorState, editor: LexicalEditor) => {
       if (typeof onChange === 'function') {
         if (mode === 'html') {
-          editor.update(
-            () => {
-              const html = $generateHtmlFromNodes(editor, null);
-              onChange(html);
-            },
-            {
-              tag: ['skip-scroll-into-view']
-            }
-          );
+          editor.update(() => {
+            const html = $generateHtmlFromNodes(editor, null);
+            onChange(html);
+          });
         }
       }
     },

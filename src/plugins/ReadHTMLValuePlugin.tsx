@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { $selectAll, $insertNodes, $getRoot } from 'lexical';
 import { $generateNodesFromDOM } from '@lexical/html';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-
+import { SKIP_SCROLL_INTO_VIEW_TAG } from 'lexical';
 export interface ReadHTMLValuePluginProps {
   initialValue?: string;
   value?: string;
@@ -50,7 +50,7 @@ export const ReadHTMLValuePlugin: React.FC<ReadHTMLValuePluginProps> = ({
             }
           }
         },
-        tag: ['skip-scroll-into-view']
+        tag: [SKIP_SCROLL_INTO_VIEW_TAG]
       }
     );
 
