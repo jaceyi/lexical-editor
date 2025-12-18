@@ -1,9 +1,4 @@
-import {
-  EditorConfig,
-  LexicalNode,
-  TextNode,
-  SerializedTextNode
-} from 'lexical';
+import { EditorConfig, LexicalNode, TextNode, SerializedTextNode } from 'lexical';
 
 export class KeywordNode extends TextNode {
   static getType() {
@@ -31,12 +26,12 @@ export class KeywordNode extends TextNode {
   }
 
   createDOM(config: EditorConfig) {
-    const dom = super.createDOM(config);
-    const className = config.theme.keyword;
+    const element = super.createDOM(config);
+    const className = config.theme.textKeyword;
     if (className) {
-      dom.className = className;
+      element.className = className;
     }
-    return dom;
+    return element;
   }
 
   canInsertTextBefore() {
@@ -52,9 +47,7 @@ export class KeywordNode extends TextNode {
   }
 }
 
-export const $isKeywordNode = (
-  node: LexicalNode | null | undefined
-): node is KeywordNode => {
+export const $isKeywordNode = (node: LexicalNode | null | undefined): node is KeywordNode => {
   return node instanceof KeywordNode;
 };
 

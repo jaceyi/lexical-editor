@@ -12,7 +12,7 @@ import {
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 import { mergeRegister } from '@lexical/utils';
-import { $isImageNode } from './ImageNode';
+import { $isImageNode } from './index';
 
 export interface ImageComponentProps {
   nodeKey: NodeKey;
@@ -21,14 +21,9 @@ export interface ImageComponentProps {
   className?: string;
 }
 
-export const ImageComponent: React.FC<ImageComponentProps> = ({
-  nodeKey,
-  src,
-  altText
-}) => {
+export const ImageComponent: React.FC<ImageComponentProps> = ({ nodeKey, src, altText }) => {
   const [editor] = useLexicalComposerContext();
-  const [isSelected, setSelected, clearSelection] =
-    useLexicalNodeSelection(nodeKey);
+  const [isSelected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey);
 
   const onDelete = useCallback(
     (payload: KeyboardEvent) => {
@@ -67,16 +62,8 @@ export const ImageComponent: React.FC<ImageComponentProps> = ({
         },
         COMMAND_PRIORITY_LOW
       ),
-      editor.registerCommand(
-        KEY_DELETE_COMMAND,
-        onDelete,
-        COMMAND_PRIORITY_LOW
-      ),
-      editor.registerCommand(
-        KEY_BACKSPACE_COMMAND,
-        onDelete,
-        COMMAND_PRIORITY_LOW
-      )
+      editor.registerCommand(KEY_DELETE_COMMAND, onDelete, COMMAND_PRIORITY_LOW),
+      editor.registerCommand(KEY_BACKSPACE_COMMAND, onDelete, COMMAND_PRIORITY_LOW)
     );
   }, [clearSelection, editor, isSelected, nodeKey, onDelete, setSelected]);
   const isEditable = editor.isEditable();

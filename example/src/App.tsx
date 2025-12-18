@@ -12,19 +12,13 @@ const App = () => {
 
   useEffect(() => {
     setTimeout(() => {
-      onChange('Loaded Value <br/> two lines');
+      onChange(
+        'Loaded Value <br/> two lines'
+      );
     }, 2000);
   }, []);
 
   const handleUploadFile = useCallback((file: File) => {
-    if (file.size > 1024 * 1024 * 20) {
-      console.log('文件过大，最大可上传20M的文件。');
-      return Promise.reject();
-    }
-    if (encodeURI(file.name).length >= 150) {
-      console.log('文件名过长！');
-      return Promise.reject();
-    }
     return new Promise<{ url: string; name: string }>(resolve => {
       setTimeout(() => {
         const reader = new FileReader();
@@ -43,7 +37,6 @@ const App = () => {
     <div>
       <Editor
         namespace="Editor"
-        autoFocus={true}
         config={{
           onUploadFile: handleUploadFile,
           mentions: ['Jace', 'Liliana', 'Chandra', 'Gideon', 'Nissa', 'Ajani'],
@@ -53,17 +46,19 @@ const App = () => {
       >
         <CustomePlugin />
       </Editor>
-      <button
-        onClick={() => {
-          onChange('');
-          editorRef.current?.editor?.dispatchCommand(
-            CLEAR_EDITOR_COMMAND,
-            undefined
-          );
-        }}
-      >
-        清空内容并清空历史记录
-      </button>
+      <div style={{ margin: '10px 0' }}>
+        <button
+          onClick={() => {
+            onChange('');
+            editorRef.current?.editor?.dispatchCommand(
+              CLEAR_EDITOR_COMMAND,
+              undefined
+            );
+          }}
+        >
+          清空内容并清空历史记录
+        </button>
+      </div>
       <Editor
         namespace="ReadEditor"
         isEditable={false}

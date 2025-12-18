@@ -1,7 +1,7 @@
 import React, { useRef, useCallback, useEffect, useMemo } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { useLexicalTextEntity } from '@lexical/react/useLexicalTextEntity';
-import { $createKeywordNode, KeywordNode } from '../nodes/KeywordNode';
+import { $createKeywordNode, KeywordNode } from '../../nodes/KeywordNode';
 import { TextNode } from 'lexical';
 
 export interface KeywordsPluginProps {

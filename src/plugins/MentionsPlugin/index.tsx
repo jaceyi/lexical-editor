@@ -5,12 +5,10 @@ import { LexicalTypeaheadMenuPlugin } from '@lexical/react/LexicalTypeaheadMenuP
 import { TextNode } from 'lexical';
 import { useCallback, useMemo, useState } from 'react';
 import { $createMentionNode } from '../../nodes/MentionNode';
-import {
-  MentionsMenuItem,
-  MentionOption,
-  MentionsItem
-} from './MentionsMenuItem';
 import { EDITOR_CLASSNAME_NAMESPACE } from '../../utils/consts';
+import * as typeGuards from '../../utils/typeGuards';
+import { List, ListItem } from '../../ui/List';
+import { MentionOption, MentionItem } from './MentionOption';
 
 export interface MentionsThemeClasses {
   container?: string;
@@ -20,12 +18,17 @@ export interface MentionsThemeClasses {
 }
 
 export interface MentionsPluginProps {
-  mentions?: MentionsItem[];
+  mentions?: MentionItem[];
   trigger?: string | string[];
   validCharsLength?: number;
   suggestionListLength?: number;
 }
 
+/**
+ * 提及（Mentions）插件：支持 @ 功能
+ * 方法核心逻辑：使用 LexicalTypeaheadMenuPlugin 监听输入，匹配正则后展示列表。
+ * 自定义 List 渲染：使用项目自实现的 List 组件替代外部 UI 库。
+ */
 export const MentionsPlugin: React.FC<MentionsPluginProps> = ({
   mentions = [],
   trigger = '@',
@@ -34,10 +37,7 @@ export const MentionsPlugin: React.FC<MentionsPluginProps> = ({
 }) => {
   const _trigger = Array.isArray(trigger) ? trigger.join('|') : trigger;
   const AtMentionsRegex = useMemo(
-    () =>
-      new RegExp(
-        `(^|\\s)(${_trigger})((?:[^ ${_trigger}\\s]){0,${validCharsLength}})$`
-      ),
+    () => new RegExp(`(^|\\s)(${_trigger})((?:[^ ${_trigger}\\s]){0,${validCharsLength}})$`),
     [_trigger, validCharsLength]
   );
 
@@ -54,7 +54,7 @@ export const MentionsPlugin: React.FC<MentionsPluginProps> = ({
     return mentions
       .filter(mention => {
         let text = '';
-        if (typeof mention === 'object') {
+        if (typeGuards.isObject(mention)) {
           text = mention.text;
         } else {
           text = mention;
@@ -66,11 +66,7 @@ export const MentionsPlugin: React.FC<MentionsPluginProps> = ({
   }, [mentions, queryString, AtMentionsRegex, suggestionListLength]);
 
   const onSelectOption = useCallback(
-    (
-      selectedOption: MentionOption,
-      nodeToReplace: TextNode | null,
-      closeMenu: () => void
-    ) => {
+    (selectedOption: MentionOption, nodeToReplace: TextNode | null, closeMenu: () => void) => {
       editor.update(() => {
         const mentionNode = $createMentionNode({
           trigger: selectedOption.trigger,
@@ -104,8 +100,6 @@ export const MentionsPlugin: React.FC<MentionsPluginProps> = ({
     [mentions, AtMentionsRegex]
   );
 
-  const menuClassName = editor._config.theme.mentions?.menu;
-
   return (
     <LexicalTypeaheadMenuPlugin<MentionOption>
       anchorClassName={EDITOR_CLASSNAME_NAMESPACE}
@@ -119,9 +113,9 @@ export const MentionsPlugin: React.FC<MentionsPluginProps> = ({
       ) => {
         return anchorElementRef && options.length
           ? ReactDOM.createPortal(
-              <ul className={menuClassName}>
+              <List>
                 {options.map((option, i: number) => (
-                  <MentionsMenuItem
+                  <ListItem
                     isSelected={selectedIndex === i}
                     onClick={() => {
                       setHighlightedIndex(i);
@@ -131,10 +125,11 @@ export const MentionsPlugin: React.FC<MentionsPluginProps> = ({
                       setHighlightedIndex(i);
                     }}
                     key={option.key}
-                    option={option}
-                  />
+                  >
+                    {option.name}
+                  </ListItem>
                 ))}
-              </ul>,
+              </List>,
               anchorElementRef.current!
             )
           : null;

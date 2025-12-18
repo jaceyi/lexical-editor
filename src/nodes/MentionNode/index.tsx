@@ -8,7 +8,7 @@ import {
   SerializedTextNode,
   DecoratorNode
 } from 'lexical';
-import { MentionComponent } from './MentionComponent';
+import { MentionComponent } from './Component';
 
 export type SerializedMentionNode = Spread<
   {
@@ -97,12 +97,12 @@ export class MentionNode extends DecoratorNode<React.JSX.Element> {
   }
 
   createDOM(config: EditorConfig) {
-    const span = document.createElement('span');
-    const className = config.theme.mentions?.container;
+    const element = document.createElement('span');
+    const className = config.theme.nodeMention;
     if (className !== undefined) {
-      span.className = className;
+      element.className = className;
     }
-    return span;
+    return element;
   }
 
   exportDOM() {
@@ -133,9 +133,7 @@ export class MentionNode extends DecoratorNode<React.JSX.Element> {
   }
 }
 
-export const $isMentionNode = (
-  node: LexicalNode | null | undefined
-): node is MentionNode => {
+export const $isMentionNode = (node: LexicalNode | null | undefined): node is MentionNode => {
   return node instanceof MentionNode;
 };
 

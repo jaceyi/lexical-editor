@@ -2,23 +2,22 @@ import React, { useEffect } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { DRAG_DROP_PASTE } from '@lexical/rich-text';
 import { COMMAND_PRIORITY_LOW } from 'lexical';
-import { INSERT_IMAGE_COMMAND } from './ImagePlugin';
-import type { UploadFile } from '../types';
+import { INSERT_IMAGE_COMMAND } from '../ImagePlugin';
+import type { UploadFile } from '../../types';
+import * as typeGuards from '../../utils/typeGuards';
 
 export interface DragDropPastePluginProps {
   onUploadFile: UploadFile;
 }
 
-export const DragDropPastePlugin: React.FC<DragDropPastePluginProps> = ({
-  onUploadFile
-}) => {
+export const DragDropPastePlugin: React.FC<DragDropPastePluginProps> = ({ onUploadFile }) => {
   const [editor] = useLexicalComposerContext();
 
   useEffect(() => {
     return editor.registerCommand(
       DRAG_DROP_PASTE,
       files => {
-        if (typeof onUploadFile === 'function') {
+        if (typeGuards.isFunction(onUploadFile)) {
           (async () => {
             for (const file of files) {
               try {

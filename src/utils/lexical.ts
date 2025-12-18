@@ -1,9 +1,4 @@
-import {
-  $getSelection,
-  $getNodeByKey,
-  LexicalNode,
-  $isNodeSelection
-} from 'lexical';
+import { $getSelection, $getNodeByKey, LexicalNode, $isNodeSelection } from 'lexical';
 
 export const $getSelectionPrevNextState = () => {
   const isSpace = (text: string) => text === ' ';

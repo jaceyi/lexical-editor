@@ -5,9 +5,7 @@ interface UseHTMLHandleOptions {
   initialValue?: string;
 }
 
-export const useHTMLHandle = ({
-  initialValue = ''
-}: UseHTMLHandleOptions = {}) => {
+export const useHTMLHandle = ({ initialValue = '' }: UseHTMLHandleOptions = {}) => {
   const editorRef = useRef<EditorRef>(null);
   const [inputValue, setInputValue] = useState(initialValue);
   const [outputValue, setOutputValue] = useState(initialValue);
@@ -45,9 +43,5 @@ export const useHTMLHandle = ({
     [inputValue, setOutputValue]
   );
 
-  return [outputProps, editorProps, editorRef] as [
-    typeof outputProps,
-    typeof editorProps,
-    typeof editorRef
-  ];
+  return [outputProps, editorProps, editorRef] as const;
 };

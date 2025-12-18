@@ -6,10 +6,7 @@ import React, {
   useRef,
   useImperativeHandle
 } from 'react';
-import {
-  LexicalComposer,
-  InitialConfigType
-} from '@lexical/react/LexicalComposer';
+import { LexicalComposer, InitialConfigType } from '@lexical/react/LexicalComposer';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
@@ -17,11 +14,12 @@ import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { EditorRefPlugin } from '@lexical/react/LexicalEditorRefPlugin';
-import { EditablePlugn } from './plugins/EditablePlugn';
+import { LinkPlugin as LexicalLinkPlugin } from '@lexical/react/LexicalLinkPlugin';
+import { EditablePlugin } from './plugins/EditablePlugin';
 import { ReadHTMLValuePlugin } from './plugins/ReadHTMLValuePlugin';
 import { ToolbarPlugin } from './plugins/ToolbarPlugin';
 import { ImagePlugin } from './plugins/ImagePlugin';
-import { LinkPlugin } from './plugins/LinkPlugin';
+import { LinkPlugin as CustomLinkPlugin } from './plugins/LinkPlugin';
 import { DragDropPastePlugin } from './plugins/DragDropPastePlugin';
 import { KeywordsPlugin, KeywordsPluginProps } from './plugins/KeywordsPlugin';
 import {
@@ -31,12 +29,14 @@ import {
 } from './plugins/MentionsPlugin';
 import { AutoFocusPlugin } from './plugins/AutoFocusPlugin';
 import baseNodes from './nodes';
+import { getHTMLConfig } from './utils/html';
 import { $generateHtmlFromNodes } from '@lexical/html';
 import classNames from 'classnames';
 import { EditorState, LexicalEditor } from 'lexical';
 import type { UploadFile } from './types';
 import { EDITOR_CLASSNAME_NAMESPACE } from './utils/consts';
 import type { EditorThemeClasses as LexicalEditorThemeClasses } from 'lexical/LexicalEditor';
+import * as typeGuards from './utils/typeGuards';
 
 export interface EditorConfig {
   onUploadFile?: UploadFile;
@@ -70,6 +70,14 @@ export interface EditorRef {
   editor: LexicalEditor | null;
 }
 
+const defaultNodes: InitialConfigType['nodes'] = [];
+const defaultConfig: EditorConfig = {};
+const defaultTheme: EditorThemeClasses = {};
+
+/**
+ * Lexical 编辑器主组件
+ * 提供 HTML 导入导出、插件加载及核心编辑功能。
+ */
 const Editor = React.forwardRef<EditorRef, EditorProps>(function Editor(
   {
     mode = 'html',
@@ -80,9 +88,9 @@ const Editor = React.forwardRef<EditorRef, EditorProps>(function Editor(
     onChange,
     autoFocus = true,
     placeholder = '请输入内容',
-    nodes = [],
-    config = {},
-    theme = {},
+    nodes = defaultNodes,
+    config = defaultConfig,
+    theme = defaultTheme,
     className,
     style,
     contentStyle,
@@ -90,9 +98,10 @@ const Editor = React.forwardRef<EditorRef, EditorProps>(function Editor(
   },
   ref
 ) {
+  // 处理编辑器内容变更，导出 HTML
   const handleChange = useCallback(
     (_: EditorState, editor: LexicalEditor) => {
-      if (typeof onChange === 'function') {
+      if (typeGuards.isFunction(onChange)) {
         if (mode === 'html') {
           editor.update(() => {
             const html = $generateHtmlFromNodes(editor, null);
@@ -104,12 +113,47 @@ const Editor = React.forwardRef<EditorRef, EditorProps>(function Editor(
     [mode, onChange]
   );
 
-  const { text, mentions, ...themeRest } = theme;
-
   const editorRef = useRef<LexicalEditor>(null);
+
+  // 暴露编辑器实例给父组件
   useImperativeHandle(ref, () => ({
     editor: editorRef.current
   }));
+
+  // 渲染提及插件
+  const mentionsPluginNode = useMemo(() => {
+    const mentions = config.mentions;
+    if (!isEditable || !mentions) return null;
+    if (Array.isArray(mentions)) {
+      return <MentionsPlugin mentions={mentions} />;
+    } else if (typeGuards.isObject(mentions)) {
+      return <MentionsPlugin {...mentions} />;
+    }
+  }, [config.mentions, isEditable]);
+
+  // 编辑器初始配置
+  const initialConfig = useMemo(() => {
+    return {
+      namespace,
+      editable: isEditable,
+      onError: (error: Error) => {
+        console.warn('Lexical Editor Error', error);
+      },
+      nodes: [...baseNodes, ...nodes],
+      html: getHTMLConfig(),
+      theme: {
+        text: {
+          bold: 'theme__textBold',
+          italic: 'theme__textItalic',
+          underline: 'theme__textUnderline'
+        },
+        textKeyword: 'theme__textKeyword',
+        nodeImage: 'theme__nodeImage',
+        nodeMention: 'theme__nodeMention',
+        ...theme
+      }
+    };
+  }, [namespace, isEditable, theme, nodes]);
 
   return (
     <div className={EDITOR_CLASSNAME_NAMESPACE}>
@@ -121,75 +165,43 @@ const Editor = React.forwardRef<EditorRef, EditorProps>(function Editor(
         )}
         style={style}
       >
-        <LexicalComposer
-          initialConfig={{
-            namespace,
-            editable: isEditable,
-            onError: console.log,
-            nodes: [...baseNodes, ...nodes],
-            theme: {
-              text: {
-                bold: 'theme__textBold',
-                italic: 'theme__textItalic',
-                underline: 'theme__textUnderline',
-                ...text
-              },
-              image: 'theme__image',
-              keyword: 'theme__textKeyword',
-              mentions: {
-                container: 'theme__mentionsContainer',
-                menu: 'theme__mentionsMenu',
-                menuItem: 'theme__mentionsMenuItem',
-                menuItemSelected: 'theme__mentionsMenuItemSelected',
-                ...mentions
-              },
-              ...themeRest
-            }
-          }}
-        >
-          <EditablePlugn isEditable={isEditable} />
-          {mode === 'html' && (
-            <ReadHTMLValuePlugin initialValue={initialValue} value={value} />
-          )}
+        <LexicalComposer initialConfig={initialConfig}>
+          {/* 插件列表 */}
+          <EditablePlugin isEditable={isEditable} />
+          {mode === 'html' && <ReadHTMLValuePlugin initialValue={initialValue} value={value} />}
           {isEditable ? <ToolbarPlugin config={config} /> : null}
+
           <div className="editor__main">
             <div className="editor__content">
               <RichTextPlugin
                 contentEditable={
-                  <ContentEditable
-                    className="editor__editable"
-                    style={contentStyle}
-                  />
+                  <ContentEditable className="editor__editable" style={contentStyle} />
                 }
                 placeholder={
-                  isEditable ? (
-                    <div className="editor__placeholder">{placeholder}</div>
-                  ) : null
+                  isEditable ? <div className="editor__placeholder">{placeholder}</div> : null
                 }
                 ErrorBoundary={LexicalErrorBoundary}
               />
             </div>
+            {/* 核心插件 */}
             <OnChangePlugin onChange={handleChange} ignoreSelectionChange />
             <EditorRefPlugin editorRef={editorRef} />
             <AutoFocusPlugin autoFocus={autoFocus} />
             <HistoryPlugin />
             <ImagePlugin />
             <ListPlugin />
-            <LinkPlugin />
-            {useMemo(() => {
-              const { mentions } = config;
-              if (!isEditable || !mentions) return null;
-              if (Array.isArray(mentions)) {
-                return <MentionsPlugin mentions={mentions} />;
-              } else if (typeof mentions === 'object') {
-                return <MentionsPlugin {...mentions} />;
-              }
-              // eslint-disable-next-line react-hooks/exhaustive-deps
-            }, [isEditable, config.mentions])}
-            {config.onUploadFile !== undefined && (
+            {/* 官方链接插件：负责消费 TOGGLE_LINK_COMMAND，实现“更新/取消链接” */}
+            <LexicalLinkPlugin />
+            {/* 自定义链接插件：提供 INSERT_LINK_COMMAND 等扩展能力 */}
+            <CustomLinkPlugin />
+            {mentionsPluginNode}
+
+            {/* 条件加载功能插件 */}
+            {typeGuards.isFunction(config.onUploadFile) && (
               <DragDropPastePlugin onUploadFile={config.onUploadFile} />
             )}
-            {config.keywords !== undefined && (
+            {(typeGuards.isArray<string>(config.keywords) ||
+              typeGuards.isRegExp(config.keywords)) && (
               <KeywordsPlugin keywords={config.keywords} />
             )}
             {children}

@@ -8,7 +8,7 @@ import {
   DOMConversionMap,
   LexicalNode
 } from 'lexical';
-import { ImageComponent } from './ImageComponent';
+import { ImageComponent } from './Component';
 
 export type SerializedImageNode = Spread<
   {
@@ -82,13 +82,12 @@ export class ImageNode extends DecoratorNode<React.JSX.Element> {
   }
 
   createDOM(config: EditorConfig) {
-    const span = document.createElement('span');
-    const theme = config.theme;
-    const className = theme.image;
+    const element = document.createElement('span');
+    const className = config.theme.nodeImage;
     if (className !== undefined) {
-      span.className = className;
+      element.className = className;
     }
-    return span;
+    return element;
   }
 
   exportDOM() {
@@ -108,19 +107,14 @@ export class ImageNode extends DecoratorNode<React.JSX.Element> {
   decorate() {
     return (
       <Suspense fallback={null}>
-        <ImageComponent
-          src={this.__src}
-          altText={this.__altText}
-          nodeKey={this.getKey()}
-        />
+        <ImageComponent src={this.__src} altText={this.__altText} nodeKey={this.getKey()} />
       </Suspense>
     );
   }
 }
 
-export const $isImageNode = (
-  node: LexicalNode | null | undefined
-): node is ImageNode => node instanceof ImageNode;
+export const $isImageNode = (node: LexicalNode | null | undefined): node is ImageNode =>
+  node instanceof ImageNode;
 
 export const $createImageNode = (payload: ImagePayload) => {
   return $applyNodeReplacement<ImageNode>(new ImageNode(payload));

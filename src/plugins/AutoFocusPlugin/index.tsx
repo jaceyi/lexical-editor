@@ -5,14 +5,14 @@ interface AutoFocusPluginProps {
   autoFocus: boolean;
 }
 
-export const AutoFocusPlugin: React.FC<AutoFocusPluginProps> = ({
-  autoFocus
-}) => {
+export const AutoFocusPlugin: React.FC<AutoFocusPluginProps> = ({ autoFocus }) => {
   const [editor] = useLexicalComposerContext();
 
   useLayoutEffect(() => {
     if (editor.isEditable() && autoFocus) {
-      editor.focus();
+      setTimeout(() => {
+        editor.focus();
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
