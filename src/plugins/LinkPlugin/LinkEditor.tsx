@@ -44,12 +44,14 @@ export const LinkEditor: React.FC<LinkEditorProps> = ({ onConfirm, linkData }) =
         editor.dispatchCommand(AUTO_INSERT_LINK_COMMAND, { url: linkUrl, title: linkUrl });
       }
       onConfirm();
+      setLinkUrl(DEFAULT_LINK_URL);
     }
   }, [editor, linkUrl, onConfirm, linkData.isLink]);
 
   const handleClear = useCallback(() => {
     editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
     onConfirm();
+    setLinkUrl(DEFAULT_LINK_URL);
   }, [editor, onConfirm]);
 
   return (
