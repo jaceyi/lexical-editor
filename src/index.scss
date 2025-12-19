@@ -139,6 +139,8 @@
     padding: 4px;
     border-bottom: 0;
     border-bottom: 1px solid var(--lexicalEditorBorderColor);
+    white-space: nowrap;
+    overflow-x: auto;
 
     &Item {
       background-color: transparent;

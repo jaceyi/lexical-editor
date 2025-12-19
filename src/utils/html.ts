@@ -5,103 +5,107 @@ import {
   DOMConversion,
   ParagraphNode,
   TextNode,
-  LexicalNode
+  LexicalNode,
+  DOMConversionOutput
 } from 'lexical';
 import { HeadingNode, QuoteNode } from '@lexical/rich-text';
 import { ListNode, ListItemNode } from '@lexical/list';
 import { LinkNode, AutoLinkNode } from '@lexical/link';
 
-/**
- * 为 Lexical 节点应用内联样式和对齐格式。
- * 方法出入参数：
- * @param lexicalNode 需要应用样式的 Lexical 节点
- * @param domNode 来源 DOM 节点
- */
 function applyExtraStyles(lexicalNode: LexicalNode, domNode: Node): void {
-  // 确保 domNode 是一个 HTMLElement，否则无法获取 style 和 getAttribute
-  if (!(domNode instanceof HTMLElement)) {
+  if (!(domNode instanceof HTMLElement) && domNode.nodeType !== Node.TEXT_NODE) {
     return;
   }
 
-  // 1. 处理内联样式字符串
-  const style = domNode.getAttribute('style');
-  if (style && ($isTextNode(lexicalNode) || $isElementNode(lexicalNode))) {
-    const existingStyle = lexicalNode.getStyle();
-    if (existingStyle) {
-      const cleanedExisting = existingStyle.trim().endsWith(';')
-        ? existingStyle.trim()
-        : `${existingStyle.trim()};`;
-      lexicalNode.setStyle(`${cleanedExisting} ${style}`);
-    } else {
-      lexicalNode.setStyle(style);
-    }
+  const isText = $isTextNode(lexicalNode);
+  const isElement = $isElementNode(lexicalNode);
+
+  if (!isText && !isElement) {
+    return;
   }
 
-  // 2. 处理块级对齐方式
-  if ($isElementNode(lexicalNode)) {
+  if (isElement && domNode instanceof HTMLElement) {
     const textAlign = domNode.style.textAlign;
     if (textAlign) {
       // @ts-expect-error Lexical 内部 format 类型与之匹配
       lexicalNode.setFormat(textAlign);
     }
   }
+
+  let currentNode: Node | null = domNode;
+  const styles: string[] = [];
+
+  while (currentNode && currentNode instanceof HTMLElement) {
+    const style = currentNode.getAttribute('style');
+    if (style) {
+      styles.push(style);
+    }
+
+    currentNode = currentNode.parentNode;
+  }
+
+  if (styles.length > 0) {
+    const combinedStyle = styles
+      .reverse()
+      .map(s => {
+        const trimmed = s.trim();
+        return trimmed.endsWith(';') ? trimmed : `${trimmed};`;
+      })
+      .join(' ');
+
+    const existing = lexicalNode.getStyle();
+    const finalStyle = existing ? `${combinedStyle} ${existing}` : combinedStyle;
+    lexicalNode.setStyle(finalStyle);
+  }
 }
 
-/**
- * 包装现有的导入转换逻辑，注入自定义样式处理。
- * 方法出入参数：
- * @param importer 原始 of DOMConversion 对象
- * @param element 原始 of DOM 节点
- * @returns 增强后的 DOMConversion 对象
- */
-function wrapImporter(importer: DOMConversion, element: Node): DOMConversion {
+function wrapImporter(importer: DOMConversion): DOMConversion {
   return {
     ...importer,
     conversion: (domNode: Node) => {
       // @ts-expect-error Lexical converters might expect specific subtypes of Node
       const output = importer.conversion(domNode);
+
+      const wrapOutput = (out: DOMConversionOutput): DOMConversionOutput => {
+        const originalForChild = out.forChild;
+        return {
+          ...out,
+          forChild: (lexicalNode: LexicalNode, parent: LexicalNode | null | undefined) => {
+            let resultNode = lexicalNode;
+            if (originalForChild) {
+              resultNode = originalForChild(lexicalNode, parent) || lexicalNode;
+            }
+            applyExtraStyles(resultNode, domNode);
+            return resultNode;
+          }
+        };
+      };
+
       if (!output) {
+        if (
+          domNode instanceof HTMLElement &&
+          (domNode.getAttribute('style') || domNode.style.textAlign)
+        ) {
+          return wrapOutput({ node: null });
+        }
         return null;
       }
 
-      // 情况 A: 转换器直接返回了生成的节点
       if (output.node) {
         const nodes = Array.isArray(output.node) ? output.node : [output.node];
         for (const node of nodes) {
-          if (node) {
-            applyExtraStyles(node, element);
-          }
+          if (node) applyExtraStyles(node, domNode);
         }
       }
 
-      // 情况 B: 转换器通过 forChild 钩子处理子节点
-      if (output.forChild) {
-        const originalForChild = output.forChild;
-        return {
-          ...output,
-          forChild: (lexicalNode: LexicalNode, parent: LexicalNode | null | undefined) => {
-            const resultNode = originalForChild(lexicalNode, parent);
-            if (resultNode) {
-              applyExtraStyles(resultNode, element);
-            }
-            return resultNode || null;
-          }
-        };
-      }
-
-      return output;
+      return wrapOutput(output);
     }
   };
 }
 
-/**
- * 构建自定义的 HTML 导入配置，通过包装核心节点的 importDOM 来保留内联样式。
- * 方法核心逻辑：遍历核心节点的默认 importDOM 映射，对其进行包装以支持 style 属性提取。
- */
 export function getHTMLConfig() {
   const importMap: DOMConversionMap = {};
 
-  // 需要被增强样式的核心节点列表
   const nodes = [
     TextNode,
     ParagraphNode,
@@ -117,16 +121,47 @@ export function getHTMLConfig() {
     const nodeImportMap = (node as any).importDOM ? (node as any).importDOM() : null;
     if (nodeImportMap) {
       for (const [tag, fn] of Object.entries(nodeImportMap)) {
+        const existingFn = importMap[tag];
+
         importMap[tag] = (importNode: Node) => {
           const importer = (fn as any)(importNode);
-          if (!importer) {
-            return null;
+          if (importer) {
+            return wrapImporter(importer);
           }
-          return wrapImporter(importer, importNode);
+          if (existingFn) {
+            const existingImporter = (existingFn as any)(importNode);
+            if (existingImporter) return existingImporter;
+          }
+          return null;
         };
       }
     }
   }
+
+  const originalSpanFactory = importMap['span'];
+
+  importMap['span'] = (importNode: Node) => {
+    if (!(importNode instanceof HTMLElement)) {
+      return originalSpanFactory ? (originalSpanFactory as any)(importNode) : null;
+    }
+
+    const hasStyle = importNode.getAttribute('style') || importNode.style.textAlign;
+
+    if (hasStyle) {
+      return {
+        conversion: (domNode: Node) => ({
+          forChild: (lexNode: LexicalNode) => {
+            applyExtraStyles(lexNode, domNode);
+            return lexNode;
+          },
+          node: null
+        }),
+        priority: 4
+      };
+    }
+
+    return originalSpanFactory ? (originalSpanFactory as any)(importNode) : null;
+  };
 
   return {
     import: importMap
