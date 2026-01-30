@@ -30,10 +30,10 @@ export const ReadHTMLValuePlugin: React.FC<ReadHTMLValuePluginProps> = ({
         const nodes = $generateNodesFromDOM(editor, dom);
 
         if (nodes.length) {
-          $getRoot().clear();
+          $getRoot().clear().select();
           $insertNodes(nodes);
         } else {
-          $getRoot().clear();
+          $getRoot().clear().select();
           $insertNodes([$createParagraphNode()]);
         }
       },

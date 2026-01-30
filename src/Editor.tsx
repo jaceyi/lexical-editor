@@ -101,7 +101,8 @@ const Editor = React.forwardRef<EditorRef, EditorProps>(function Editor(
   // 处理编辑器内容变更，导出 HTML
   const handleChange = useCallback(
     (_: EditorState, editor: LexicalEditor) => {
-      if (typeGuards.isFunction(onChange)) {
+      // 如果正在进行组合输入，则不触发 onChange
+      if (!editor.isComposing() && typeGuards.isFunction(onChange)) {
         if (mode === 'html') {
           editor.update(() => {
             const html = $generateHtmlFromNodes(editor, null);
