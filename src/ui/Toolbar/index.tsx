@@ -1,5 +1,6 @@
 import React from 'react';
 import classNames from 'classnames';
+import Tooltip from 'rc-tooltip';
 
 /**
  * 工具栏分隔线组件
@@ -22,19 +23,21 @@ export interface ToolbarItemProps extends React.ButtonHTMLAttributes<HTMLButtonE
  * @param children 按钮内容
  */
 export const ToolbarItem = React.forwardRef<HTMLButtonElement, ToolbarItemProps>(
-  ({ isActive, isDisabled, className, children, ...props }, ref) => {
+  ({ isActive, isDisabled, className, children, title, ...props }, ref) => {
     return (
-      <button
-        ref={ref}
-        className={classNames('editor__toolbarItem', className, {
-          editor__toolbarItem_actived: isActive,
-          editor__toolbarItem_disabled: isDisabled
-        })}
-        disabled={isDisabled}
-        {...props}
-      >
-        {children}
-      </button>
+      <Tooltip placement="bottom" overlay={title}>
+        <button
+          ref={ref}
+          className={classNames('editor__toolbarItem', className, {
+            editor__toolbarItem_actived: isActive,
+            editor__toolbarItem_disabled: isDisabled
+          })}
+          disabled={isDisabled}
+          {...props}
+        >
+          {children}
+        </button>
+      </Tooltip>
     );
   }
 );

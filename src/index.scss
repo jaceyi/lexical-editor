@@ -1,8 +1,28 @@
 @import 'rc-dropdown/assets/index.css';
+@import 'rc-tooltip/assets/bootstrap_white.css';
+
+.rc-tooltip {
+  font-size: 12px;
+  max-width: 200px;
+
+  .rc-tooltip-inner {
+    min-height: auto;
+    padding: 4px 8px;
+    color: #fff;
+    background-color: rgba(0, 0, 0, 0.75);
+    border: none;
+    border-radius: 4px;
+    box-shadow: none;
+  }
+
+  .rc-tooltip-arrow {
+    display: none;
+  }
+}
 
 :root {
   --lexicalEditorColorPrimary: #2483ff;
-  --lexicalEditorBorderColor: rgba(0, 0, 0, 0.07);
+  --lexicalEditorBorderColor: rgba(0, 0, 0, 0.11);
 }
 
 .editor__root {
@@ -175,6 +195,15 @@
         width: 120px;
       }
 
+      .editor__toolbarFontFamilyLabel {
+        font-size: 12px;
+        margin: 0 2px;
+        max-width: 32px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
       .theme__iconExpand {
         font-size: 12px;
         color: #666;
@@ -183,7 +212,7 @@
 
     &Divider {
       width: 1px;
-      background-color: #e9e8e7;
+      background-color: var(--lexicalEditorBorderColor);
       margin: 0 4px;
     }
 
@@ -194,7 +223,9 @@
 
   .editor__linkEditor {
     background-color: #fff;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12),
+    box-shadow:
+      0 6px 16px rgba(0, 0, 0, 0.08),
+      0 3px 6px -4px rgba(0, 0, 0, 0.12),
       0 9px 28px 8px rgba(0, 0, 0, 0.05);
     border-radius: 8px;
     padding: 16px;

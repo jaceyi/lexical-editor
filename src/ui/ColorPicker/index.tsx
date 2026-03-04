@@ -209,15 +209,17 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
   );
 
   return (
-    <Dropdown
-      trigger={['click']}
-      overlay={overlayContent}
-      overlayClassName={classNames('editor__root', overlayClassName)}
-      placement={placement}
-      visible={open}
-      onVisibleChange={handleVisibleChange}
-      autoDestroy
-      {...restProps}
-    />
+    <span>
+      <Dropdown
+        trigger={['click']}
+        overlay={overlayContent}
+        overlayClassName={classNames('editor__root', overlayClassName)}
+        placement={placement}
+        visible={open}
+        onVisibleChange={handleVisibleChange}
+        autoDestroy
+        {...restProps}
+      />
+    </span>
   );
 };

@@ -22,3 +22,5 @@ export { default as AlignCenterOutlined } from './AlignCenterOutlined';
 export { default as AlignRightOutlined } from './AlignRightOutlined';
 export { default as AlignJustifyOutlined } from './AlignJustifyOutlined';
 export { default as LinkOutlined } from './LinkOutlined';
+export { default as FormatPainterOutlined } from './FormatPainterOutlined';
+export { default as FontFamilyOutlined } from './FontFamilyOutlined';

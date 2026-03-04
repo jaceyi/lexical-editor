@@ -32,7 +32,7 @@ export const LinkPicker: React.FC<LinkPickerProps> = ({ linkData }) => {
         <LinkEditor linkData={linkData} onConfirm={closeDropdown} onCancel={closeDropdown} />
       }
     >
-      <ToolbarItem title="链接" isActive={isOpen || linkData.isLink}>
+      <ToolbarItem title="超链接" isActive={isOpen || linkData.isLink}>
         <LinkOutlined className="theme__icon" />
         <ExpandOutlined className="theme__iconExpand" />
       </ToolbarItem>

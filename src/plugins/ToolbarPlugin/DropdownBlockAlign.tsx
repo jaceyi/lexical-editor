@@ -89,7 +89,7 @@ export const DropdownBlockAlign: React.FC<DropdownBlockAlignProps> = ({ elementF
       overlay={<List items={menuItems} />}
       trigger={['click']}
     >
-      <ToolbarItem className="blockFormat">
+      <ToolbarItem title="对齐方式" className="blockFormat">
         {activeMenuItem?.label}
         <ExpandOutlined className="theme__iconExpand" />
       </ToolbarItem>

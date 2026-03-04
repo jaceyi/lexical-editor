@@ -56,7 +56,7 @@ export const DropdownFontSize: React.FC<DropdownFontSizeProps> = ({ fontSize }) 
       overlay={<List items={menuItems} />}
       trigger={['click']}
     >
-      <ToolbarItem>
+      <ToolbarItem title="字号">
         <FontSizeOutlined className="theme__icon" />
         <ExpandOutlined className="theme__iconExpand" />
       </ToolbarItem>

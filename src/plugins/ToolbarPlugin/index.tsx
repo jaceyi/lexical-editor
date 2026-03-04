@@ -26,15 +26,18 @@ import {
   FileOutlined,
   ExpandOutlined,
   TextColorOutlined,
-  BackgroundColorOutlined
+  BackgroundColorOutlined,
+  FormatPainterOutlined
 } from '../../icons';
 import { $getSelectionPrevNextState } from '../../utils/lexical';
 import * as typeGuards from '../../utils/typeGuards';
 import { getSelectedNode } from './utils';
 import { DropdownBlockFormat } from './DropdownBlockFormat';
 import { DropdownFontSize } from './DropdownFontSize';
+import { DropdownFontFamily } from './DropdownFontFamily';
 import { DropdownBlockAlign } from './DropdownBlockAlign';
 import { ColorPicker, ToolbarItem, ToolbarDivider } from '../../ui';
+import { useFormatPainter } from './useFormatPainter';
 
 const classNameMaps = {
   fileInput: 'editor__toolbarFileInput'
@@ -56,11 +59,23 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
   const [fontColor, setFontColor] = useState<string | null>(null);
   const [backgroundColor, setBackgroundColor] = useState<string | null>(null);
   const [fontSize, setFontSize] = useState<string | null>(null);
+  const [fontFamily, setFontFamily] = useState<string | null>(null);
   const [elementFormat, setElementFormat] = useState<string>('left');
   const [linkData, setLinkData] = useState<{ isLink: boolean; url: string | null }>({
     isLink: false,
     url: null
   });
+
+  const { formatPainterMode, handleFormatPainterClick, handleFormatPainterDoubleClick } =
+    useFormatPainter(editor, {
+      isBold,
+      isItalic,
+      isUnderline,
+      fontColor,
+      backgroundColor,
+      fontSize,
+      blockType
+    });
 
   const $updateToolbar = useCallback(() => {
     const selection = $getSelection();
@@ -102,6 +117,7 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
       setFontColor($getSelectionStyleValueForProperty(selection, 'color'));
       setBackgroundColor($getSelectionStyleValueForProperty(selection, 'background-color'));
       setFontSize($getSelectionStyleValueForProperty(selection, 'font-size'));
+      setFontFamily($getSelectionStyleValueForProperty(selection, 'font-family'));
 
       // Update links
       if ($isLinkNode(parent)) {
@@ -209,6 +225,7 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
       <DropdownBlockFormat blockType={blockType} />
       <ToolbarDivider />
       <ToolbarItem
+        title="加粗"
         isActive={isBold}
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
@@ -217,6 +234,7 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
         <TextBoldOutlined className="theme__icon" />
       </ToolbarItem>
       <ToolbarItem
+        title="斜体"
         isActive={isItalic}
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic');
@@ -225,6 +243,7 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
         <TextItalicOutlined className="theme__icon" />
       </ToolbarItem>
       <ToolbarItem
+        title="下划线"
         isActive={isUnderline}
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline');
@@ -233,42 +252,49 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
         <TextUnderlineOutlined className="theme__icon" />
       </ToolbarItem>
       <ColorPicker value={fontColor} onChange={handleFontColorChange}>
-        <ToolbarItem>
+        <ToolbarItem title="字体颜色">
           <TextColorOutlined className="theme__icon" />
           <ExpandOutlined className="theme__iconExpand" />
         </ToolbarItem>
       </ColorPicker>
       <ColorPicker value={backgroundColor} onChange={handleBackgroundColorChange}>
-        <ToolbarItem>
+        <ToolbarItem title="背景色">
           <BackgroundColorOutlined className="theme__icon" />
           <ExpandOutlined className="theme__iconExpand" />
         </ToolbarItem>
       </ColorPicker>
+      <ToolbarItem
+        title="格式刷：双击可重复使用"
+        isActive={formatPainterMode !== null}
+        onClick={handleFormatPainterClick}
+        onDoubleClick={handleFormatPainterDoubleClick}
+      >
+        <FormatPainterOutlined className="theme__icon" />
+      </ToolbarItem>
       <ToolbarDivider />
+      <DropdownFontFamily fontFamily={fontFamily} />
       <DropdownFontSize fontSize={fontSize} />
-      <LinkPicker linkData={linkData} />
       <DropdownBlockAlign elementFormat={elementFormat} />
       <ToolbarDivider />
+      <LinkPicker linkData={linkData} />
       {typeGuards.isObject(mentions) &&
         mentions &&
         (Array.isArray(mentions) || Array.isArray(mentions.mentions)) && (
-          <ToolbarItem onClick={handleInsertMention}>
+          <ToolbarItem title="提及" onClick={handleInsertMention}>
             <MentionOutlined className="theme__icon" />
           </ToolbarItem>
         )}
       {typeGuards.isFunction(onUploadFile) && (
-        <>
-          <ToolbarItem onClick={() => fileInputRef.current?.click()}>
-            <input
-              ref={fileInputRef}
-              type="file"
-              value=""
-              onChange={onUpload}
-              className={classNameMaps.fileInput}
-            />
-            <FileOutlined className="theme__icon" />
-          </ToolbarItem>
-        </>
+        <ToolbarItem title="文件上传" onClick={() => fileInputRef.current?.click()}>
+          <input
+            ref={fileInputRef}
+            type="file"
+            value=""
+            onChange={onUpload}
+            className={classNameMaps.fileInput}
+          />
+          <FileOutlined className="theme__icon" />
+        </ToolbarItem>
       )}
     </div>
   );

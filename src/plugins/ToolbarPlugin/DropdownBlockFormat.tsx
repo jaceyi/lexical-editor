@@ -172,7 +172,7 @@ export const DropdownBlockFormat: React.FC<DropdownBlockFormatProps> = ({ blockT
       overlay={<List items={menuItems} />}
       trigger={['click']}
     >
-      <ToolbarItem className="blockFormat">
+      <ToolbarItem className="blockFormat" title="块类型">
         {activeMenuItem?.label}
         <ExpandOutlined className="theme__iconExpand" />
       </ToolbarItem>

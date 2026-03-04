@@ -171,7 +171,6 @@ const Editor = React.forwardRef<EditorRef, EditorProps>(function Editor(
           <EditablePlugin isEditable={isEditable} />
           {mode === 'html' && <ReadHTMLValuePlugin initialValue={initialValue} value={value} />}
           {isEditable ? <ToolbarPlugin config={config} /> : null}
-
           <div className="editor__main">
             <div className="editor__content">
               <RichTextPlugin
@@ -195,8 +194,8 @@ const Editor = React.forwardRef<EditorRef, EditorProps>(function Editor(
             <LexicalLinkPlugin />
             {/* 自定义链接插件：提供 INSERT_LINK_COMMAND 等扩展能力 */}
             <CustomLinkPlugin />
+            {/* 提及插件 */}
             {mentionsPluginNode}
-
             {/* 条件加载功能插件 */}
             {typeGuards.isFunction(config.onUploadFile) && (
               <DragDropPastePlugin onUploadFile={config.onUploadFile} />
