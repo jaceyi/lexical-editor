@@ -24,3 +24,4 @@ export { default as AlignJustifyOutlined } from './AlignJustifyOutlined';
 export { default as LinkOutlined } from './LinkOutlined';
 export { default as FormatPainterOutlined } from './FormatPainterOutlined';
 export { default as FontFamilyOutlined } from './FontFamilyOutlined';
+export { default as ClearStyleOutlined } from './ClearStyleOutlined';

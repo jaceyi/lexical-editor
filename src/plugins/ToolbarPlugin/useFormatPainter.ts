@@ -23,20 +23,11 @@ export interface CopiedFormat {
   fontColor: string | null;
   backgroundColor: string | null;
   fontSize: string | null;
+  fontFamily: string | null;
   blockType: string;
 }
 
 export type FormatPainterMode = null | 'single' | 'multi';
-
-export interface CurrentFormatState {
-  isBold: boolean;
-  isItalic: boolean;
-  isUnderline: boolean;
-  fontColor: string | null;
-  backgroundColor: string | null;
-  fontSize: string | null;
-  blockType: string;
-}
 
 // 遍历节点树，收集所有 TextNode
 const collectTextNodes = (node: LexicalNode, result: TextNode[]): void => {
@@ -47,14 +38,11 @@ const collectTextNodes = (node: LexicalNode, result: TextNode[]): void => {
   }
 };
 
-export const useFormatPainter = (editor: LexicalEditor, currentFormat: CurrentFormatState) => {
+export const useFormatPainter = (editor: LexicalEditor, currentFormat: CopiedFormat) => {
   const [formatPainterMode, setFormatPainterModeState] = useState<FormatPainterMode>(null);
   const formatPainterModeRef = useRef<FormatPainterMode>(null);
   const copiedFormatRef = useRef<CopiedFormat | null>(null);
   const clickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  // 用 ref 保持 currentFormat 的最新值，避免闭包捕获旧值
-  const currentFormatRef = useRef<CurrentFormatState>(currentFormat);
-  currentFormatRef.current = currentFormat;
 
   const setFormatPainterMode = useCallback((mode: FormatPainterMode) => {
     formatPainterModeRef.current = mode;
@@ -126,7 +114,8 @@ export const useFormatPainter = (editor: LexicalEditor, currentFormat: CurrentFo
         $patchStyleText(selection, {
           color: format.fontColor ?? 'inherit',
           'background-color': format.backgroundColor ?? 'inherit',
-          'font-size': format.fontSize ?? 'inherit'
+          'font-size': format.fontSize ?? 'inherit',
+          'font-family': format.fontFamily ?? 'inherit'
         });
 
         // 重新读取 selection（$patchStyleText 切分节点后 selection 的锚/焦已更新）
@@ -200,19 +189,9 @@ export const useFormatPainter = (editor: LexicalEditor, currentFormat: CurrentFo
       return;
     }
 
-    // 在点击时立即捕获当前格式，避免 250ms 后格式发生变化
-    const capturedFormat = { ...currentFormatRef.current };
-
-    if (clickTimerRef.current) {
-      clearTimeout(clickTimerRef.current);
-    }
-
-    clickTimerRef.current = setTimeout(() => {
-      clickTimerRef.current = null;
-      copiedFormatRef.current = capturedFormat;
-      setFormatPainterMode('single');
-    }, 250);
-  }, [cancelFormatPainter, setFormatPainterMode]);
+    copiedFormatRef.current = currentFormat;
+    setFormatPainterMode('single');
+  }, [cancelFormatPainter, currentFormat, setFormatPainterMode]);
 
   // 格式刷按钮双击：取消单击延时，进入多次粘贴模式
   const handleFormatPainterDoubleClick = useCallback(() => {
@@ -226,9 +205,9 @@ export const useFormatPainter = (editor: LexicalEditor, currentFormat: CurrentFo
       return;
     }
 
-    copiedFormatRef.current = { ...currentFormatRef.current };
+    copiedFormatRef.current = currentFormat;
     setFormatPainterMode('multi');
-  }, [cancelFormatPainter, setFormatPainterMode]);
+  }, [cancelFormatPainter, currentFormat, setFormatPainterMode]);
 
   return {
     formatPainterMode,

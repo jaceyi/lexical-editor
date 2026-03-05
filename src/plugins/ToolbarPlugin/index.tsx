@@ -4,13 +4,21 @@ import {
   $isElementNode,
   $isRangeSelection,
   $isRootOrShadowRoot,
+  $isTextNode,
   $insertNodes,
+  $createParagraphNode,
   FORMAT_TEXT_COMMAND,
+  LexicalNode,
+  ElementNode,
   TextNode
 } from 'lexical';
 import { $isHeadingNode } from '@lexical/rich-text';
 import { $isLinkNode } from '@lexical/link';
-import { $patchStyleText, $getSelectionStyleValueForProperty } from '@lexical/selection';
+import {
+  $patchStyleText,
+  $getSelectionStyleValueForProperty,
+  $setBlocksType
+} from '@lexical/selection';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $findMatchingParent, $getNearestNodeOfType } from '@lexical/utils';
 import { INSERT_IMAGE_COMMAND } from '../ImagePlugin';
@@ -27,7 +35,8 @@ import {
   ExpandOutlined,
   TextColorOutlined,
   BackgroundColorOutlined,
-  FormatPainterOutlined
+  FormatPainterOutlined,
+  ClearStyleOutlined
 } from '../../icons';
 import { $getSelectionPrevNextState } from '../../utils/lexical';
 import * as typeGuards from '../../utils/typeGuards';
@@ -74,6 +83,7 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
       fontColor,
       backgroundColor,
       fontSize,
+      fontFamily,
       blockType
     });
 
@@ -172,6 +182,65 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
   );
 
   /**
+   * 清除样式
+   * 将块类型重置为正文；若有范围选区则只清除选区内内联样式，否则清除整个块的内联样式。
+   */
+  const handleClearStyle = useCallback(() => {
+    editor.update(() => {
+      const selection = $getSelection();
+      if (!$isRangeSelection(selection)) return;
+
+      const collectTextNodes = (node: LexicalNode, result: TextNode[]): void => {
+        if ($isTextNode(node)) {
+          result.push(node);
+        } else if ($isElementNode(node)) {
+          node.getChildren().forEach(child => collectTextNodes(child, result));
+        }
+      };
+
+      const clearTextNodeStyles = (nodes: TextNode[]) => {
+        nodes.forEach(node => {
+          node.setStyle('');
+          if (node.hasFormat('bold')) node.toggleFormat('bold');
+          if (node.hasFormat('italic')) node.toggleFormat('italic');
+          if (node.hasFormat('underline')) node.toggleFormat('underline');
+        });
+      };
+
+      if (!selection.isCollapsed()) {
+        // 有范围选区：先清除选区内内联样式，再重置块类型
+        $patchStyleText(selection, {
+          color: 'inherit',
+          'background-color': 'inherit',
+          'font-size': 'inherit',
+          'font-family': 'inherit'
+        });
+        const updated = $getSelection();
+        if ($isRangeSelection(updated)) {
+          clearTextNodeStyles(updated.getNodes().filter($isTextNode) as TextNode[]);
+        }
+        $setBlocksType(selection, () => $createParagraphNode());
+      } else {
+        // 折叠光标：找到当前块，先清除块内所有内联样式，再重置块类型
+        const anchorNode = selection.anchor.getNode();
+        const blockElement =
+          ($findMatchingParent(anchorNode, (node): node is ElementNode => {
+            if (!$isElementNode(node)) return false;
+            const parent = node.getParent();
+            return parent !== null && $isRootOrShadowRoot(parent);
+          }) as ElementNode | null) ?? (anchorNode.getTopLevelElementOrThrow() as ElementNode);
+
+        if ($isElementNode(blockElement)) {
+          const textNodes: TextNode[] = [];
+          blockElement.getChildren().forEach(child => collectTextNodes(child, textNodes));
+          clearTextNodeStyles(textNodes);
+        }
+        $setBlocksType(selection, () => $createParagraphNode());
+      }
+    });
+  }, [editor]);
+
+  /**
    * 处理字体颜色变更，null 表示清除。
    * @param color 颜色值或 null
    * @returns void
@@ -251,13 +320,13 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
       >
         <TextUnderlineOutlined className="theme__icon" />
       </ToolbarItem>
-      <ColorPicker value={fontColor} onChange={handleFontColorChange}>
+      <ColorPicker color={fontColor} onColorChange={handleFontColorChange}>
         <ToolbarItem title="字体颜色">
           <TextColorOutlined className="theme__icon" />
           <ExpandOutlined className="theme__iconExpand" />
         </ToolbarItem>
       </ColorPicker>
-      <ColorPicker value={backgroundColor} onChange={handleBackgroundColorChange}>
+      <ColorPicker color={backgroundColor} onColorChange={handleBackgroundColorChange}>
         <ToolbarItem title="背景色">
           <BackgroundColorOutlined className="theme__icon" />
           <ExpandOutlined className="theme__iconExpand" />
@@ -270,6 +339,9 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
         onDoubleClick={handleFormatPainterDoubleClick}
       >
         <FormatPainterOutlined className="theme__icon" />
+      </ToolbarItem>
+      <ToolbarItem title="清除样式" onClick={handleClearStyle}>
+        <ClearStyleOutlined className="theme__icon" />
       </ToolbarItem>
       <ToolbarDivider />
       <DropdownFontFamily fontFamily={fontFamily} />

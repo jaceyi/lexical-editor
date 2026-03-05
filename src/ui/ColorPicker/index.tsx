@@ -3,8 +3,8 @@ import Dropdown, { DropdownProps } from 'rc-dropdown';
 import classNames from 'classnames';
 
 export interface ColorPickerProps extends DropdownProps {
-  value?: string | null;
-  onChange: (color: string | null) => void;
+  color?: string | null;
+  onColorChange: (color: string | null) => void;
   colors?: string[][];
   overlayClassName?: string;
 }
@@ -143,8 +143,8 @@ const defaultColorMatrix: string[][] = [
 ];
 
 export const ColorPicker: React.FC<ColorPickerProps> = ({
-  value,
-  onChange,
+  color,
+  onColorChange,
   colors = defaultColorMatrix,
   overlayClassName,
   placement = 'bottomLeft',
@@ -168,10 +168,10 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
    */
   const handleSelect = useCallback(
     (color: string | null) => {
-      onChange(color);
+      onColorChange(color);
       setOpen(false);
     },
-    [onChange]
+    [onColorChange]
   );
 
   const overlayContent = useMemo(
@@ -189,15 +189,15 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
         <div className="editor__colorGrid">
           {colors.map((row, rowIndex) => (
             <div className="editor__colorRow" key={`row-${rowIndex}`}>
-              {row.map(color => (
+              {row.map(_color => (
                 <button
-                  key={`${rowIndex}-${color}`}
+                  key={`${rowIndex}-${_color}`}
                   type="button"
                   className={classNames('editor__colorBlock', {
-                    editor__colorBlockSelected: color === value
+                    editor__colorBlockSelected: _color === color
                   })}
-                  style={{ backgroundColor: color }}
-                  onClick={() => handleSelect(color)}
+                  style={{ backgroundColor: _color }}
+                  onClick={() => handleSelect(_color)}
                 />
               ))}
             </div>
@@ -205,7 +205,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
         </div>
       </div>
     ),
-    [colors, handleSelect, value]
+    [colors, handleSelect, color]
   );
 
   return (
