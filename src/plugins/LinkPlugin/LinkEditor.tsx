@@ -3,55 +3,40 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { TOGGLE_LINK_COMMAND } from '@lexical/link';
 import { AUTO_INSERT_LINK_COMMAND } from '.';
 
-/**
- * 链接编辑器组件属性
- * @param onConfirm 确认提交后的回调
- * @param onCancel 取消操作的回调
- * @param isLink 是否是链接
- */
 interface LinkEditorProps {
   onConfirm: () => void;
   onCancel: () => void;
-  linkData: {
-    isLink: boolean;
-    url: string | null;
-  };
+  linkUrl: string | null;
 }
 
 const DEFAULT_LINK_URL = 'https://';
 
-export const LinkEditor: React.FC<LinkEditorProps> = ({ onConfirm, linkData }) => {
+export const LinkEditor: React.FC<LinkEditorProps> = ({ onConfirm, linkUrl }) => {
   const [editor] = useLexicalComposerContext();
-  const [linkUrl, setLinkUrl] = useState(DEFAULT_LINK_URL);
+  const [inputUrl, setInputUrl] = useState(DEFAULT_LINK_URL);
 
-  // 初始化选区信息
   useEffect(() => {
     editor.getEditorState().read(() => {
-      if (linkData.isLink && linkData.url) {
-        setLinkUrl(linkData.url);
-      } else {
-        setLinkUrl(DEFAULT_LINK_URL);
-      }
+      setInputUrl(linkUrl ?? DEFAULT_LINK_URL);
     });
-  }, [editor, linkData.isLink, linkData.url]);
+  }, [editor, linkUrl]);
 
   const handleConfirm = useCallback(() => {
-    if (linkUrl && linkUrl !== DEFAULT_LINK_URL) {
-      // 如果已经是链接，我们使用 TOGGLE_LINK_COMMAND 来更新它，而不是插入新节点
-      if (linkData.isLink) {
-        editor.dispatchCommand(TOGGLE_LINK_COMMAND, linkUrl);
+    if (inputUrl && inputUrl !== DEFAULT_LINK_URL) {
+      if (linkUrl) {
+        editor.dispatchCommand(TOGGLE_LINK_COMMAND, inputUrl);
       } else {
-        editor.dispatchCommand(AUTO_INSERT_LINK_COMMAND, { url: linkUrl, title: linkUrl });
+        editor.dispatchCommand(AUTO_INSERT_LINK_COMMAND, { url: inputUrl, title: inputUrl });
       }
       onConfirm();
-      setLinkUrl(DEFAULT_LINK_URL);
+      setInputUrl(DEFAULT_LINK_URL);
     }
-  }, [editor, linkUrl, onConfirm, linkData.isLink]);
+  }, [editor, inputUrl, onConfirm, linkUrl]);
 
   const handleClear = useCallback(() => {
     editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
     onConfirm();
-    setLinkUrl(DEFAULT_LINK_URL);
+    setInputUrl(DEFAULT_LINK_URL);
   }, [editor, onConfirm]);
 
   return (
@@ -60,10 +45,10 @@ export const LinkEditor: React.FC<LinkEditorProps> = ({ onConfirm, linkData }) =
         <label>链接地址</label>
         <input
           type="text"
-          value={linkUrl}
-          onChange={e => setLinkUrl(e.target.value)}
+          value={inputUrl}
+          onChange={e => setInputUrl(e.target.value)}
           placeholder={DEFAULT_LINK_URL}
-          autoFocus={linkData.isLink}
+          autoFocus={linkUrl !== null}
           onKeyDown={e => {
             if (e.key === 'Enter') {
               handleConfirm();
@@ -72,7 +57,7 @@ export const LinkEditor: React.FC<LinkEditorProps> = ({ onConfirm, linkData }) =
         />
       </div>
       <div className="link-editor-actions">
-        {linkData.isLink && (
+        {linkUrl !== null && (
           <button type="button" className="cancel" onClick={handleClear}>
             取消链接
           </button>

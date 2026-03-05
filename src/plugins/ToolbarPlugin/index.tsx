@@ -62,30 +62,22 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
   const [editor] = useLexicalComposerContext();
 
   const [blockType, setBlockType] = useState('root');
-  const [isBold, setIsBold] = useState(false);
-  const [isItalic, setIsItalic] = useState(false);
-  const [isUnderline, setIsUnderline] = useState(false);
-  const [fontColor, setFontColor] = useState<string | null>(null);
-  const [backgroundColor, setBackgroundColor] = useState<string | null>(null);
-  const [fontSize, setFontSize] = useState<string | null>(null);
-  const [fontFamily, setFontFamily] = useState<string | null>(null);
-  const [elementFormat, setElementFormat] = useState<string>('left');
-  const [linkData, setLinkData] = useState<{ isLink: boolean; url: string | null }>({
-    isLink: false,
-    url: null
+  const [textFormat, setTextFormat] = useState({
+    isBold: false,
+    isItalic: false,
+    isUnderline: false
   });
+  const [textStyle, setTextStyle] = useState<{
+    fontColor: string | null;
+    backgroundColor: string | null;
+    fontSize: string | null;
+    fontFamily: string | null;
+  }>({ fontColor: null, backgroundColor: null, fontSize: null, fontFamily: null });
+  const [elementFormat, setElementFormat] = useState<string>('left');
+  const [linkUrl, setLinkUrl] = useState<string | null>(null);
 
   const { formatPainterMode, handleFormatPainterClick, handleFormatPainterDoubleClick } =
-    useFormatPainter(editor, {
-      isBold,
-      isItalic,
-      isUnderline,
-      fontColor,
-      backgroundColor,
-      fontSize,
-      fontFamily,
-      blockType
-    });
+    useFormatPainter(editor, { ...textFormat, ...textStyle, blockType });
 
   const $updateToolbar = useCallback(() => {
     const selection = $getSelection();
@@ -121,21 +113,26 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
       }
 
       // text format
-      setIsBold(selection.hasFormat('bold'));
-      setIsItalic(selection.hasFormat('italic'));
-      setIsUnderline(selection.hasFormat('underline'));
-      setFontColor($getSelectionStyleValueForProperty(selection, 'color'));
-      setBackgroundColor($getSelectionStyleValueForProperty(selection, 'background-color'));
-      setFontSize($getSelectionStyleValueForProperty(selection, 'font-size'));
-      setFontFamily($getSelectionStyleValueForProperty(selection, 'font-family'));
+      setTextFormat({
+        isBold: selection.hasFormat('bold'),
+        isItalic: selection.hasFormat('italic'),
+        isUnderline: selection.hasFormat('underline')
+      });
+      // text style
+      setTextStyle({
+        fontColor: $getSelectionStyleValueForProperty(selection, 'color'),
+        backgroundColor: $getSelectionStyleValueForProperty(selection, 'background-color'),
+        fontSize: $getSelectionStyleValueForProperty(selection, 'font-size'),
+        fontFamily: $getSelectionStyleValueForProperty(selection, 'font-family')
+      });
 
       // Update links
       if ($isLinkNode(parent)) {
-        setLinkData({ isLink: true, url: parent.getURL() });
+        setLinkUrl(parent.getURL());
       } else if ($isLinkNode(node)) {
-        setLinkData({ isLink: true, url: node.getURL() });
+        setLinkUrl(node.getURL());
       } else {
-        setLinkData({ isLink: false, url: null });
+        setLinkUrl(null);
       }
 
       // Update block align
@@ -295,7 +292,7 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
       <ToolbarDivider />
       <ToolbarItem
         title="加粗"
-        isActive={isBold}
+        isActive={textFormat.isBold}
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
         }}
@@ -304,7 +301,7 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
       </ToolbarItem>
       <ToolbarItem
         title="斜体"
-        isActive={isItalic}
+        isActive={textFormat.isItalic}
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic');
         }}
@@ -313,20 +310,20 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
       </ToolbarItem>
       <ToolbarItem
         title="下划线"
-        isActive={isUnderline}
+        isActive={textFormat.isUnderline}
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline');
         }}
       >
         <TextUnderlineOutlined className="theme__icon" />
       </ToolbarItem>
-      <ColorPicker color={fontColor} onColorChange={handleFontColorChange}>
+      <ColorPicker color={textStyle.fontColor} onColorChange={handleFontColorChange}>
         <ToolbarItem title="字体颜色">
           <TextColorOutlined className="theme__icon" />
           <ExpandOutlined className="theme__iconExpand" />
         </ToolbarItem>
       </ColorPicker>
-      <ColorPicker color={backgroundColor} onColorChange={handleBackgroundColorChange}>
+      <ColorPicker color={textStyle.backgroundColor} onColorChange={handleBackgroundColorChange}>
         <ToolbarItem title="背景色">
           <BackgroundColorOutlined className="theme__icon" />
           <ExpandOutlined className="theme__iconExpand" />
@@ -344,11 +341,11 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
         <ClearStyleOutlined className="theme__icon" />
       </ToolbarItem>
       <ToolbarDivider />
-      <DropdownFontFamily fontFamily={fontFamily} />
-      <DropdownFontSize fontSize={fontSize} />
+      <DropdownFontFamily fontFamily={textStyle.fontFamily} />
+      <DropdownFontSize fontSize={textStyle.fontSize} />
       <DropdownBlockAlign elementFormat={elementFormat} />
       <ToolbarDivider />
-      <LinkPicker linkData={linkData} />
+      <LinkPicker linkUrl={linkUrl} />
       {typeGuards.isObject(mentions) &&
         mentions &&
         (Array.isArray(mentions) || Array.isArray(mentions.mentions)) && (
