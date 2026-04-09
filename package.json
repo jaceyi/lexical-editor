@@ -1,0 +1,68 @@
+{
+  "name": "@jaceyi/lexical-editor",
+  "version": "0.0.1",
+  "license": "MIT",
+  "main": "lib/index.js",
+  "type": "module",
+  "typings": "lib/index.d.ts",
+  "repository": "git@github.com:jaceyi/lexical-editor.git",
+  "homepage": "https://github.com/jaceyi/lexical-editor",
+  "author": "Jace Yi <yijinchun@outlook.com>",
+  "keywords": [
+    "react",
+    "editor",
+    "lexical",
+    "rich-text"
+  ],
+  "files": [
+    "README.md",
+    "LICENSE",
+    "lib"
+  ],
+  "exports": {
+    ".": "./lib/index.js",
+    "./style.css": "./lib/style.css"
+  },
+  "scripts": {
+    "build": "rm -rf ./lib && yarn build:ts && yarn build:style",
+    "build:ts": "yarn tsc",
+    "build:style": "sass --no-source-map --style compressed src/index.scss lib/style.css && yarn postcss --no-map lib/style.css --use=autoprefixer --output=lib/style.css",
+    "watch": "chokidar \"src/**/*\" -c \"yarn build\"",
+    "watch:ts": "chokidar \"src/**/*.{ts,tsx}\" -c \"yarn build:ts\"",
+    "watch:style": "chokidar \"src/**/*.scss\" -c \"yarn build:style\"",
+    "prettier": "prettier --write 'src/**/*.{ts,tsx,js,jsx,scss,css}'",
+    "lint": "eslint 'src/**/*.{ts,tsx,js,jsx}' --quiet --fix"
+  },
+  "dependencies": {
+    "@lexical/react": "^0.39.0",
+    "@lexical/utils": "^0.39.0",
+    "@rc-component/dropdown": "^1.0.0",
+    "@rc-component/tooltip": "^1.0.0",
+    "clsx": "^2.1.1",
+    "lexical": "^0.39.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.2",
+    "@types/react-dom": "^18.3.0",
+    "@typescript-eslint/eslint-plugin": "^7.11.0",
+    "@typescript-eslint/parser": "^7.11.0",
+    "autoprefixer": "^10.4.19",
+    "chokidar-cli": "^3.0.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "eslint-plugin-react": "^7.34.2",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "postcss": "^8.4.38",
+    "postcss-cli": "^11.0.0",
+    "prettier": "^3.0.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "sass": "^1.77.2",
+    "typescript": "^5.4.5"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
+  }
+}
