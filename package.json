@@ -1,6 +1,7 @@
 {
   "name": "@jaceyi/lexical-editor",
-  "version": "0.0.1",
+  "version": "0.0.2",
+  "description": "A React rich text editor based on Lexical, supporting HTML and JSON modes with extensible plugins.",
   "license": "MIT",
   "main": "lib/index.js",
   "type": "module",
