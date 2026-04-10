@@ -5,6 +5,7 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { $getSelection } from 'lexical';
 import { ExpandOutlined, FontSizeOutlined } from '../../icons';
 import { List, ToolbarItem } from '../../ui';
+import { usePopupContainer } from '../../hooks/usePopupContainer';
 
 const fontSizes = [12, 13, 14, 16, 18, 20, 24, 32, 40, 48];
 
@@ -20,6 +21,7 @@ export interface DropdownFontSizeProps extends Omit<DropdownProps, 'children'> {
  */
 export const DropdownFontSize: React.FC<DropdownFontSizeProps> = ({ fontSize }) => {
   const [editor] = useLexicalComposerContext();
+  const { getPopupContainer } = usePopupContainer();
 
   /**
    * 更新字体大小
@@ -52,7 +54,7 @@ export const DropdownFontSize: React.FC<DropdownFontSizeProps> = ({ fontSize }) 
 
   return (
     <Dropdown
-      overlayClassName="editor__root"
+      getPopupContainer={getPopupContainer}
       overlay={<List items={menuItems} />}
       trigger={['click']}
     >

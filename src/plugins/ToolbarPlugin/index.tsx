@@ -47,6 +47,7 @@ import { DropdownFontFamily } from './DropdownFontFamily';
 import { DropdownBlockAlign } from './DropdownBlockAlign';
 import { ColorPicker, ToolbarItem, ToolbarDivider } from '../../ui';
 import { useFormatPainter } from './useFormatPainter';
+import { usePopupContainer } from '../../hooks/usePopupContainer';
 
 const classNameMaps = {
   fileInput: 'editor__toolbarFileInput'
@@ -60,6 +61,7 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
   const { onUploadFile, mentions } = config;
 
   const [editor] = useLexicalComposerContext();
+  const { getPopupContainer } = usePopupContainer();
 
   const [blockType, setBlockType] = useState('root');
   const [textFormat, setTextFormat] = useState({
@@ -317,13 +319,21 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
       >
         <TextUnderlineOutlined className="theme__icon" />
       </ToolbarItem>
-      <ColorPicker color={textStyle.fontColor} onColorChange={handleFontColorChange}>
+      <ColorPicker
+        color={textStyle.fontColor}
+        onColorChange={handleFontColorChange}
+        getPopupContainer={getPopupContainer}
+      >
         <ToolbarItem title="字体颜色">
           <TextColorOutlined className="theme__icon" />
           <ExpandOutlined className="theme__iconExpand" />
         </ToolbarItem>
       </ColorPicker>
-      <ColorPicker color={textStyle.backgroundColor} onColorChange={handleBackgroundColorChange}>
+      <ColorPicker
+        color={textStyle.backgroundColor}
+        onColorChange={handleBackgroundColorChange}
+        getPopupContainer={getPopupContainer}
+      >
         <ToolbarItem title="背景色">
           <BackgroundColorOutlined className="theme__icon" />
           <ExpandOutlined className="theme__iconExpand" />

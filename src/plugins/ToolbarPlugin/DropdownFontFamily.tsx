@@ -5,6 +5,7 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { $getSelection } from 'lexical';
 import { ExpandOutlined, FontFamilyOutlined } from '../../icons';
 import { List, ToolbarItem } from '../../ui';
+import { usePopupContainer } from '../../hooks/usePopupContainer';
 
 export interface FontFamily {
   label: string;
@@ -33,6 +34,7 @@ export interface DropdownFontFamilyProps extends Omit<DropdownProps, 'children'>
  */
 export const DropdownFontFamily: React.FC<DropdownFontFamilyProps> = ({ fontFamily }) => {
   const [editor] = useLexicalComposerContext();
+  const { getPopupContainer } = usePopupContainer();
 
   const updateFontFamily = (value: string | null) => {
     editor.update(() => {
@@ -60,7 +62,7 @@ export const DropdownFontFamily: React.FC<DropdownFontFamilyProps> = ({ fontFami
 
   return (
     <Dropdown
-      overlayClassName="editor__root"
+      getPopupContainer={getPopupContainer}
       overlay={<List items={menuItems} />}
       trigger={['click']}
     >

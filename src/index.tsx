@@ -1,4 +1,4 @@
-export * from './hooks/useHTMLHandle';
+export * from './hooks/useEditorHandle';
 export { default } from './Editor';
 export type {
   EditorAllProps,
@@ -7,5 +7,6 @@ export type {
   EditorJSONProps,
   EditorJSONValue,
   EditorRef,
+  EditorThemeMode,
   EditorThemeClasses
 } from './Editor';

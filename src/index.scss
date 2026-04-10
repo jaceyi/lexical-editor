@@ -1,437 +1,466 @@
 @import '@rc-component/dropdown/assets/index.css';
 @import '@rc-component/tooltip/assets/bootstrap_white.css';
 
-.rc-tooltip {
-  font-size: 12px;
-  max-width: 200px;
+@layer lexical-editor {
+  :where(.rc-tooltip) {
+    font-size: 12px;
+    max-width: 200px;
 
-  .rc-tooltip-container{
-    min-height: auto;
-    padding: 4px 8px;
-    color: #fff;
-    background-color: rgba(0, 0, 0, 0.75);
-    border: none;
-    border-radius: 4px;
-    box-shadow: none;
-  }
-
-  .rc-tooltip-arrow {
-    display: none;
-  }
-}
-
-:root {
-  --lexicalEditorColorPrimary: #2483ff;
-  --lexicalEditorBorderColor: rgba(0, 0, 0, 0.11);
-}
-
-.editor__root {
-  color: #232323;
-  line-height: 1.4;
-
-  * {
-    margin: 0;
-    box-sizing: border-box;
-  }
-
-  .editor__container {
-    background-color: #fff;
-    position: relative;
-    border-radius: 2px;
-    border: 1px solid var(--lexicalEditorBorderColor);
-
-    .editor__main,
-    .editor__content {
-      position: relative;
-    }
-
-    .editor__placeholder {
-      color: #999;
-      position: absolute;
-      text-overflow: ellipsis;
-      top: 10px;
-      left: 10px;
-      right: 10px;
-      user-select: none;
-      white-space: nowrap;
-      display: inline-block;
-      pointer-events: none;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
-
-    .editor__editable {
-      outline: none;
-      padding: 10px;
-
-      a {
-        color: var(--lexicalEditorColorPrimary);
-      }
-
-      ol {
-        padding-left: 18px;
-
-        li {
-          list-style: auto;
-        }
-      }
-
-      ul {
-        padding-left: 18px;
-
-        li {
-          list-style: disc;
-        }
-      }
-
-      blockquote {
-        padding: 8px 0 8px 16px;
-        border-left: 4px solid #d2d2d2;
-        background-color: #d2d2d24d;
-      }
-
-      & > *:last-child {
-        margin-bottom: 0;
-      }
-    }
-
-    // common start
-    .editor__Node_focused {
-      outline: 1px solid var(--lexicalEditorColorPrimary);
-      user-select: none;
-      border-radius: 1px;
-    }
-    // common end
-
-    // theme start
-    .theme__image {
-      cursor: default;
-      display: inline-block;
-      position: relative;
-      user-select: none;
-      padding: 1px;
-
-      img {
-        max-width: 100%;
-        max-height: 300px;
-        width: inherit;
-        height: inherit;
-        vertical-align: bottom;
-      }
-    }
-
-    .theme__textBold {
-      font-weight: 700;
-    }
-
-    .theme__textItalic {
-      font-style: italic;
-    }
-
-    .theme__textUnderline {
-      text-decoration: underline;
-    }
-
-    .theme__textKeyword {
-      color: #f1765e;
-    }
-
-    .theme__nodeMention {
-      user-select: none;
-
-      span {
-        background-color: rgb(#888, 0.1);
-        padding: 0 3px;
-        border-radius: 3px;
-        color: var(--lexicalEditorColorPrimary);
-      }
-    }
-    // theme end
-  }
-
-  .theme__icon {
-    font-size: 16px;
-  }
-
-  .editor__toolbar {
-    display: flex;
-    gap: 2px;
-    padding: 4px;
-    border-bottom: 0;
-    border-bottom: 1px solid var(--lexicalEditorBorderColor);
-    white-space: nowrap;
-    overflow-x: auto;
-
-    &Item {
-      background-color: transparent;
+    .rc-tooltip-container {
+      min-height: auto;
+      padding: 4px 8px;
+      color: #fff;
+      background-color: rgba(0, 0, 0, 0.75);
       border: none;
-      border-radius: 6px;
-      padding: 8px;
-      cursor: pointer;
-      font-size: initial;
-      color: #282828;
-      text-align: left;
-      line-height: 1;
-      font-size: 14px;
-      color: #363636;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-
-      &:hover {
-        background-color: #d2d2d27d;
-      }
-
-      &_disabled {
-        color: #bbb;
-      }
-
-      &_actived {
-        background-color: #d2d2d24d;
-      }
-
-      &.blockFormat {
-        width: 120px;
-      }
-
-      .editor__toolbarFontFamilyLabel {
-        font-size: 12px;
-        margin: 0 2px;
-        max-width: 32px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-
-      .theme__iconExpand {
-        font-size: 12px;
-        color: #666;
-      }
+      border-radius: 4px;
+      box-shadow: none;
     }
 
-    &Divider {
-      width: 1px;
-      background-color: var(--lexicalEditorBorderColor);
-      margin: 0 4px;
-    }
-
-    &FileInput {
+    .rc-tooltip-arrow {
       display: none;
     }
   }
 
-  .editor__linkEditor {
-    background-color: #fff;
-    box-shadow:
+  :where(.editor__root) {
+    --lexicalEditorColorPrimary: #2483ff;
+    --lexicalEditorBorderColor: rgba(0, 0, 0, 0.11);
+    --lexicalEditorTextColor: #232323;
+    --lexicalEditorBgColor: #fff;
+    --lexicalEditorPanelBg: #fff;
+    --lexicalEditorMutedTextColor: #666;
+    --lexicalEditorPlaceholderColor: #999;
+    --lexicalEditorHoverBg: #d2d2d27d;
+    --lexicalEditorActivedBg: #d2d2d24d;
+    --lexicalEditorMentionBg: rgba(136, 136, 136, 0.1);
+    --lexicalEditorKeywordColor: #f1765e;
+    --lexicalEditorInputBg: #fff;
+    --lexicalEditorInputTextColor: #595959;
+    --lexicalEditorInputBorderColor: #d9d9d9;
+    --lexicalEditorInputDisabledBg: #f5f5f5;
+    --lexicalEditorInputDisabledTextColor: #8c8c8c;
+    --lexicalEditorOverlayShadow:
       0 6px 16px rgba(0, 0, 0, 0.08),
       0 3px 6px -4px rgba(0, 0, 0, 0.12),
       0 9px 28px 8px rgba(0, 0, 0, 0.05);
-    border-radius: 8px;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    width: 300px;
-    border: 1px solid #f0f0f0;
+    --lexicalEditorMenuShadow: 0 0 8px rgba(0, 0, 0, 0.2);
+    color: var(--lexicalEditorTextColor);
+    line-height: 1.4;
 
-    .link-input-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
+    &[data-lexical-theme='dark'] {
+      --lexicalEditorBorderColor: rgba(255, 255, 255, 0.2);
+      --lexicalEditorTextColor: #e5e7eb;
+      --lexicalEditorBgColor: #0f172a;
+      --lexicalEditorPanelBg: #111827;
+      --lexicalEditorMutedTextColor: #cbd5e1;
+      --lexicalEditorPlaceholderColor: #94a3b8;
+      --lexicalEditorHoverBg: rgba(148, 163, 184, 0.2);
+      --lexicalEditorActivedBg: rgba(148, 163, 184, 0.24);
+      --lexicalEditorMentionBg: rgba(148, 163, 184, 0.2);
+      --lexicalEditorKeywordColor: #fdba74;
+      --lexicalEditorInputBg: #0b1220;
+      --lexicalEditorInputTextColor: #e5e7eb;
+      --lexicalEditorInputBorderColor: rgba(148, 163, 184, 0.35);
+      --lexicalEditorInputDisabledBg: rgba(148, 163, 184, 0.2);
+      --lexicalEditorInputDisabledTextColor: #94a3b8;
+      --lexicalEditorOverlayShadow:
+        0 6px 16px rgba(0, 0, 0, 0.45),
+        0 3px 6px -4px rgba(0, 0, 0, 0.5),
+        0 9px 28px 8px rgba(0, 0, 0, 0.38);
+      --lexicalEditorMenuShadow: 0 0 12px rgba(0, 0, 0, 0.35);
+    }
 
-      label {
-        font-size: 13px;
-        color: #262626;
-        font-weight: 500;
+    * {
+      margin: 0;
+      box-sizing: border-box;
+    }
+
+    .editor__container {
+      background-color: var(--lexicalEditorBgColor);
+      position: relative;
+      border-radius: 2px;
+      border: 1px solid var(--lexicalEditorBorderColor);
+
+      .editor__main {
+        position: relative;
       }
 
-      input {
-        padding: 7px 11px;
-        border: 1px solid #d9d9d9;
-        border-radius: 4px;
-        font-size: 14px;
+      .editor__placeholder {
+        color: var(--lexicalEditorPlaceholderColor);
+        position: absolute;
+        text-overflow: ellipsis;
+        top: 12px;
+        left: 12px;
+        right: 12px;
+        bottom: 12px;
+        user-select: none;
+        display: inline-block;
+        pointer-events: none;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+
+      .editor__content {
         outline: none;
-        transition: all 0.3s;
-        color: #595959;
+        padding: 12px;
 
-        &::placeholder {
-          color: #bfbfbf;
+        a {
+          color: var(--lexicalEditorColorPrimary);
         }
 
-        &:hover {
-          border-color: var(--lexicalEditorColorPrimary);
+        ol {
+          padding-left: 18px;
+
+          li {
+            list-style: auto;
+          }
         }
 
-        &:focus {
-          border-color: var(--lexicalEditorColorPrimary);
-          box-shadow: 0 0 0 2px rgba(36, 131, 255, 0.1);
+        ul {
+          padding-left: 18px;
+
+          li {
+            list-style: disc;
+          }
         }
 
-        &:disabled {
-          background-color: #f5f5f5;
-          color: #8c8c8c;
-          cursor: not-allowed;
-          border-color: #d9d9d9;
+        blockquote {
+          padding: 8px 0 8px 16px;
+          border-left: 4px solid var(--lexicalEditorBorderColor);
+          background-color: var(--lexicalEditorActivedBg);
+        }
+
+        & > *:last-child {
+          margin-bottom: 0;
+        }
+      }
+
+      .editor__Node_focused {
+        outline: 1px solid var(--lexicalEditorColorPrimary);
+        user-select: none;
+        border-radius: 1px;
+      }
+
+      .theme__image {
+        cursor: default;
+        display: inline-block;
+        position: relative;
+        user-select: none;
+        padding: 1px;
+
+        img {
+          max-width: 100%;
+          max-height: 300px;
+          width: inherit;
+          height: inherit;
+          vertical-align: bottom;
+        }
+      }
+
+      .theme__textBold {
+        font-weight: 700;
+      }
+
+      .theme__textItalic {
+        font-style: italic;
+      }
+
+      .theme__textUnderline {
+        text-decoration: underline;
+      }
+
+      .theme__textKeyword {
+        color: var(--lexicalEditorKeywordColor);
+      }
+
+      .theme__nodeMention {
+        user-select: none;
+
+        span {
+          background-color: var(--lexicalEditorMentionBg);
+          padding: 0 3px;
+          border-radius: 3px;
+          color: var(--lexicalEditorColorPrimary);
         }
       }
     }
 
-    .link-editor-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px;
-      margin-top: 4px;
+    .theme__icon {
+      font-size: 16px;
+    }
 
-      button {
-        padding: 4px 15px;
-        border-radius: 4px;
-        font-size: 14px;
+    .editor__toolbar {
+      display: flex;
+      gap: 2px;
+      padding: 4px;
+      border-bottom: 1px solid var(--lexicalEditorBorderColor);
+      white-space: nowrap;
+      overflow-x: auto;
+
+      &Item {
+        background-color: transparent;
+        border: none;
+        border-radius: 6px;
+        padding: 8px;
         cursor: pointer;
-        border: 1px solid #d9d9d9;
-        background: #fff;
-        transition: all 0.3s;
-        color: #595959;
+        text-align: left;
+        line-height: 1;
+        font-size: 14px;
+        color: var(--lexicalEditorTextColor);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
 
         &:hover {
-          color: var(--lexicalEditorColorPrimary);
-          border-color: var(--lexicalEditorColorPrimary);
+          background-color: var(--lexicalEditorHoverBg);
         }
 
-        &.confirm {
-          background-color: var(--lexicalEditorColorPrimary);
-          color: #fff;
-          border-color: var(--lexicalEditorColorPrimary);
+        &_disabled {
+          color: #bbb;
+        }
+
+        &_actived {
+          background-color: var(--lexicalEditorActivedBg);
+        }
+
+        &.blockFormat {
+          width: 120px;
+        }
+
+        .editor__toolbarFontFamilyLabel {
+          font-size: 12px;
+          margin: 0 2px;
+          max-width: 32px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .theme__iconExpand {
+          font-size: 12px;
+          color: var(--lexicalEditorMutedTextColor);
+        }
+      }
+
+      &Divider {
+        width: 1px;
+        background-color: var(--lexicalEditorBorderColor);
+        margin: 0 4px;
+      }
+
+      &FileInput {
+        display: none;
+      }
+    }
+
+    .editor__linkEditor {
+      background-color: var(--lexicalEditorPanelBg);
+      box-shadow: var(--lexicalEditorOverlayShadow);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 300px;
+      border: 1px solid var(--lexicalEditorBorderColor);
+
+      .link-input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+
+        label {
+          font-size: 13px;
+          color: var(--lexicalEditorTextColor);
+          font-weight: 500;
+        }
+
+        input {
+          padding: 7px 11px;
+          border: 1px solid var(--lexicalEditorInputBorderColor);
+          border-radius: 4px;
+          font-size: 14px;
+          outline: none;
+          transition: all 0.3s;
+          color: var(--lexicalEditorInputTextColor);
+          background-color: var(--lexicalEditorInputBg);
+
+          &::placeholder {
+            color: var(--lexicalEditorPlaceholderColor);
+          }
 
           &:hover {
-            opacity: 0.85;
+            border-color: var(--lexicalEditorColorPrimary);
+          }
+
+          &:focus {
+            border-color: var(--lexicalEditorColorPrimary);
+            box-shadow: 0 0 0 2px rgba(36, 131, 255, 0.1);
+          }
+
+          &:disabled {
+            background-color: var(--lexicalEditorInputDisabledBg);
+            color: var(--lexicalEditorInputDisabledTextColor);
+            cursor: not-allowed;
+            border-color: var(--lexicalEditorInputBorderColor);
+          }
+        }
+      }
+
+      .link-editor-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 4px;
+
+        button {
+          padding: 4px 15px;
+          border-radius: 4px;
+          font-size: 14px;
+          cursor: pointer;
+          border: 1px solid var(--lexicalEditorInputBorderColor);
+          background: var(--lexicalEditorInputBg);
+          transition: all 0.3s;
+          color: var(--lexicalEditorInputTextColor);
+
+          &:hover {
+            color: var(--lexicalEditorColorPrimary);
+            border-color: var(--lexicalEditorColorPrimary);
+          }
+
+          &.confirm {
+            background-color: var(--lexicalEditorColorPrimary);
             color: #fff;
+            border-color: var(--lexicalEditorColorPrimary);
+
+            &:hover {
+              opacity: 0.85;
+              color: #fff;
+            }
           }
         }
       }
     }
-  }
 
-  .theme__menu {
-    padding: 4px 6px;
-    box-shadow: 0 0 8px rgba(#000, 0.2);
-    border-radius: 6px;
-    background: #fff;
-    position: absolute;
-    z-index: 999999;
-    text-align: left;
-    max-height: 260px;
-    overflow: auto;
-    font-size: 13px;
-    margin: 0;
-    border: none;
+    .theme__menu {
+      padding: 4px 6px;
+      box-shadow: var(--lexicalEditorMenuShadow);
+      border-radius: 6px;
+      background: var(--lexicalEditorPanelBg);
+      position: absolute;
+      z-index: 999999;
+      text-align: left;
+      max-height: 260px;
+      overflow: auto;
+      font-size: 13px;
+      margin: 0;
+      border: none;
 
-    &Item {
-      list-style: none;
-      padding: 8px;
-      border-radius: 3px;
-      background-color: #fff;
-      transition: background-color 0.3s;
-      cursor: pointer;
-      max-width: 200px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      line-height: 1;
-      margin: 2px 0;
-      font-size: 14px;
-      color: #363636;
+      &Item {
+        list-style: none;
+        padding: 8px;
+        border-radius: 3px;
+        background-color: transparent;
+        transition: background-color 0.3s;
+        cursor: pointer;
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        line-height: 1;
+        margin: 2px 0;
+        font-size: 14px;
+        color: var(--lexicalEditorTextColor);
 
-      &Selected {
-        background-color: #bed3fe4d;
+        &Selected {
+          background-color: var(--lexicalEditorActivedBg);
+        }
+
+        &Label {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+
+        &:hover {
+          background-color: var(--lexicalEditorHoverBg);
+        }
       }
+    }
 
-      &Label {
+    .editor__colorDropdown {
+      padding: 8px 10px 10px;
+      background: var(--lexicalEditorPanelBg);
+      border: 1px solid var(--lexicalEditorBorderColor);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      border-radius: 6px;
+      user-select: none;
+
+      .editor__colorClear {
         display: flex;
         align-items: center;
         gap: 6px;
+        cursor: pointer;
+        border: 1px solid transparent;
+        margin: -2px;
+        padding: 2px;
+        border-radius: 4px;
+
+        &:hover {
+          background-color: var(--lexicalEditorHoverBg);
+        }
       }
 
-      &:hover {
-        background-color: #d2d2d24d;
-      }
-    }
-  }
-
-  .editor__colorDropdown {
-    padding: 8px 10px 10px;
-    background: #fff;
-    border: 1px solid var(--lexicalEditorBorderColor);
-    box-shadow: 0 4px 12px rgba(#000, 0.08);
-    border-radius: 6px;
-    user-select: none;
-
-    .editor__colorClear {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-      padding: 2px;
-      border: 1px solid transparent;
-      margin: -2px;
-      padding: 2px;
-      border-radius: 4px;
-
-      &:hover {
-        background-color: rgba(0, 0, 0, 0.06);
-      }
-    }
-
-    .editor__colorClearIcon {
-      width: 22px;
-      height: 22px;
-      border-radius: 4px;
-      border: 1px solid #d9d9d9;
-      border-radius: 3px;
-      background: linear-gradient(
-        135deg,
-        #fff 0%,
-        #fff 46%,
-        #d9d9d9 46%,
-        #d9d9d9 54%,
-        #fff 54%,
-        #fff 100%
-      );
-    }
-
-    .editor__colorClearText {
-      font-size: 12px;
-      color: #666;
-    }
-
-    .editor__colorGrid {
-      margin-top: 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .editor__colorRow {
-      display: grid;
-      grid-template-columns: repeat(10, 1fr);
-      gap: 6px;
-    }
-
-    .editor__colorBlock {
-      width: 22px;
-      height: 22px;
-      border-radius: 3px;
-      border: 1px solid rgba(0, 0, 0, 0.15);
-      padding: 0;
-      cursor: pointer;
-      transition: transform 0.2s ease-in-out;
-
-      &:hover {
-        transform: scale(1.1);
+      .editor__colorClearIcon {
+        width: 22px;
+        height: 22px;
+        border-radius: 3px;
+        border: 1px solid var(--lexicalEditorInputBorderColor);
+        background: linear-gradient(
+          135deg,
+          var(--lexicalEditorPanelBg) 0%,
+          var(--lexicalEditorPanelBg) 46%,
+          var(--lexicalEditorInputBorderColor) 46%,
+          var(--lexicalEditorInputBorderColor) 54%,
+          var(--lexicalEditorPanelBg) 54%,
+          var(--lexicalEditorPanelBg) 100%
+        );
       }
 
-      &Selected {
-        box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.36);
+      .editor__colorClearText {
+        font-size: 12px;
+        color: var(--lexicalEditorMutedTextColor);
+      }
+
+      .editor__colorGrid {
+        margin-top: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .editor__colorRow {
+        display: grid;
+        grid-template-columns: repeat(10, 1fr);
+        gap: 6px;
+      }
+
+      .editor__colorBlock {
+        width: 22px;
+        height: 22px;
+        border-radius: 3px;
+        border: 1px solid rgba(0, 0, 0, 0.15);
+        padding: 0;
+        cursor: pointer;
+        transition: transform 0.2s ease-in-out;
+
+        &:hover {
+          transform: scale(1.1);
+        }
+
+        &Selected {
+          box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.36);
+        }
       }
     }
   }

@@ -7,7 +7,13 @@ const App = () => {
   return (
     <div className="container">
       <h2>Dev Example</h2>
-      <Editor namespace="dev-editor" ref={editorRef} mode="html" placeholder="开始输入..." />
+      <Editor
+        namespace="dev-editor"
+        ref={editorRef}
+        mode="html"
+        themeMode="dark"
+        placeholder="开始输入..."
+      />
     </div>
   );
 };

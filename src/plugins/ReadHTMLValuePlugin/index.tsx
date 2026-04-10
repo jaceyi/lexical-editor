@@ -13,8 +13,8 @@ export const ReadHTMLValuePlugin: React.FC<ReadHTMLValuePluginProps> = ({
   value
 }) => {
   const [editor] = useLexicalComposerContext();
-
   const isMountRef = useRef(false);
+
   useEffect(() => {
     let html = '';
     if (isMountRef.current) {

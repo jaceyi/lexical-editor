@@ -10,6 +10,6 @@ body {
   padding: 0 20px;
 }
 
-.editor__editable {
+.editor__content {
   min-height: 300px;
 }

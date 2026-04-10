@@ -6,7 +6,6 @@ export interface ColorPickerProps extends DropdownProps {
   color?: string | null;
   onColorChange: (color: string | null) => void;
   colors?: string[][];
-  overlayClassName?: string;
 }
 
 const defaultColorMatrix: string[][] = [
@@ -146,7 +145,6 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
   color,
   onColorChange,
   colors = defaultColorMatrix,
-  overlayClassName,
   placement = 'bottomLeft',
   ...restProps
 }) => {
@@ -213,7 +211,6 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
       <Dropdown
         trigger={['click']}
         overlay={overlayContent}
-        overlayClassName={clsx('editor__root', overlayClassName)}
         placement={placement}
         visible={open}
         onVisibleChange={handleVisibleChange}

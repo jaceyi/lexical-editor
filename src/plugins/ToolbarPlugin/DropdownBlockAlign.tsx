@@ -10,6 +10,7 @@ import {
   ExpandOutlined
 } from '../../icons';
 import { List, ToolbarItem } from '../../ui';
+import { usePopupContainer } from '../../hooks/usePopupContainer';
 
 export interface DropdownBlockAlignProps extends Omit<DropdownProps, 'children'> {
   elementFormat: string;
@@ -23,6 +24,7 @@ export interface DropdownBlockAlignProps extends Omit<DropdownProps, 'children'>
  */
 export const DropdownBlockAlign: React.FC<DropdownBlockAlignProps> = ({ elementFormat }) => {
   const [editor] = useLexicalComposerContext();
+  const { getPopupContainer } = usePopupContainer();
 
   /**
    * 列表项配置数组
@@ -85,7 +87,7 @@ export const DropdownBlockAlign: React.FC<DropdownBlockAlignProps> = ({ elementF
 
   return (
     <Dropdown
-      overlayClassName="editor__root"
+      getPopupContainer={getPopupContainer}
       overlay={<List items={menuItems} />}
       trigger={['click']}
     >

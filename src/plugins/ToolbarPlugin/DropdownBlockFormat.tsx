@@ -21,6 +21,7 @@ import {
   ExpandOutlined
 } from '../../icons';
 import { List, ToolbarItem } from '../../ui';
+import { usePopupContainer } from '../../hooks/usePopupContainer';
 
 export interface DropdownBlockFormatProps extends Omit<DropdownProps, 'children'> {
   blockType: string;
@@ -34,6 +35,7 @@ export interface DropdownBlockFormatProps extends Omit<DropdownProps, 'children'
  */
 export const DropdownBlockFormat: React.FC<DropdownBlockFormatProps> = ({ blockType }) => {
   const [editor] = useLexicalComposerContext();
+  const { getPopupContainer } = usePopupContainer();
 
   /**
    * 格式化为正文
@@ -168,7 +170,7 @@ export const DropdownBlockFormat: React.FC<DropdownBlockFormatProps> = ({ blockT
 
   return (
     <Dropdown
-      overlayClassName="editor__root"
+      getPopupContainer={getPopupContainer}
       overlay={<List items={menuItems} />}
       trigger={['click']}
     >
