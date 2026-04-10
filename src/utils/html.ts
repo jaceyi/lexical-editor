@@ -12,15 +12,39 @@ import { HeadingNode, QuoteNode } from '@lexical/rich-text';
 import { ListNode, ListItemNode } from '@lexical/list';
 import { LinkNode, AutoLinkNode } from '@lexical/link';
 
+const hasInlineStyle = (element: HTMLElement): boolean => {
+  return Boolean(element.getAttribute('style') || element.style.textAlign);
+};
+
+const normalizeStyleText = (styleText: string): string => {
+  const trimmed = styleText.trim();
+  return trimmed.endsWith(';') ? trimmed : `${trimmed};`;
+};
+
+const collectAncestorStyles = (element: HTMLElement): string => {
+  const styles: string[] = [];
+  let current: HTMLElement | null = element;
+
+  while (current) {
+    const style = current.getAttribute('style');
+    if (style) {
+      styles.push(style);
+    }
+    current = current.parentElement;
+  }
+
+  if (styles.length === 0) {
+    return '';
+  }
+
+  return styles.reverse().map(normalizeStyleText).join(' ');
+};
+
 /**
  * 为 Lexical 节点应用内联样式
  * 核心策略：向上遍历 DOM 树收集所有祖先节点的内联样式（如 span 的样式）
  */
-function applyExtraStyles(lexicalNode: LexicalNode, domNode: Node): void {
-  if (!(domNode instanceof HTMLElement) && domNode.nodeType !== Node.TEXT_NODE) {
-    return;
-  }
-
+const applyExtraStyles = (lexicalNode: LexicalNode, domNode: HTMLElement): void => {
   const isText = $isTextNode(lexicalNode);
   const isElement = $isElementNode(lexicalNode);
 
@@ -37,45 +61,23 @@ function applyExtraStyles(lexicalNode: LexicalNode, domNode: Node): void {
     }
   }
 
-  // 向上遍历 DOM 树，收集所有祖先节点的内联样式
-  let currentNode: Node | null = domNode;
-  const styles: string[] = [];
-
-  while (currentNode && currentNode instanceof HTMLElement) {
-    const style = currentNode.getAttribute('style');
-    if (style) {
-      styles.push(style);
-    }
-
-    currentNode = currentNode.parentNode;
-  }
-
-  // 合并样式并应用到 Lexical 节点
-  if (styles.length > 0) {
-    // 逆序合并：离文本越近的样式优先级越高
-    const combinedStyle = styles
-      .reverse()
-      .map(s => {
-        const trimmed = s.trim();
-        return trimmed.endsWith(';') ? trimmed : `${trimmed};`;
-      })
-      .join(' ');
-
-    const existing = lexicalNode.getStyle();
-    const finalStyle = existing ? `${combinedStyle} ${existing}` : combinedStyle;
+  const combinedStyle = collectAncestorStyles(domNode);
+  if (combinedStyle) {
+    const finalStyle = lexicalNode.getStyle()
+      ? `${combinedStyle} ${lexicalNode.getStyle()}`
+      : combinedStyle;
     lexicalNode.setStyle(finalStyle);
   }
-}
+};
 
 /**
  * 包装 Lexical 的转换器，在转换过程中自动应用样式
  */
-function wrapImporter(importer: DOMConversion): DOMConversion {
+const wrapImporter = (importer: DOMConversion): DOMConversion => {
   return {
     ...importer,
     conversion: (domNode: Node) => {
-      // @ts-expect-error Lexical converters might expect specific subtypes of Node
-      const output = importer.conversion(domNode);
+      const output = importer.conversion(domNode as HTMLElement);
 
       // 包装 forChild 回调，确保子节点继承父节点的样式
       const wrapOutput = (out: DOMConversionOutput): DOMConversionOutput => {
@@ -87,7 +89,9 @@ function wrapImporter(importer: DOMConversion): DOMConversion {
             if (originalForChild) {
               resultNode = originalForChild(lexicalNode, parent) || lexicalNode;
             }
-            applyExtraStyles(resultNode, domNode);
+            if (domNode instanceof HTMLElement) {
+              applyExtraStyles(resultNode, domNode);
+            }
             return resultNode;
           }
         };
@@ -95,17 +99,14 @@ function wrapImporter(importer: DOMConversion): DOMConversion {
 
       // 如果原转换器不处理此节点，但节点有样式，则创建透传转换器
       if (!output) {
-        if (
-          domNode instanceof HTMLElement &&
-          (domNode.getAttribute('style') || domNode.style.textAlign)
-        ) {
+        if (domNode instanceof HTMLElement && hasInlineStyle(domNode)) {
           return wrapOutput({ node: null });
         }
         return null;
       }
 
       // 为转换器创建的节点应用样式
-      if (output.node) {
+      if (output.node && domNode instanceof HTMLElement) {
         const nodes = Array.isArray(output.node) ? output.node : [output.node];
         for (const node of nodes) {
           if (node) applyExtraStyles(node, domNode);
@@ -115,7 +116,7 @@ function wrapImporter(importer: DOMConversion): DOMConversion {
       return wrapOutput(output);
     }
   };
-}
+};
 
 /**
  * 构建自定义的 HTML 导入配置
@@ -138,18 +139,20 @@ export function getHTMLConfig() {
 
   // 收集所有节点类型的 importDOM 配置，并用 wrapImporter 包装
   for (const node of nodes) {
-    const nodeImportMap = (node as any).importDOM ? (node as any).importDOM() : null;
+    const nodeImportMap = node.importDOM ? node.importDOM() : null;
     if (nodeImportMap) {
       for (const [tag, fn] of Object.entries(nodeImportMap)) {
         const existingFn = importMap[tag];
 
         importMap[tag] = (importNode: Node) => {
-          const importer = (fn as any)(importNode);
+          const importer = (fn as (node: Node) => ReturnType<typeof fn>)(importNode);
           if (importer) {
             return wrapImporter(importer);
           }
           if (existingFn) {
-            const existingImporter = (existingFn as any)(importNode);
+            const existingImporter = (existingFn as (node: Node) => ReturnType<typeof existingFn>)(
+              importNode
+            );
             if (existingImporter) return existingImporter;
           }
           return null;
@@ -157,35 +160,6 @@ export function getHTMLConfig() {
       }
     }
   }
-
-  // 特殊处理 span 标签：它通常用作样式容器，但 Lexical 默认会跳过
-  const originalSpanFactory = importMap['span'];
-
-  importMap['span'] = (importNode: Node) => {
-    if (!(importNode instanceof HTMLElement)) {
-      return originalSpanFactory ? (originalSpanFactory as any)(importNode) : null;
-    }
-
-    const hasStyle = importNode.getAttribute('style') || importNode.style.textAlign;
-
-    // 如果 span 有样式，创建一个高优先级的透传转换器
-    // 它不创建节点，只将样式应用到子节点
-    if (hasStyle) {
-      return {
-        conversion: (domNode: Node) => ({
-          forChild: (lexNode: LexicalNode) => {
-            applyExtraStyles(lexNode, domNode);
-            return lexNode;
-          },
-          node: null
-        }),
-        priority: 4 // 高优先级确保此转换器被优先使用
-      };
-    }
-
-    // 无样式的 span 使用原有转换器（如 MentionNode 的特殊 span）
-    return originalSpanFactory ? (originalSpanFactory as any)(importNode) : null;
-  };
 
   return {
     import: importMap

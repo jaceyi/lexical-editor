@@ -1,4 +1,4 @@
-import { EditorConfig, LexicalNode, TextNode, SerializedTextNode } from 'lexical';
+import { EditorConfig, LexicalNode, TextNode, SerializedTextNode, DOMConversionMap } from 'lexical';
 
 export class KeywordNode extends TextNode {
   static getType() {
@@ -18,6 +18,24 @@ export class KeywordNode extends TextNode {
     return node;
   }
 
+  static importDOM(): DOMConversionMap {
+    return {
+      span: (domNode: Node) => {
+        const span = domNode as HTMLElement;
+        if (!span.dataset.lexicalKeyword) {
+          return null;
+        }
+
+        return {
+          conversion: () => ({
+            node: $createKeywordNode(span.innerText)
+          }),
+          priority: 1
+        };
+      }
+    };
+  }
+
   exportJSON() {
     return {
       ...super.exportJSON(),
@@ -31,6 +49,7 @@ export class KeywordNode extends TextNode {
     if (className) {
       element.className = className;
     }
+    element.setAttribute('data-lexical-keyword', 'true');
     return element;
   }
 

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { $createParagraphNode, $getRoot, $insertNodes, SKIP_DOM_SELECTION_TAG } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { EditorJSONValue } from '../../Editor';
 
@@ -15,26 +16,34 @@ export const ReadJSONValuePlugin: React.FC<ReadJSONValuePluginProps> = ({
   const isMountRef = useRef(false);
 
   useEffect(() => {
-    try {
-      let jsonString = '';
-      if (isMountRef.current) {
-        jsonString = value ? JSON.stringify(value) : '';
-      } else {
-        jsonString = value
-          ? JSON.stringify(value)
-          : initialValue
-          ? JSON.stringify(initialValue)
-          : '';
-      }
-
-      const editorState = editor.parseEditorState(jsonString);
-      editor.setEditorState(editorState);
-    } catch (error) {
-      console.error('ReadJSONValuePlugin error', error);
-    } finally {
-      isMountRef.current = true;
+    let json = {};
+    if (isMountRef.current) {
+      json = value ?? {};
+    } else {
+      json = value ?? initialValue ?? {};
     }
-  }, [editor, initialValue, value]);
+
+    editor.update(
+      () => {
+        if (json && Object.keys(json).length) {
+          try {
+            const editorState = editor.parseEditorState(JSON.stringify(json));
+            editor.setEditorState(editorState);
+            return;
+          } catch (error) {
+            console.error('ReadJSONValuePlugin error', error);
+          }
+        }
+        $getRoot().clear().select();
+        $insertNodes([$createParagraphNode()]);
+      },
+      {
+        tag: [SKIP_DOM_SELECTION_TAG]
+      }
+    );
+    isMountRef.current = true;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
 
   return null;
 };

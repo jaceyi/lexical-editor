@@ -63,7 +63,7 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
   const [editor] = useLexicalComposerContext();
   const { getPopupContainer } = usePopupContainer();
 
-  const [blockType, setBlockType] = useState('root');
+  const [blockType, setBlockType] = useState('paragraph');
   const [textFormat, setTextFormat] = useState({
     isBold: false,
     isItalic: false,

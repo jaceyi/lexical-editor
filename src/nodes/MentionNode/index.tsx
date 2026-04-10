@@ -55,22 +55,23 @@ export class MentionNode extends DecoratorNode<React.JSX.Element> {
 
   static importDOM(): DOMConversionMap {
     return {
-      span: () => ({
-        conversion: (domNode: Node) => {
-          const dom = domNode as HTMLElement;
-          if (!dom.dataset.lexicalMention) {
-            return null;
-          }
-          return {
+      span: (domNode: Node) => {
+        const span = domNode as HTMLElement;
+        if (!span.dataset.lexicalMention) {
+          return null;
+        }
+
+        return {
+          conversion: () => ({
             node: $createMentionNode({
-              trigger: dom.dataset.lexicalMentionTrigger || '',
-              value: dom.dataset.lexicalMentionValue || '',
-              text: dom.innerText
+              trigger: span.dataset.lexicalMentionTrigger || '',
+              value: span.dataset.lexicalMentionValue || '',
+              text: span.innerText
             })
-          };
-        },
-        priority: 1
-      })
+          }),
+          priority: 1
+        };
+      }
     };
   }
 
