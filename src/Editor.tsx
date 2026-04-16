@@ -22,6 +22,7 @@ import {
   MentionsThemeClasses
 } from './plugins/MentionsPlugin';
 import { AutoFocusPlugin } from './plugins/AutoFocusPlugin';
+import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
 import baseNodes from './nodes';
 import { getHTMLConfig } from './utils/html';
 import { $generateHtmlFromNodes } from '@lexical/html';
@@ -159,11 +160,23 @@ const Editor = React.forwardRef<EditorRef, EditorAllProps>(function Editor(
         text: {
           bold: 'theme__textBold',
           italic: 'theme__textItalic',
-          underline: 'theme__textUnderline'
+          underline: 'theme__textUnderline',
+          strikethrough: 'theme__textStrikethrough',
+          underlineStrikethrough: 'theme__textUnderlineStrikethrough'
         },
         textKeyword: 'theme__textKeyword',
         nodeImage: 'theme__nodeImage',
         nodeMention: 'theme__nodeMention',
+        list: {
+          listitem: 'theme__listItem',
+          listitemChecked: 'theme__listItemChecked',
+          listitemUnchecked: 'theme__listItemUnchecked',
+          nested: {
+            listitem: 'theme__nestedListItem'
+          },
+          olDepth: ['theme__ol1', 'theme__ol2', 'theme__ol3', 'theme__ol4', 'theme__ol5'],
+          ul: 'theme__ul'
+        },
         ...theme
       }
     };
@@ -198,6 +211,7 @@ const Editor = React.forwardRef<EditorRef, EditorAllProps>(function Editor(
           <HistoryPlugin />
           <ImagePlugin />
           <ListPlugin />
+          <CheckListPlugin />
           {mode === 'html' && (
             <ReadHTMLValuePlugin initialValue={initialValue as string} value={value as string} />
           )}

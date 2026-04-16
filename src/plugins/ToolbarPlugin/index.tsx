@@ -1,35 +1,29 @@
-import React, { useState, useEffect, useCallback, ChangeEventHandler, useRef } from 'react';
+import React, { useCallback, useRef, ChangeEventHandler } from 'react';
 import {
   $getSelection,
-  $isElementNode,
   $isRangeSelection,
   $isRootOrShadowRoot,
   $isTextNode,
-  $insertNodes,
+  $isElementNode,
   $createParagraphNode,
+  $insertNodes,
   FORMAT_TEXT_COMMAND,
   LexicalNode,
   ElementNode,
   TextNode
 } from 'lexical';
-import { $isHeadingNode } from '@lexical/rich-text';
-import { $isLinkNode } from '@lexical/link';
-import {
-  $patchStyleText,
-  $getSelectionStyleValueForProperty,
-  $setBlocksType
-} from '@lexical/selection';
+import { $patchStyleText, $setBlocksType } from '@lexical/selection';
+import { $findMatchingParent } from '@lexical/utils';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { $findMatchingParent, $getNearestNodeOfType } from '@lexical/utils';
 import { INSERT_IMAGE_COMMAND } from '../ImagePlugin';
 import { INSERT_LINK_COMMAND } from '../LinkPlugin';
 import { LinkPicker } from '../LinkPlugin/LinkPicker';
-import { $isListNode, ListNode } from '@lexical/list';
 import { EditorConfig } from '../../Editor';
 import {
   TextBoldOutlined,
   TextItalicOutlined,
   TextUnderlineOutlined,
+  TextStrikethroughOutlined,
   MentionOutlined,
   FileOutlined,
   ExpandOutlined,
@@ -40,7 +34,6 @@ import {
 } from '../../icons';
 import { $getSelectionPrevNextState } from '../../utils/lexical';
 import * as typeGuards from '../../utils/typeGuards';
-import { getSelectedNode } from './utils';
 import { DropdownBlockFormat } from './DropdownBlockFormat';
 import { DropdownFontSize } from './DropdownFontSize';
 import { DropdownFontFamily } from './DropdownFontFamily';
@@ -48,10 +41,7 @@ import { DropdownBlockAlign } from './DropdownBlockAlign';
 import { ColorPicker, ToolbarItem, ToolbarDivider } from '../../ui';
 import { useFormatPainter } from './useFormatPainter';
 import { usePopupContainer } from '../../hooks/usePopupContainer';
-
-const classNameMaps = {
-  fileInput: 'editor__toolbarFileInput'
-};
+import { useToolbarState } from './useToolbarState';
 
 export interface ToolbarPluginProps {
   config?: EditorConfig;
@@ -59,98 +49,13 @@ export interface ToolbarPluginProps {
 
 export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => {
   const { onUploadFile, mentions } = config;
-
   const [editor] = useLexicalComposerContext();
   const { getPopupContainer } = usePopupContainer();
 
-  const [blockType, setBlockType] = useState('paragraph');
-  const [textFormat, setTextFormat] = useState({
-    isBold: false,
-    isItalic: false,
-    isUnderline: false
-  });
-  const [textStyle, setTextStyle] = useState<{
-    fontColor: string | null;
-    backgroundColor: string | null;
-    fontSize: string | null;
-    fontFamily: string | null;
-  }>({ fontColor: null, backgroundColor: null, fontSize: null, fontFamily: null });
-  const [elementFormat, setElementFormat] = useState<string>('left');
-  const [linkUrl, setLinkUrl] = useState<string | null>(null);
+  const { blockType, textFormat, textStyle, elementFormat, linkUrl } = useToolbarState(editor);
 
   const { formatPainterMode, handleFormatPainterClick, handleFormatPainterDoubleClick } =
     useFormatPainter(editor, { ...textFormat, ...textStyle, blockType });
-
-  const $updateToolbar = useCallback(() => {
-    const selection = $getSelection();
-    if ($isRangeSelection(selection)) {
-      const anchorNode = selection.anchor.getNode();
-      let element =
-        anchorNode.getKey() === 'root'
-          ? anchorNode
-          : $findMatchingParent(anchorNode, e => {
-              const parent = e.getParent();
-              return parent !== null && $isRootOrShadowRoot(parent);
-            });
-
-      if (element === null) {
-        element = anchorNode.getTopLevelElementOrThrow();
-      }
-
-      const node = getSelectedNode(selection);
-      const parent = node.getParent();
-
-      // block format
-      const elementKey = element.getKey();
-      const elementDOM = editor.getElementByKey(elementKey);
-      if (elementDOM !== null) {
-        if ($isListNode(element)) {
-          const parentList = $getNearestNodeOfType(anchorNode, ListNode);
-          const type = parentList ? parentList.getListType() : element.getListType();
-          setBlockType(type);
-        } else {
-          const type = $isHeadingNode(element) ? element.getTag() : element.getType();
-          setBlockType(type);
-        }
-      }
-
-      // text format
-      setTextFormat({
-        isBold: selection.hasFormat('bold'),
-        isItalic: selection.hasFormat('italic'),
-        isUnderline: selection.hasFormat('underline')
-      });
-      // text style
-      setTextStyle({
-        fontColor: $getSelectionStyleValueForProperty(selection, 'color'),
-        backgroundColor: $getSelectionStyleValueForProperty(selection, 'background-color'),
-        fontSize: $getSelectionStyleValueForProperty(selection, 'font-size'),
-        fontFamily: $getSelectionStyleValueForProperty(selection, 'font-family')
-      });
-
-      // Update links
-      if ($isLinkNode(parent)) {
-        setLinkUrl(parent.getURL());
-      } else if ($isLinkNode(node)) {
-        setLinkUrl(node.getURL());
-      } else {
-        setLinkUrl(null);
-      }
-
-      // Update block align
-      setElementFormat(
-        ($isElementNode(node) ? node.getFormatType() : parent?.getFormatType()) || 'left'
-      );
-    }
-  }, [editor]);
-
-  useEffect(() => {
-    return editor.registerUpdateListener(({ editorState }) => {
-      editorState.read(() => {
-        $updateToolbar();
-      });
-    });
-  }, [$updateToolbar, editor]);
 
   const handleInsertMention = () => {
     editor.update(() => {
@@ -163,11 +68,6 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
     });
   };
 
-  /**
-   * 对当前选区应用样式。
-   * @param styles 样式键值对
-   * @returns void
-   */
   const applyStyleText = useCallback(
     (styles: Record<string, string>) => {
       editor.update(() => {
@@ -180,10 +80,6 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
     [editor]
   );
 
-  /**
-   * 清除样式
-   * 将块类型重置为正文；若有范围选区则只清除选区内内联样式，否则清除整个块的内联样式。
-   */
   const handleClearStyle = useCallback(() => {
     editor.update(() => {
       const selection = $getSelection();
@@ -203,11 +99,11 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
           if (node.hasFormat('bold')) node.toggleFormat('bold');
           if (node.hasFormat('italic')) node.toggleFormat('italic');
           if (node.hasFormat('underline')) node.toggleFormat('underline');
+          if (node.hasFormat('strikethrough')) node.toggleFormat('strikethrough');
         });
       };
 
       if (!selection.isCollapsed()) {
-        // 有范围选区：先清除选区内内联样式，再重置块类型
         $patchStyleText(selection, {
           color: 'inherit',
           'background-color': 'inherit',
@@ -220,7 +116,6 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
         }
         $setBlocksType(selection, () => $createParagraphNode());
       } else {
-        // 折叠光标：找到当前块，先清除块内所有内联样式，再重置块类型
         const anchorNode = selection.anchor.getNode();
         const blockElement =
           ($findMatchingParent(anchorNode, (node): node is ElementNode => {
@@ -239,11 +134,6 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
     });
   }, [editor]);
 
-  /**
-   * 处理字体颜色变更，null 表示清除。
-   * @param color 颜色值或 null
-   * @returns void
-   */
   const handleFontColorChange = useCallback(
     (color: string | null) => {
       applyStyleText({ color: color ?? 'inherit' });
@@ -251,11 +141,6 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
     [applyStyleText]
   );
 
-  /**
-   * 处理背景颜色变更，null 表示清除。
-   * @param color 颜色值或 null
-   * @returns void
-   */
   const handleBackgroundColorChange = useCallback(
     (color: string | null) => {
       applyStyleText({ 'background-color': color ?? 'inherit' });
@@ -263,30 +148,27 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
     [applyStyleText]
   );
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const onUpload: ChangeEventHandler<HTMLInputElement> = async e => {
     try {
       const files = e.target.files;
-      if (!files || !files.length || !typeGuards.isFunction(onUploadFile)) {
-        return;
-      }
+      if (!files || !files.length || !typeGuards.isFunction(onUploadFile)) return;
       const file = files[0];
       const image = await onUploadFile(file);
       if (!image) return;
       if (/^image\/.+$/.test(file.type)) {
-        editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
-          src: image.url,
-          altText: image.name
-        });
+        editor.dispatchCommand(INSERT_IMAGE_COMMAND, { src: image.url, altText: image.name });
       } else {
-        editor.dispatchCommand(INSERT_LINK_COMMAND, {
-          url: image.url,
-          title: image.name
-        });
+        editor.dispatchCommand(INSERT_LINK_COMMAND, { url: image.url, title: image.name });
       }
     } catch {}
   };
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const hasMentions =
+    typeGuards.isObject(mentions) &&
+    mentions &&
+    (Array.isArray(mentions) || Array.isArray((mentions as { mentions?: unknown }).mentions));
 
   return (
     <div className="editor__toolbar">
@@ -295,29 +177,30 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
       <ToolbarItem
         title="加粗"
         isActive={textFormat.isBold}
-        onClick={() => {
-          editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
-        }}
+        onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold')}
       >
         <TextBoldOutlined className="theme__icon" />
       </ToolbarItem>
       <ToolbarItem
         title="斜体"
         isActive={textFormat.isItalic}
-        onClick={() => {
-          editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic');
-        }}
+        onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic')}
       >
         <TextItalicOutlined className="theme__icon" />
       </ToolbarItem>
       <ToolbarItem
         title="下划线"
         isActive={textFormat.isUnderline}
-        onClick={() => {
-          editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline');
-        }}
+        onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline')}
       >
         <TextUnderlineOutlined className="theme__icon" />
+      </ToolbarItem>
+      <ToolbarItem
+        title="删除线"
+        isActive={textFormat.isStrikethrough}
+        onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'strikethrough')}
+      >
+        <TextStrikethroughOutlined className="theme__icon" />
       </ToolbarItem>
       <ColorPicker
         color={textStyle.fontColor}
@@ -356,13 +239,11 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
       <DropdownBlockAlign elementFormat={elementFormat} />
       <ToolbarDivider />
       <LinkPicker linkUrl={linkUrl} />
-      {typeGuards.isObject(mentions) &&
-        mentions &&
-        (Array.isArray(mentions) || Array.isArray(mentions.mentions)) && (
-          <ToolbarItem title="提及" onClick={handleInsertMention}>
-            <MentionOutlined className="theme__icon" />
-          </ToolbarItem>
-        )}
+      {hasMentions && (
+        <ToolbarItem title="提及" onClick={handleInsertMention}>
+          <MentionOutlined className="theme__icon" />
+        </ToolbarItem>
+      )}
       {typeGuards.isFunction(onUploadFile) && (
         <ToolbarItem title="文件上传" onClick={() => fileInputRef.current?.click()}>
           <input
@@ -370,7 +251,7 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
             type="file"
             value=""
             onChange={onUpload}
-            className={classNameMaps.fileInput}
+            className="editor__toolbarFileInput"
           />
           <FileOutlined className="theme__icon" />
         </ToolbarItem>

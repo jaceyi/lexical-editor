@@ -6,6 +6,7 @@ import { $getSelection, $isRangeSelection, $createParagraphNode, LexicalCommand 
 import {
   INSERT_ORDERED_LIST_COMMAND,
   INSERT_UNORDERED_LIST_COMMAND,
+  INSERT_CHECK_LIST_COMMAND,
   REMOVE_LIST_COMMAND
 } from '@lexical/list';
 import { $setBlocksType } from '@lexical/selection';
@@ -15,9 +16,11 @@ import {
   Heading1Outlined,
   Heading2Outlined,
   Heading3Outlined,
+  Heading4Outlined,
   QuoteBlockOutlined,
   OrderedListOutlined,
   UnorderedListOutlined,
+  CheckListOutlined,
   ExpandOutlined
 } from '../../icons';
 import { List, ToolbarItem } from '../../ui';
@@ -67,7 +70,7 @@ export const DropdownBlockFormat: React.FC<DropdownBlockFormatProps> = ({ blockT
    * @param command Lexical 指令
    * @param type 列表类型
    */
-  const formatOrderedList = (command: LexicalCommand<unknown>, type: 'number' | 'bullet') => {
+  const formatList = (command: LexicalCommand<unknown>, type: 'number' | 'bullet' | 'check') => {
     if (blockType !== type) {
       editor.dispatchCommand(command, undefined);
     } else {
@@ -132,6 +135,16 @@ export const DropdownBlockFormat: React.FC<DropdownBlockFormatProps> = ({ blockT
       onClick: () => formatHeading('h3')
     },
     {
+      key: 'h4',
+      label: (
+        <div className="theme__menuItemLabel">
+          <Heading4Outlined className="theme__icon" />
+          <span>标题 4</span>
+        </div>
+      ),
+      onClick: () => formatHeading('h4')
+    },
+    {
       key: 'number',
       label: (
         <div className="theme__menuItemLabel">
@@ -139,7 +152,7 @@ export const DropdownBlockFormat: React.FC<DropdownBlockFormatProps> = ({ blockT
           <span>有序列表</span>
         </div>
       ),
-      onClick: () => formatOrderedList(INSERT_ORDERED_LIST_COMMAND, 'number')
+      onClick: () => formatList(INSERT_ORDERED_LIST_COMMAND, 'number')
     },
     {
       key: 'bullet',
@@ -149,7 +162,17 @@ export const DropdownBlockFormat: React.FC<DropdownBlockFormatProps> = ({ blockT
           <span>无序列表</span>
         </div>
       ),
-      onClick: () => formatOrderedList(INSERT_UNORDERED_LIST_COMMAND, 'bullet')
+      onClick: () => formatList(INSERT_UNORDERED_LIST_COMMAND, 'bullet')
+    },
+    {
+      key: 'check',
+      label: (
+        <div className="theme__menuItemLabel">
+          <CheckListOutlined className="theme__icon" />
+          <span>任务列表</span>
+        </div>
+      ),
+      onClick: () => formatList(INSERT_CHECK_LIST_COMMAND, 'check')
     },
     {
       key: 'quote',

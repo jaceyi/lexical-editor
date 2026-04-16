@@ -149,16 +149,6 @@
           font-size: 1.125em;
         }
 
-        h5 {
-          @extend .heading;
-          font-size: 1em;
-        }
-
-        h6 {
-          @extend .heading;
-          font-size: 0.875em;
-        }
-
         blockquote {
           padding: 8px 0 8px 16px;
           border-left: 4px solid var(--lexicalEditorBorderColor);
@@ -204,8 +194,59 @@
         text-decoration: underline;
       }
 
+      .theme__textStrikethrough {
+        text-decoration: line-through;
+      }
+
+      .theme__textUnderlineStrikethrough {
+        text-decoration: underline line-through;
+      }
+
       .theme__textKeyword {
         color: var(--lexicalEditorKeywordColor);
+      }
+
+      // ---- 任务列表 ----
+      .theme__listItemChecked,
+      .theme__listItemUnchecked {
+        position: relative;
+        padding-left: 28px;
+        list-style: none;
+        outline: none;
+
+        &::before {
+          content: '';
+          width: 16px;
+          height: 16px;
+          border: 1.5px solid var(--lexicalEditorBorderColor);
+          border-radius: 3px;
+          position: absolute;
+          left: 0;
+          top: 2px;
+          cursor: pointer;
+          background-color: var(--lexicalEditorBgColor);
+          transition:
+            background-color 0.15s,
+            border-color 0.15s;
+        }
+      }
+
+      .theme__listItemChecked {
+        text-decoration: line-through;
+        color: var(--lexicalEditorMutedTextColor);
+
+        &::before {
+          background-color: var(--lexicalEditorColorPrimary);
+          border-color: var(--lexicalEditorColorPrimary);
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0z'/%3E%3C/svg%3E");
+          background-size: 12px;
+          background-repeat: no-repeat;
+          background-position: center;
+        }
+      }
+
+      .theme__listItemUnchecked:hover::before {
+        border-color: var(--lexicalEditorColorPrimary);
       }
 
       .theme__nodeMention {

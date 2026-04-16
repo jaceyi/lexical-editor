@@ -20,6 +20,7 @@ export interface CopiedFormat {
   isBold: boolean;
   isItalic: boolean;
   isUnderline: boolean;
+  isStrikethrough: boolean;
   fontColor: string | null;
   backgroundColor: string | null;
   fontSize: string | null;
@@ -128,6 +129,8 @@ export const useFormatPainter = (editor: LexicalEditor, currentFormat: CopiedFor
             if (format.isBold !== node.hasFormat('bold')) node.toggleFormat('bold');
             if (format.isItalic !== node.hasFormat('italic')) node.toggleFormat('italic');
             if (format.isUnderline !== node.hasFormat('underline')) node.toggleFormat('underline');
+            if (format.isStrikethrough !== node.hasFormat('strikethrough'))
+              node.toggleFormat('strikethrough');
           }
         });
       });
