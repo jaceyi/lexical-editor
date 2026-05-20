@@ -6,6 +6,7 @@ import { $getSelection } from 'lexical';
 import { ExpandOutlined, FontSizeOutlined } from '../../icons';
 import { List, ToolbarItem } from '../../ui';
 import { usePopupContainer } from '../../hooks/usePopupContainer';
+import { useLocale } from '../../locale';
 
 const fontSizes = [12, 13, 14, 16, 18, 20, 24, 32, 40, 48];
 
@@ -22,6 +23,7 @@ export interface DropdownFontSizeProps extends Omit<DropdownProps, 'children'> {
 export const DropdownFontSize: React.FC<DropdownFontSizeProps> = ({ fontSize }) => {
   const [editor] = useLexicalComposerContext();
   const { getPopupContainer } = usePopupContainer();
+  const locale = useLocale();
 
   /**
    * 更新字体大小
@@ -58,7 +60,7 @@ export const DropdownFontSize: React.FC<DropdownFontSizeProps> = ({ fontSize }) 
       overlay={<List items={menuItems} />}
       trigger={['click']}
     >
-      <ToolbarItem title="字号">
+      <ToolbarItem title={locale.fontSize}>
         <FontSizeOutlined className="theme__icon" />
         <ExpandOutlined className="theme__iconExpand" />
       </ToolbarItem>

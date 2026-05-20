@@ -6,23 +6,12 @@ import { $getSelection } from 'lexical';
 import { ExpandOutlined, FontFamilyOutlined } from '../../icons';
 import { List, ToolbarItem } from '../../ui';
 import { usePopupContainer } from '../../hooks/usePopupContainer';
+import { useLocale } from '../../locale';
 
 export interface FontFamily {
   label: string;
   value: string | null;
 }
-
-const fontFamilies: FontFamily[] = [
-  { label: '默认', value: null },
-  {
-    label: '黑体',
-    value: '"PingFang SC", "Microsoft YaHei", "Source Han Sans SC", sans-serif'
-  },
-  { label: '宋体', value: '"Songti SC", "SimSun", "STSong", serif' },
-  { label: '楷体', value: '"Kaiti SC", "KaiTi", "STKaiti", serif' },
-  { label: '圆体', value: '"Yuanti SC", "YouYuan", "STYuanti", sans-serif' },
-  { label: '等宽', value: 'Menlo, Monaco, Consolas, "Courier New", monospace' }
-];
 
 export interface DropdownFontFamilyProps extends Omit<DropdownProps, 'children'> {
   fontFamily: string | null;
@@ -35,6 +24,19 @@ export interface DropdownFontFamilyProps extends Omit<DropdownProps, 'children'>
 export const DropdownFontFamily: React.FC<DropdownFontFamilyProps> = ({ fontFamily }) => {
   const [editor] = useLexicalComposerContext();
   const { getPopupContainer } = usePopupContainer();
+  const locale = useLocale();
+
+  const fontFamilies: FontFamily[] = [
+    { label: locale.fontDefault, value: null },
+    {
+      label: locale.fontSimHei,
+      value: '"PingFang SC", "Microsoft YaHei", "Source Han Sans SC", sans-serif'
+    },
+    { label: locale.fontSimSun, value: '"Songti SC", "SimSun", "STSong", serif' },
+    { label: locale.fontKaiTi, value: '"Kaiti SC", "KaiTi", "STKaiti", serif' },
+    { label: locale.fontYuanTi, value: '"Yuanti SC", "YouYuan", "STYuanti", sans-serif' },
+    { label: locale.fontMonospace, value: 'Menlo, Monaco, Consolas, "Courier New", monospace' }
+  ];
 
   const updateFontFamily = (value: string | null) => {
     editor.update(() => {
@@ -66,7 +68,7 @@ export const DropdownFontFamily: React.FC<DropdownFontFamilyProps> = ({ fontFami
       overlay={<List items={menuItems} />}
       trigger={['click']}
     >
-      <ToolbarItem title="字体">
+      <ToolbarItem title={locale.fontFamily}>
         <FontFamilyOutlined className="theme__icon" />
         <span className="editor__toolbarFontFamilyLabel">{activeItem.label}</span>
         <ExpandOutlined className="theme__iconExpand" />

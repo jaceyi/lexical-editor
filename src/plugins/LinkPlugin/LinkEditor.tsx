@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { TOGGLE_LINK_COMMAND } from '@lexical/link';
 import { AUTO_INSERT_LINK_COMMAND } from '.';
+import { useLocale } from '../../locale';
 
 interface LinkEditorProps {
   onConfirm: () => void;
@@ -14,6 +15,7 @@ const DEFAULT_LINK_URL = 'https://';
 export const LinkEditor: React.FC<LinkEditorProps> = ({ onConfirm, linkUrl }) => {
   const [editor] = useLexicalComposerContext();
   const [inputUrl, setInputUrl] = useState(DEFAULT_LINK_URL);
+  const locale = useLocale();
 
   useEffect(() => {
     editor.getEditorState().read(() => {
@@ -42,7 +44,7 @@ export const LinkEditor: React.FC<LinkEditorProps> = ({ onConfirm, linkUrl }) =>
   return (
     <div className="editor__linkEditor" onClick={e => e.stopPropagation()}>
       <div className="link-input-group">
-        <label>链接地址</label>
+        <label>{locale.linkAddress}</label>
         <input
           type="text"
           value={inputUrl}
@@ -59,11 +61,11 @@ export const LinkEditor: React.FC<LinkEditorProps> = ({ onConfirm, linkUrl }) =>
       <div className="link-editor-actions">
         {linkUrl !== null && (
           <button type="button" className="cancel" onClick={handleClear}>
-            取消链接
+            {locale.removeLink}
           </button>
         )}
         <button type="button" className="confirm" onClick={handleConfirm}>
-          确认
+          {locale.confirm}
         </button>
       </div>
     </div>

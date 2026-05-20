@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import Dropdown, { DropdownProps } from '@rc-component/dropdown';
 import clsx from 'clsx';
+import { useLocale } from '../../locale';
 
 export interface ColorPickerProps extends DropdownProps {
   color?: string | null;
@@ -149,6 +150,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
   ...restProps
 }) => {
   const [open, setOpen] = useState(false);
+  const locale = useLocale();
 
   /**
    * 控制下拉框显隐。
@@ -182,7 +184,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
       >
         <div className="editor__colorClear" onClick={() => handleSelect(null)}>
           <span className="editor__colorClearIcon" />
-          <span className="editor__colorClearText">清除颜色</span>
+          <span className="editor__colorClearText">{locale.clearColor}</span>
         </div>
         <div className="editor__colorGrid">
           {colors.map((row, rowIndex) => (

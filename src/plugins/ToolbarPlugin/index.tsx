@@ -43,6 +43,7 @@ import { ColorPicker, ToolbarItem, ToolbarDivider } from '../../ui';
 import { useFormatPainter } from './useFormatPainter';
 import { usePopupContainer } from '../../hooks/usePopupContainer';
 import { useToolbarState } from './useToolbarState';
+import { useLocale } from '../../locale';
 
 export interface ToolbarPluginProps {
   config?: Omit<EditorConfig, 'toolbar'> & { toolbar?: ToolbarFeatureKey[] };
@@ -51,6 +52,7 @@ export interface ToolbarPluginProps {
 export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => {
   const { onUploadFile, mentions, toolbar } = config;
   const [editor] = useLexicalComposerContext();
+  const locale = useLocale();
   const featureSet = toolbar ? new Set(toolbar) : null;
   const show = (key: ToolbarFeatureKey) => !featureSet || featureSet.has(key);
   const { getPopupContainer } = usePopupContainer();
@@ -193,7 +195,9 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
     (show(TOOLBAR_FEATURES.FILE_UPLOAD) && typeGuards.isFunction(onUploadFile));
 
   const groupHasItems = [showGroupBlock, showGroupText, showGroupFont, showGroupInsert];
-  const dividerAfter = groupHasItems.map((visible, i) => visible && groupHasItems.slice(i + 1).some(Boolean));
+  const dividerAfter = groupHasItems.map(
+    (visible, i) => visible && groupHasItems.slice(i + 1).some(Boolean)
+  );
 
   return (
     <div className="editor__toolbar">
@@ -201,7 +205,7 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
       {dividerAfter[0] && <ToolbarDivider />}
       {show(TOOLBAR_FEATURES.BOLD) && (
         <ToolbarItem
-          title="加粗"
+          title={locale.bold}
           isActive={textFormat.isBold}
           onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold')}
         >
@@ -210,7 +214,7 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
       )}
       {show(TOOLBAR_FEATURES.ITALIC) && (
         <ToolbarItem
-          title="斜体"
+          title={locale.italic}
           isActive={textFormat.isItalic}
           onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic')}
         >
@@ -219,7 +223,7 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
       )}
       {show(TOOLBAR_FEATURES.UNDERLINE) && (
         <ToolbarItem
-          title="下划线"
+          title={locale.underline}
           isActive={textFormat.isUnderline}
           onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline')}
         >
@@ -228,7 +232,7 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
       )}
       {show(TOOLBAR_FEATURES.STRIKETHROUGH) && (
         <ToolbarItem
-          title="删除线"
+          title={locale.strikethrough}
           isActive={textFormat.isStrikethrough}
           onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'strikethrough')}
         >
@@ -241,7 +245,7 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
           onColorChange={handleFontColorChange}
           getPopupContainer={getPopupContainer}
         >
-          <ToolbarItem title="字体颜色">
+          <ToolbarItem title={locale.fontColor}>
             <TextColorOutlined className="theme__icon" />
             <ExpandOutlined className="theme__iconExpand" />
           </ToolbarItem>
@@ -253,7 +257,7 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
           onColorChange={handleBackgroundColorChange}
           getPopupContainer={getPopupContainer}
         >
-          <ToolbarItem title="背景色">
+          <ToolbarItem title={locale.backgroundColor}>
             <BackgroundColorOutlined className="theme__icon" />
             <ExpandOutlined className="theme__iconExpand" />
           </ToolbarItem>
@@ -261,7 +265,7 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
       )}
       {show(TOOLBAR_FEATURES.FORMAT_PAINTER) && (
         <ToolbarItem
-          title="格式刷：双击可重复使用"
+          title={`${locale.formatPainter}：${locale.formatPainterHint}`}
           isActive={formatPainterMode !== null}
           onClick={handleFormatPainterClick}
           onDoubleClick={handleFormatPainterDoubleClick}
@@ -270,7 +274,7 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
         </ToolbarItem>
       )}
       {show(TOOLBAR_FEATURES.CLEAR_STYLE) && (
-        <ToolbarItem title="清除样式" onClick={handleClearStyle}>
+        <ToolbarItem title={locale.clearStyle} onClick={handleClearStyle}>
           <ClearStyleOutlined className="theme__icon" />
         </ToolbarItem>
       )}
@@ -283,12 +287,12 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
       {dividerAfter[2] && <ToolbarDivider />}
       {show(TOOLBAR_FEATURES.LINK) && <LinkPicker linkUrl={linkUrl} />}
       {show(TOOLBAR_FEATURES.MENTION) && hasMentions && (
-        <ToolbarItem title="提及" onClick={handleInsertMention}>
+        <ToolbarItem title={locale.mention} onClick={handleInsertMention}>
           <MentionOutlined className="theme__icon" />
         </ToolbarItem>
       )}
       {show(TOOLBAR_FEATURES.FILE_UPLOAD) && typeGuards.isFunction(onUploadFile) && (
-        <ToolbarItem title="文件上传" onClick={() => fileInputRef.current?.click()}>
+        <ToolbarItem title={locale.fileUpload} onClick={() => fileInputRef.current?.click()}>
           <input
             ref={fileInputRef}
             type="file"

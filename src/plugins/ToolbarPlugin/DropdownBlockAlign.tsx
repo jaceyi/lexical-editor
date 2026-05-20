@@ -11,6 +11,7 @@ import {
 } from '../../icons';
 import { List, ToolbarItem } from '../../ui';
 import { usePopupContainer } from '../../hooks/usePopupContainer';
+import { useLocale } from '../../locale';
 
 export interface DropdownBlockAlignProps extends Omit<DropdownProps, 'children'> {
   elementFormat: string;
@@ -25,6 +26,7 @@ export interface DropdownBlockAlignProps extends Omit<DropdownProps, 'children'>
 export const DropdownBlockAlign: React.FC<DropdownBlockAlignProps> = ({ elementFormat }) => {
   const [editor] = useLexicalComposerContext();
   const { getPopupContainer } = usePopupContainer();
+  const locale = useLocale();
 
   /**
    * 列表项配置数组
@@ -35,7 +37,7 @@ export const DropdownBlockAlign: React.FC<DropdownBlockAlignProps> = ({ elementF
       label: (
         <div className="theme__menuItemLabel">
           <AlignLeftOutlined className="theme__icon" />
-          <span>左对齐</span>
+          <span>{locale.alignLeft}</span>
         </div>
       ),
       onClick: () => {
@@ -47,7 +49,7 @@ export const DropdownBlockAlign: React.FC<DropdownBlockAlignProps> = ({ elementF
       label: (
         <div className="theme__menuItemLabel">
           <AlignCenterOutlined className="theme__icon" />
-          <span>居中对齐</span>
+          <span>{locale.alignCenter}</span>
         </div>
       ),
       onClick: () => {
@@ -59,7 +61,7 @@ export const DropdownBlockAlign: React.FC<DropdownBlockAlignProps> = ({ elementF
       label: (
         <div className="theme__menuItemLabel">
           <AlignRightOutlined className="theme__icon" />
-          <span>右对齐</span>
+          <span>{locale.alignRight}</span>
         </div>
       ),
       onClick: () => {
@@ -71,7 +73,7 @@ export const DropdownBlockAlign: React.FC<DropdownBlockAlignProps> = ({ elementF
       label: (
         <div className="theme__menuItemLabel">
           <AlignJustifyOutlined className="theme__icon" />
-          <span>两端对齐</span>
+          <span>{locale.alignJustify}</span>
         </div>
       ),
       onClick: () => {
@@ -91,7 +93,7 @@ export const DropdownBlockAlign: React.FC<DropdownBlockAlignProps> = ({ elementF
       overlay={<List items={menuItems} />}
       trigger={['click']}
     >
-      <ToolbarItem title="对齐方式" className="blockFormat">
+      <ToolbarItem title={locale.alignment} className="blockFormat">
         {activeMenuItem?.label}
         <ExpandOutlined className="theme__iconExpand" />
       </ToolbarItem>

@@ -25,6 +25,7 @@ import {
 } from '../../icons';
 import { List, ToolbarItem } from '../../ui';
 import { usePopupContainer } from '../../hooks/usePopupContainer';
+import { useLocale } from '../../locale';
 
 export interface DropdownBlockFormatProps extends Omit<DropdownProps, 'children'> {
   blockType: string;
@@ -39,6 +40,7 @@ export interface DropdownBlockFormatProps extends Omit<DropdownProps, 'children'
 export const DropdownBlockFormat: React.FC<DropdownBlockFormatProps> = ({ blockType }) => {
   const [editor] = useLexicalComposerContext();
   const { getPopupContainer } = usePopupContainer();
+  const locale = useLocale();
 
   /**
    * 格式化为正文
@@ -99,7 +101,7 @@ export const DropdownBlockFormat: React.FC<DropdownBlockFormatProps> = ({ blockT
       label: (
         <div className="theme__menuItemLabel">
           <TextNormalOutlined className="theme__icon" />
-          <span>正文</span>
+          <span>{locale.paragraph}</span>
         </div>
       ),
       onClick: formatParagraph
@@ -109,7 +111,7 @@ export const DropdownBlockFormat: React.FC<DropdownBlockFormatProps> = ({ blockT
       label: (
         <div className="theme__menuItemLabel">
           <Heading1Outlined className="theme__icon" />
-          <span>标题 1</span>
+          <span>{locale.heading1}</span>
         </div>
       ),
       onClick: () => formatHeading('h1')
@@ -119,7 +121,7 @@ export const DropdownBlockFormat: React.FC<DropdownBlockFormatProps> = ({ blockT
       label: (
         <div className="theme__menuItemLabel">
           <Heading2Outlined className="theme__icon" />
-          <span>标题 2</span>
+          <span>{locale.heading2}</span>
         </div>
       ),
       onClick: () => formatHeading('h2')
@@ -129,7 +131,7 @@ export const DropdownBlockFormat: React.FC<DropdownBlockFormatProps> = ({ blockT
       label: (
         <div className="theme__menuItemLabel">
           <Heading3Outlined className="theme__icon" />
-          <span>标题 3</span>
+          <span>{locale.heading3}</span>
         </div>
       ),
       onClick: () => formatHeading('h3')
@@ -139,7 +141,7 @@ export const DropdownBlockFormat: React.FC<DropdownBlockFormatProps> = ({ blockT
       label: (
         <div className="theme__menuItemLabel">
           <Heading4Outlined className="theme__icon" />
-          <span>标题 4</span>
+          <span>{locale.heading4}</span>
         </div>
       ),
       onClick: () => formatHeading('h4')
@@ -149,7 +151,7 @@ export const DropdownBlockFormat: React.FC<DropdownBlockFormatProps> = ({ blockT
       label: (
         <div className="theme__menuItemLabel">
           <OrderedListOutlined className="theme__icon" />
-          <span>有序列表</span>
+          <span>{locale.orderedList}</span>
         </div>
       ),
       onClick: () => formatList(INSERT_ORDERED_LIST_COMMAND, 'number')
@@ -159,7 +161,7 @@ export const DropdownBlockFormat: React.FC<DropdownBlockFormatProps> = ({ blockT
       label: (
         <div className="theme__menuItemLabel">
           <UnorderedListOutlined className="theme__icon" />
-          <span>无序列表</span>
+          <span>{locale.unorderedList}</span>
         </div>
       ),
       onClick: () => formatList(INSERT_UNORDERED_LIST_COMMAND, 'bullet')
@@ -169,7 +171,7 @@ export const DropdownBlockFormat: React.FC<DropdownBlockFormatProps> = ({ blockT
       label: (
         <div className="theme__menuItemLabel">
           <CheckListOutlined className="theme__icon" />
-          <span>任务列表</span>
+          <span>{locale.checkList}</span>
         </div>
       ),
       onClick: () => formatList(INSERT_CHECK_LIST_COMMAND, 'check')
@@ -179,7 +181,7 @@ export const DropdownBlockFormat: React.FC<DropdownBlockFormatProps> = ({ blockT
       label: (
         <div className="theme__menuItemLabel">
           <QuoteBlockOutlined className="theme__icon" />
-          <span>引用块</span>
+          <span>{locale.quoteBlock}</span>
         </div>
       ),
       onClick: formatQuote
@@ -197,7 +199,7 @@ export const DropdownBlockFormat: React.FC<DropdownBlockFormatProps> = ({ blockT
       overlay={<List items={menuItems} />}
       trigger={['click']}
     >
-      <ToolbarItem className="blockFormat" title="块类型">
+      <ToolbarItem className="blockFormat" title={locale.blockType}>
         {activeMenuItem.label}
         <ExpandOutlined className="theme__iconExpand" />
       </ToolbarItem>

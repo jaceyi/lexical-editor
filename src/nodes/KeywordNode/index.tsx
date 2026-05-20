@@ -44,12 +44,13 @@ export class KeywordNode extends TextNode {
   }
 
   createDOM(config: EditorConfig) {
-    const element = super.createDOM(config);
+    const element = document.createElement('span');
     const className = config.theme.textKeyword;
     if (className) {
       element.className = className;
     }
     element.setAttribute('data-lexical-keyword', 'true');
+    element.innerText = this.getTextContent();
     return element;
   }
 

@@ -32,6 +32,9 @@ import type { UploadFile } from './types';
 import { EDITOR_CLASSNAME_NAMESPACE, type ToolbarFeatureKey } from './utils/consts';
 import type { EditorThemeClasses as LexicalEditorThemeClasses } from 'lexical/LexicalEditor';
 import * as typeGuards from './utils/typeGuards';
+import { LocaleContext } from './locale/LocaleContext';
+import { zhCN, enUS } from './locale';
+import type { Locale, LocaleKey } from './locale/types';
 
 export interface EditorConfig {
   onUploadFile?: UploadFile;
@@ -55,6 +58,7 @@ export interface EditorProps {
   config?: EditorConfig;
   theme?: EditorThemeClasses;
   themeMode?: EditorThemeMode;
+  locale?: LocaleKey | Locale;
   className?: string;
   children?: ReactNode;
 }
@@ -85,6 +89,9 @@ const defaultNodes: InitialConfigType['nodes'] = [];
 const defaultConfig: EditorConfig = {};
 const defaultTheme: EditorThemeClasses = {};
 const defaultThemeMode: EditorThemeMode = 'light';
+const defaultLocale: LocaleKey = 'zh-CN';
+
+const localeMap: Record<string, Locale> = { 'zh-CN': zhCN, 'en-US': enUS };
 
 /**
  * Lexical 编辑器主组件
@@ -99,16 +106,19 @@ const Editor = React.forwardRef<EditorRef, EditorAllProps>(function Editor(
     value,
     onChange,
     autoFocus = true,
-    placeholder = '请输入内容',
+    placeholder,
     nodes = defaultNodes,
     config = defaultConfig,
     theme = defaultTheme,
     themeMode = defaultThemeMode,
+    locale = defaultLocale,
     className,
     children
   },
   ref
 ) {
+  const resolvedLocale = typeof locale === 'string' ? localeMap[locale] ?? zhCN : locale;
+  const resolvedPlaceholder = placeholder ?? resolvedLocale.placeholder;
   // 处理编辑器内容变更，导出 HTML
   const handleChange = useCallback(
     (_: EditorState, editor: LexicalEditor) => {
@@ -184,62 +194,70 @@ const Editor = React.forwardRef<EditorRef, EditorAllProps>(function Editor(
   }, [namespace, isEditable, theme, nodes]);
 
   return (
-    <div className={EDITOR_CLASSNAME_NAMESPACE} data-lexical-theme={themeMode}>
-      <div
-        className={clsx(
-          'editor__container',
-          `editor__${isEditable ? 'editable' : 'readonly'}`,
-          className
-        )}
-      >
-        <LexicalComposer initialConfig={initialConfig}>
-          {/* 工具栏插件 */}
-          {isEditable && config.toolbar !== false ? (
-            <ToolbarPlugin config={{ ...config, toolbar: config.toolbar as ToolbarFeatureKey[] | undefined }} />
-          ) : null}
-          <div className="editor__main">
-            <RichTextPlugin
-              contentEditable={<ContentEditable className="editor__content" />}
-              placeholder={
-                isEditable ? <div className="editor__placeholder">{placeholder}</div> : null
-              }
-              ErrorBoundary={LexicalErrorBoundary}
-            />
-          </div>
-          {/* 核心插件 */}
-          <EditablePlugin isEditable={isEditable} />
-          <OnChangePlugin onChange={handleChange} ignoreSelectionChange />
-          <EditorRefPlugin editorRef={editorRef} />
-          <AutoFocusPlugin autoFocus={autoFocus} />
-          <HistoryPlugin />
-          <ImagePlugin />
-          <ListPlugin />
-          <CheckListPlugin />
-          {mode === 'html' && (
-            <ReadHTMLValuePlugin initialValue={initialValue as string} value={value as string} />
+    <LocaleContext.Provider value={resolvedLocale}>
+      <div className={EDITOR_CLASSNAME_NAMESPACE} data-lexical-theme={themeMode}>
+        <div
+          className={clsx(
+            'editor__container',
+            `editor__${isEditable ? 'editable' : 'readonly'}`,
+            className
           )}
-          {mode === 'json' && (
-            <ReadJSONValuePlugin
-              initialValue={initialValue as EditorJSONValue}
-              value={value as EditorJSONValue}
-            />
-          )}
-          {/* 官方链接插件：负责消费 TOGGLE_LINK_COMMAND，实现“更新/取消链接” */}
-          <LexicalLinkPlugin />
-          {/* 自定义链接插件：提供 INSERT_LINK_COMMAND 等扩展能力 */}
-          <CustomLinkPlugin />
-          {/* 提及插件 */}
-          {mentionsPluginNode}
-          {/* 条件加载功能插件 */}
-          {typeGuards.isFunction(config.onUploadFile) && (
-            <DragDropPastePlugin onUploadFile={config.onUploadFile} />
-          )}
-          {(typeGuards.isArray<string>(config.keywords) ||
-            typeGuards.isRegExp(config.keywords)) && <KeywordsPlugin keywords={config.keywords} />}
-          {children}
-        </LexicalComposer>
+        >
+          <LexicalComposer initialConfig={initialConfig}>
+            {/* 工具栏插件 */}
+            {isEditable && config.toolbar !== false ? (
+              <ToolbarPlugin
+                config={{ ...config, toolbar: config.toolbar as ToolbarFeatureKey[] | undefined }}
+              />
+            ) : null}
+            <div className="editor__main">
+              <RichTextPlugin
+                contentEditable={<ContentEditable className="editor__content" />}
+                placeholder={
+                  isEditable ? (
+                    <div className="editor__placeholder">{resolvedPlaceholder}</div>
+                  ) : null
+                }
+                ErrorBoundary={LexicalErrorBoundary}
+              />
+            </div>
+            {/* 核心插件 */}
+            <EditablePlugin isEditable={isEditable} />
+            <OnChangePlugin onChange={handleChange} ignoreSelectionChange />
+            <EditorRefPlugin editorRef={editorRef} />
+            <AutoFocusPlugin autoFocus={autoFocus} />
+            <HistoryPlugin />
+            <ImagePlugin />
+            <ListPlugin />
+            <CheckListPlugin />
+            {mode === 'html' && (
+              <ReadHTMLValuePlugin initialValue={initialValue as string} value={value as string} />
+            )}
+            {mode === 'json' && (
+              <ReadJSONValuePlugin
+                initialValue={initialValue as EditorJSONValue}
+                value={value as EditorJSONValue}
+              />
+            )}
+            {/* 官方链接插件：负责消费 TOGGLE_LINK_COMMAND，实现“更新/取消链接” */}
+            <LexicalLinkPlugin />
+            {/* 自定义链接插件：提供 INSERT_LINK_COMMAND 等扩展能力 */}
+            <CustomLinkPlugin />
+            {/* 提及插件 */}
+            {mentionsPluginNode}
+            {/* 条件加载功能插件 */}
+            {typeGuards.isFunction(config.onUploadFile) && (
+              <DragDropPastePlugin onUploadFile={config.onUploadFile} />
+            )}
+            {(typeGuards.isArray<string>(config.keywords) ||
+              typeGuards.isRegExp(config.keywords)) && (
+              <KeywordsPlugin keywords={config.keywords} />
+            )}
+            {children}
+          </LexicalComposer>
+        </div>
       </div>
-    </div>
+    </LocaleContext.Provider>
   );
 });
 
