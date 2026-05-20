@@ -1,5 +1,15 @@
 import React from 'react';
 import Editor, { useHTMLHandle } from '../../src/index';
+import type { UploadFile } from '../../src/types';
+
+const onUploadFile: UploadFile = file => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve({ url: reader.result as string, name: file.name });
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+};
 
 const App = () => {
   const [{ value: htmlOutput }, htmlEditorProps] = useHTMLHandle({
@@ -17,6 +27,7 @@ const App = () => {
         mode="html"
         placeholder="开始输入..."
         config={{
+          onUploadFile,
           keywords: ['React'],
           mentions: ['Jace', 'Liliana', 'Chandra', 'Gideon', 'Nissa', 'Ajani']
         }}

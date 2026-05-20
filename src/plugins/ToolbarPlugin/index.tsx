@@ -33,6 +33,7 @@ import {
   ClearStyleOutlined
 } from '../../icons';
 import { $getSelectionPrevNextState } from '../../utils/lexical';
+import { TOOLBAR_FEATURES, type ToolbarFeatureKey } from '../../utils/consts';
 import * as typeGuards from '../../utils/typeGuards';
 import { DropdownBlockFormat } from './DropdownBlockFormat';
 import { DropdownFontSize } from './DropdownFontSize';
@@ -44,12 +45,14 @@ import { usePopupContainer } from '../../hooks/usePopupContainer';
 import { useToolbarState } from './useToolbarState';
 
 export interface ToolbarPluginProps {
-  config?: EditorConfig;
+  config?: Omit<EditorConfig, 'toolbar'> & { toolbar?: ToolbarFeatureKey[] };
 }
 
 export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => {
-  const { onUploadFile, mentions } = config;
+  const { onUploadFile, mentions, toolbar } = config;
   const [editor] = useLexicalComposerContext();
+  const featureSet = toolbar ? new Set(toolbar) : null;
+  const show = (key: ToolbarFeatureKey) => !featureSet || featureSet.has(key);
   const { getPopupContainer } = usePopupContainer();
 
   const { blockType, textFormat, textStyle, elementFormat, linkUrl } = useToolbarState(editor);
@@ -170,81 +173,121 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
     mentions &&
     (Array.isArray(mentions) || Array.isArray((mentions as { mentions?: unknown }).mentions));
 
+  const showGroupBlock = show(TOOLBAR_FEATURES.BLOCK_FORMAT);
+  const showGroupText =
+    show(TOOLBAR_FEATURES.BOLD) ||
+    show(TOOLBAR_FEATURES.ITALIC) ||
+    show(TOOLBAR_FEATURES.UNDERLINE) ||
+    show(TOOLBAR_FEATURES.STRIKETHROUGH) ||
+    show(TOOLBAR_FEATURES.FONT_COLOR) ||
+    show(TOOLBAR_FEATURES.BACKGROUND_COLOR) ||
+    show(TOOLBAR_FEATURES.FORMAT_PAINTER) ||
+    show(TOOLBAR_FEATURES.CLEAR_STYLE);
+  const showGroupFont =
+    show(TOOLBAR_FEATURES.FONT_FAMILY) ||
+    show(TOOLBAR_FEATURES.FONT_SIZE) ||
+    show(TOOLBAR_FEATURES.BLOCK_ALIGN);
+  const showGroupInsert =
+    show(TOOLBAR_FEATURES.LINK) ||
+    (show(TOOLBAR_FEATURES.MENTION) && hasMentions) ||
+    (show(TOOLBAR_FEATURES.FILE_UPLOAD) && typeGuards.isFunction(onUploadFile));
+
+  const groupHasItems = [showGroupBlock, showGroupText, showGroupFont, showGroupInsert];
+  const dividerAfter = groupHasItems.map((visible, i) => visible && groupHasItems.slice(i + 1).some(Boolean));
+
   return (
     <div className="editor__toolbar">
-      <DropdownBlockFormat blockType={blockType} />
-      <ToolbarDivider />
-      <ToolbarItem
-        title="加粗"
-        isActive={textFormat.isBold}
-        onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold')}
-      >
-        <TextBoldOutlined className="theme__icon" />
-      </ToolbarItem>
-      <ToolbarItem
-        title="斜体"
-        isActive={textFormat.isItalic}
-        onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic')}
-      >
-        <TextItalicOutlined className="theme__icon" />
-      </ToolbarItem>
-      <ToolbarItem
-        title="下划线"
-        isActive={textFormat.isUnderline}
-        onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline')}
-      >
-        <TextUnderlineOutlined className="theme__icon" />
-      </ToolbarItem>
-      <ToolbarItem
-        title="删除线"
-        isActive={textFormat.isStrikethrough}
-        onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'strikethrough')}
-      >
-        <TextStrikethroughOutlined className="theme__icon" />
-      </ToolbarItem>
-      <ColorPicker
-        color={textStyle.fontColor}
-        onColorChange={handleFontColorChange}
-        getPopupContainer={getPopupContainer}
-      >
-        <ToolbarItem title="字体颜色">
-          <TextColorOutlined className="theme__icon" />
-          <ExpandOutlined className="theme__iconExpand" />
+      {show(TOOLBAR_FEATURES.BLOCK_FORMAT) && <DropdownBlockFormat blockType={blockType} />}
+      {dividerAfter[0] && <ToolbarDivider />}
+      {show(TOOLBAR_FEATURES.BOLD) && (
+        <ToolbarItem
+          title="加粗"
+          isActive={textFormat.isBold}
+          onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold')}
+        >
+          <TextBoldOutlined className="theme__icon" />
         </ToolbarItem>
-      </ColorPicker>
-      <ColorPicker
-        color={textStyle.backgroundColor}
-        onColorChange={handleBackgroundColorChange}
-        getPopupContainer={getPopupContainer}
-      >
-        <ToolbarItem title="背景色">
-          <BackgroundColorOutlined className="theme__icon" />
-          <ExpandOutlined className="theme__iconExpand" />
+      )}
+      {show(TOOLBAR_FEATURES.ITALIC) && (
+        <ToolbarItem
+          title="斜体"
+          isActive={textFormat.isItalic}
+          onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic')}
+        >
+          <TextItalicOutlined className="theme__icon" />
         </ToolbarItem>
-      </ColorPicker>
-      <ToolbarItem
-        title="格式刷：双击可重复使用"
-        isActive={formatPainterMode !== null}
-        onClick={handleFormatPainterClick}
-        onDoubleClick={handleFormatPainterDoubleClick}
-      >
-        <FormatPainterOutlined className="theme__icon" />
-      </ToolbarItem>
-      <ToolbarItem title="清除样式" onClick={handleClearStyle}>
-        <ClearStyleOutlined className="theme__icon" />
-      </ToolbarItem>
-      <ToolbarDivider />
-      <DropdownFontFamily fontFamily={textStyle.fontFamily} />
-      <DropdownFontSize fontSize={textStyle.fontSize} />
-      <DropdownBlockAlign elementFormat={elementFormat} />
-      <ToolbarDivider />
-      <LinkPicker linkUrl={linkUrl} />
-      {hasMentions && (
+      )}
+      {show(TOOLBAR_FEATURES.UNDERLINE) && (
+        <ToolbarItem
+          title="下划线"
+          isActive={textFormat.isUnderline}
+          onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline')}
+        >
+          <TextUnderlineOutlined className="theme__icon" />
+        </ToolbarItem>
+      )}
+      {show(TOOLBAR_FEATURES.STRIKETHROUGH) && (
+        <ToolbarItem
+          title="删除线"
+          isActive={textFormat.isStrikethrough}
+          onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'strikethrough')}
+        >
+          <TextStrikethroughOutlined className="theme__icon" />
+        </ToolbarItem>
+      )}
+      {show(TOOLBAR_FEATURES.FONT_COLOR) && (
+        <ColorPicker
+          color={textStyle.fontColor}
+          onColorChange={handleFontColorChange}
+          getPopupContainer={getPopupContainer}
+        >
+          <ToolbarItem title="字体颜色">
+            <TextColorOutlined className="theme__icon" />
+            <ExpandOutlined className="theme__iconExpand" />
+          </ToolbarItem>
+        </ColorPicker>
+      )}
+      {show(TOOLBAR_FEATURES.BACKGROUND_COLOR) && (
+        <ColorPicker
+          color={textStyle.backgroundColor}
+          onColorChange={handleBackgroundColorChange}
+          getPopupContainer={getPopupContainer}
+        >
+          <ToolbarItem title="背景色">
+            <BackgroundColorOutlined className="theme__icon" />
+            <ExpandOutlined className="theme__iconExpand" />
+          </ToolbarItem>
+        </ColorPicker>
+      )}
+      {show(TOOLBAR_FEATURES.FORMAT_PAINTER) && (
+        <ToolbarItem
+          title="格式刷：双击可重复使用"
+          isActive={formatPainterMode !== null}
+          onClick={handleFormatPainterClick}
+          onDoubleClick={handleFormatPainterDoubleClick}
+        >
+          <FormatPainterOutlined className="theme__icon" />
+        </ToolbarItem>
+      )}
+      {show(TOOLBAR_FEATURES.CLEAR_STYLE) && (
+        <ToolbarItem title="清除样式" onClick={handleClearStyle}>
+          <ClearStyleOutlined className="theme__icon" />
+        </ToolbarItem>
+      )}
+      {dividerAfter[1] && <ToolbarDivider />}
+      {show(TOOLBAR_FEATURES.FONT_FAMILY) && (
+        <DropdownFontFamily fontFamily={textStyle.fontFamily} />
+      )}
+      {show(TOOLBAR_FEATURES.FONT_SIZE) && <DropdownFontSize fontSize={textStyle.fontSize} />}
+      {show(TOOLBAR_FEATURES.BLOCK_ALIGN) && <DropdownBlockAlign elementFormat={elementFormat} />}
+      {dividerAfter[2] && <ToolbarDivider />}
+      {show(TOOLBAR_FEATURES.LINK) && <LinkPicker linkUrl={linkUrl} />}
+      {show(TOOLBAR_FEATURES.MENTION) && hasMentions && (
         <ToolbarItem title="提及" onClick={handleInsertMention}>
           <MentionOutlined className="theme__icon" />
         </ToolbarItem>
       )}
-      {typeGuards.isFunction(onUploadFile) && (
+      {show(TOOLBAR_FEATURES.FILE_UPLOAD) && typeGuards.isFunction(onUploadFile) && (
         <ToolbarItem title="文件上传" onClick={() => fileInputRef.current?.click()}>
           <input
             ref={fileInputRef}

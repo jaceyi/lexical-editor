@@ -189,7 +189,7 @@ export const DropdownBlockFormat: React.FC<DropdownBlockFormatProps> = ({ blockT
     isSelected: item.key === blockType
   }));
 
-  const activeMenuItem = menuItems.find(item => item.key === blockType);
+  const activeMenuItem = menuItems.find(item => item.key === blockType) || menuItems[0];
 
   return (
     <Dropdown
@@ -198,7 +198,7 @@ export const DropdownBlockFormat: React.FC<DropdownBlockFormatProps> = ({ blockT
       trigger={['click']}
     >
       <ToolbarItem className="blockFormat" title="块类型">
-        {activeMenuItem?.label}
+        {activeMenuItem.label}
         <ExpandOutlined className="theme__iconExpand" />
       </ToolbarItem>
     </Dropdown>

@@ -171,14 +171,37 @@
         display: inline-block;
         position: relative;
         user-select: none;
-        padding: 1px;
 
         img {
           max-width: 100%;
-          max-height: 300px;
-          width: inherit;
-          height: inherit;
+          height: auto;
           vertical-align: bottom;
+        }
+
+        &.image-resizing img {
+          pointer-events: none;
+        }
+
+        .image-resize-handle {
+          position: absolute;
+          width: 10px;
+          height: 10px;
+          background-color: var(--lexicalEditorColorPrimary);
+          border: 1px solid #fff;
+          border-radius: 2px;
+          touch-action: none;
+
+          &--tr {
+            right: -4px;
+            top: -4px;
+            cursor: nesw-resize;
+          }
+
+          &--br {
+            right: -4px;
+            bottom: -4px;
+            cursor: nwse-resize;
+          }
         }
       }
 

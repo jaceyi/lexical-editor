@@ -29,7 +29,7 @@ import { $generateHtmlFromNodes } from '@lexical/html';
 import clsx from 'clsx';
 import { EditorState, LexicalEditor } from 'lexical';
 import type { UploadFile } from './types';
-import { EDITOR_CLASSNAME_NAMESPACE } from './utils/consts';
+import { EDITOR_CLASSNAME_NAMESPACE, type ToolbarFeatureKey } from './utils/consts';
 import type { EditorThemeClasses as LexicalEditorThemeClasses } from 'lexical/LexicalEditor';
 import * as typeGuards from './utils/typeGuards';
 
@@ -37,6 +37,7 @@ export interface EditorConfig {
   onUploadFile?: UploadFile;
   mentions?: MentionsPluginProps['mentions'] | MentionsPluginProps;
   keywords?: KeywordsPluginProps['keywords'];
+  toolbar?: ToolbarFeatureKey[] | false;
 }
 
 export type EditorThemeClasses = LexicalEditorThemeClasses & {
@@ -193,7 +194,9 @@ const Editor = React.forwardRef<EditorRef, EditorAllProps>(function Editor(
       >
         <LexicalComposer initialConfig={initialConfig}>
           {/* 工具栏插件 */}
-          {isEditable ? <ToolbarPlugin config={config} /> : null}
+          {isEditable && config.toolbar !== false ? (
+            <ToolbarPlugin config={{ ...config, toolbar: config.toolbar as ToolbarFeatureKey[] | undefined }} />
+          ) : null}
           <div className="editor__main">
             <RichTextPlugin
               contentEditable={<ContentEditable className="editor__content" />}
