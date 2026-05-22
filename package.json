@@ -35,12 +35,12 @@
     "lint": "eslint 'src/**/*.{ts,tsx,js,jsx}' --quiet --fix"
   },
   "dependencies": {
-    "@lexical/react": "^0.39.0",
-    "@lexical/utils": "^0.39.0",
-    "@rc-component/dropdown": "^1.0.0",
-    "@rc-component/tooltip": "^1.0.0",
+    "@lexical/react": "^0.44.0",
+    "@lexical/utils": "^0.44.0",
+    "@rc-component/dropdown": "^1.0.2",
+    "@rc-component/tooltip": "^1.4.0",
     "clsx": "^2.1.1",
-    "lexical": "^0.39.0"
+    "lexical": "^0.44.0"
   },
   "devDependencies": {
     "@types/react": "^18.3.2",

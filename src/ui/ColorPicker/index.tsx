@@ -205,7 +205,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
         </div>
       </div>
     ),
-    [colors, handleSelect, color]
+    [locale.clearColor, colors, handleSelect, color]
   );
 
   return (

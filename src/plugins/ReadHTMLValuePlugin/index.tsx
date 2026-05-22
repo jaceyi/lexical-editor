@@ -1,5 +1,11 @@
 import React, { useEffect, useRef } from 'react';
-import { $insertNodes, $getRoot, $createParagraphNode, SKIP_DOM_SELECTION_TAG } from 'lexical';
+import {
+  $insertNodes,
+  $getRoot,
+  $createParagraphNode,
+  HISTORY_MERGE_TAG,
+  SKIP_DOM_SELECTION_TAG
+} from 'lexical';
 import { $generateNodesFromDOM } from '@lexical/html';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 
@@ -38,7 +44,21 @@ export const ReadHTMLValuePlugin: React.FC<ReadHTMLValuePluginProps> = ({
         }
       },
       {
-        tag: [SKIP_DOM_SELECTION_TAG]
+        tag: [SKIP_DOM_SELECTION_TAG],
+        onUpdate() {
+          // 外部 value 更新后，将所有文本节点标记为 dirty 以触发自定义文本节点（如 KeywordNode）的运行时转换
+          editor.update(
+            () => {
+              const root = $getRoot();
+              root.getAllTextNodes().forEach(node => {
+                node.markDirty();
+              });
+            },
+            {
+              tag: [HISTORY_MERGE_TAG, SKIP_DOM_SELECTION_TAG]
+            }
+          );
+        }
       }
     );
 

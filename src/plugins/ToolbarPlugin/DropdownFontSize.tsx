@@ -43,16 +43,28 @@ export const DropdownFontSize: React.FC<DropdownFontSizeProps> = ({ fontSize }) 
   /**
    * 列表项配置数组
    */
-  const menuItems = fontSizes.map(item => ({
-    key: String(item),
-    label: (
-      <div className="theme__menuItemLabel">
-        <span>{`${item} px`}</span>
-      </div>
-    ),
-    isSelected: `${item}px` === fontSize,
-    onClick: () => updateFontSize(`${item}px`)
-  }));
+  const menuItems = [
+    {
+      key: 'default',
+      label: (
+        <div className="theme__menuItemLabel">
+          <span>{locale.fontDefault}</span>
+        </div>
+      ),
+      isSelected: fontSize === null,
+      onClick: () => updateFontSize(null)
+    },
+    ...fontSizes.map(item => ({
+      key: String(item),
+      label: (
+        <div className="theme__menuItemLabel">
+          <span>{`${item} px`}</span>
+        </div>
+      ),
+      isSelected: `${item}px` === fontSize,
+      onClick: () => updateFontSize(`${item}px`)
+    }))
+  ];
 
   return (
     <Dropdown

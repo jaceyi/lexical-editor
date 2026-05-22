@@ -74,7 +74,7 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
   };
 
   const applyStyleText = useCallback(
-    (styles: Record<string, string>) => {
+    (styles: Record<string, string | null>) => {
       editor.update(() => {
         const selection = $getSelection();
         if (selection !== null) {
@@ -110,10 +110,10 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
 
       if (!selection.isCollapsed()) {
         $patchStyleText(selection, {
-          color: 'inherit',
-          'background-color': 'inherit',
-          'font-size': 'inherit',
-          'font-family': 'inherit'
+          color: null,
+          'background-color': null,
+          'font-size': null,
+          'font-family': null
         });
         const updated = $getSelection();
         if ($isRangeSelection(updated)) {
@@ -141,14 +141,14 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
 
   const handleFontColorChange = useCallback(
     (color: string | null) => {
-      applyStyleText({ color: color ?? 'inherit' });
+      applyStyleText({ color });
     },
     [applyStyleText]
   );
 
   const handleBackgroundColorChange = useCallback(
     (color: string | null) => {
-      applyStyleText({ 'background-color': color ?? 'inherit' });
+      applyStyleText({ 'background-color': color });
     },
     [applyStyleText]
   );

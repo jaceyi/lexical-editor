@@ -1,5 +1,11 @@
-import { EditorConfig, LexicalNode, TextNode, SerializedTextNode, DOMConversionMap } from 'lexical';
-
+import {
+  EditorConfig,
+  LexicalNode,
+  TextNode,
+  SerializedTextNode,
+  $applyNodeReplacement
+} from 'lexical';
+import { addClassNamesToElement } from '@lexical/utils';
 export class KeywordNode extends TextNode {
   static getType() {
     return 'keyword';
@@ -9,57 +15,14 @@ export class KeywordNode extends TextNode {
     return new KeywordNode(node.__text, node.__key);
   }
 
-  static importJSON(serializedNode: SerializedTextNode) {
-    const node = $createKeywordNode(serializedNode.text);
-    node.setFormat(serializedNode.format);
-    node.setDetail(serializedNode.detail);
-    node.setMode(serializedNode.mode);
-    node.setStyle(serializedNode.style);
-    return node;
-  }
-
-  static importDOM(): DOMConversionMap {
-    return {
-      span: (domNode: Node) => {
-        const span = domNode as HTMLElement;
-        if (!span.dataset.lexicalKeyword) {
-          return null;
-        }
-
-        return {
-          conversion: () => ({
-            node: $createKeywordNode(span.innerText)
-          }),
-          priority: 1
-        };
-      }
-    };
-  }
-
-  exportJSON() {
-    return {
-      ...super.exportJSON(),
-      type: 'keyword'
-    };
-  }
-
-  createDOM(config: EditorConfig) {
-    const element = document.createElement('span');
-    const className = config.theme.textKeyword;
-    if (className) {
-      element.className = className;
-    }
-    element.setAttribute('data-lexical-keyword', 'true');
-    element.innerText = this.getTextContent();
+  createDOM(config: EditorConfig): HTMLElement {
+    const element = super.createDOM(config);
+    addClassNamesToElement(element, config.theme.textKeyword);
     return element;
   }
 
-  canInsertTextBefore() {
-    return true;
-  }
-
-  canInsertTextAfter() {
-    return true;
+  static importJSON(serializedNode: SerializedTextNode) {
+    return $createKeywordNode().updateFromJSON(serializedNode);
   }
 
   isTextEntity() {
@@ -71,6 +34,6 @@ export const $isKeywordNode = (node: LexicalNode | null | undefined): node is Ke
   return node instanceof KeywordNode;
 };
 
-export const $createKeywordNode = (keyword: string) => {
-  return new KeywordNode(keyword);
+export const $createKeywordNode = (keyword: string = '') => {
+  return $applyNodeReplacement(new KeywordNode(keyword));
 };

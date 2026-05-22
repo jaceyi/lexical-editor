@@ -24,11 +24,10 @@ const App = () => {
       <Editor
         {...htmlEditorProps}
         namespace="dev-editor"
-        mode="html"
         placeholder="开始输入..."
         config={{
           onUploadFile,
-          keywords: ['React'],
+          keywords: ['javascript', 'react'],
           mentions: ['Jace', 'Liliana', 'Chandra', 'Gideon', 'Nissa', 'Ajani']
         }}
       />

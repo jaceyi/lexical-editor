@@ -9,7 +9,13 @@ interface UseJSONHandleOptions {
   initialValue?: EditorJSONValue;
 }
 
-const useEditorHandle = <TValue>({ initialValue }: { initialValue?: TValue }) => {
+const useEditorHandle = <TValue, TMode extends 'html' | 'json'>({
+  initialValue,
+  mode
+}: {
+  initialValue?: TValue;
+  mode: TMode;
+}) => {
   const editorRef = useRef<EditorRef>(null);
   const [inputValue, setInputValue] = useState(initialValue);
   const [outputValue, setOutputValue] = useState(initialValue);
@@ -39,6 +45,7 @@ const useEditorHandle = <TValue>({ initialValue }: { initialValue?: TValue }) =>
   const editorProps = useMemo(
     () => ({
       ref: editorRef,
+      mode,
       initialValue,
       value: inputValue,
       onChange: setOutputValue
@@ -51,9 +58,9 @@ const useEditorHandle = <TValue>({ initialValue }: { initialValue?: TValue }) =>
 };
 
 export const useHTMLHandle = ({ initialValue }: UseHTMLHandleOptions = {}) => {
-  return useEditorHandle<string>({ initialValue });
+  return useEditorHandle<string, 'html'>({ initialValue, mode: 'html' });
 };
 
 export const useJSONHandle = ({ initialValue }: UseJSONHandleOptions = {}) => {
-  return useEditorHandle<EditorJSONValue>({ initialValue });
+  return useEditorHandle<EditorJSONValue, 'json'>({ initialValue, mode: 'json' });
 };
