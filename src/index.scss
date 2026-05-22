@@ -158,6 +158,10 @@
         & > *:last-child {
           margin-bottom: 0;
         }
+
+        .node-dragging {
+          opacity: 0.5;
+        }
       }
 
       .editor__Node_focused {

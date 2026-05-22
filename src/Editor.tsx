@@ -15,6 +15,7 @@ import { ToolbarPlugin } from './plugins/ToolbarPlugin';
 import { ImagePlugin } from './plugins/ImagePlugin';
 import { LinkPlugin as CustomLinkPlugin } from './plugins/LinkPlugin';
 import { DragDropPastePlugin } from './plugins/DragDropPastePlugin';
+import { DraggableNodePlugin } from './plugins/DraggableNodePlugin';
 import { KeywordsPlugin, KeywordsPluginProps } from './plugins/KeywordsPlugin';
 import {
   MentionsPlugin,
@@ -227,6 +228,7 @@ const Editor = React.forwardRef<EditorRef, EditorAllProps>(function Editor(
             <EditorRefPlugin editorRef={editorRef} />
             <AutoFocusPlugin autoFocus={autoFocus} />
             <HistoryPlugin />
+            <DraggableNodePlugin />
             <ImagePlugin />
             <ListPlugin />
             <CheckListPlugin />

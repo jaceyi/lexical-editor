@@ -13,6 +13,7 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 import { mergeRegister } from '@lexical/utils';
 import { $isImageNode, $updateImageWidthHeight } from './index';
+import { useDraggable } from '../../plugins/DraggableNodePlugin/useDraggable';
 
 export interface ImageComponentProps {
   nodeKey: NodeKey;
@@ -165,12 +166,13 @@ export const ImageComponent: React.FC<ImageComponentProps> = ({
 
   const isEditable = editor.isEditable();
   const showResizeHandle = isEditable && isSelected;
+  const dragProps = useDraggable(nodeKey);
 
   const imgStyle: React.CSSProperties =
     width != null && height != null ? { width: `${width}px`, height: `${height}px` } : {};
 
   return (
-    <span ref={nodeRef}>
+    <span ref={nodeRef} {...dragProps}>
       <img
         className={isEditable && isSelected ? 'editor__Node_focused' : ''}
         ref={imgRef}

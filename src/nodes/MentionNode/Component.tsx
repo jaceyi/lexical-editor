@@ -13,6 +13,7 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 import { mergeRegister } from '@lexical/utils';
 import { $isMentionNode } from './index';
+import { useDraggable } from '../../plugins/DraggableNodePlugin/useDraggable';
 
 export interface MentionComponentProps {
   nodeKey: NodeKey;
@@ -45,7 +46,9 @@ export const MentionComponent: React.FC<MentionComponentProps> = ({
     [isSelected, nodeKey]
   );
 
-  const nodeRef = useRef(null);
+  const nodeRef = useRef<HTMLSpanElement>(null);
+  const dragProps = useDraggable(nodeKey);
+
   useEffect(() => {
     return mergeRegister(
       editor.registerCommand(
@@ -73,6 +76,7 @@ export const MentionComponent: React.FC<MentionComponentProps> = ({
       data-lexical-mention-trigger={trigger}
       data-lexical-mention-value={value}
       ref={nodeRef}
+      {...dragProps}
     >
       {text}
     </span>
