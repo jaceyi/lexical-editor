@@ -8,21 +8,21 @@ import {
 } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $wrapNodeInElement } from '@lexical/utils';
-import { ImagePayload, $createImageNode } from '../../nodes/ImageNode';
+import { FilePayload, $createFileNode } from '../../nodes/FileNode';
 
-export const INSERT_IMAGE_COMMAND = createCommand<ImagePayload>('INSERT_IMAGE_COMMAND');
+export const INSERT_FILE_COMMAND = createCommand<FilePayload>('INSERT_FILE_COMMAND');
 
-export const ImagePlugin = () => {
+export const FilePlugin = () => {
   const [editor] = useLexicalComposerContext();
 
   useEffect(() => {
     return editor.registerCommand(
-      INSERT_IMAGE_COMMAND,
-      (payload: ImagePayload) => {
-        const imageNode = $createImageNode(payload);
-        $insertNodes([imageNode]);
-        if ($isRootOrShadowRoot(imageNode.getParentOrThrow())) {
-          $wrapNodeInElement(imageNode, $createParagraphNode).selectEnd();
+      INSERT_FILE_COMMAND,
+      (payload: FilePayload) => {
+        const fileNode = $createFileNode(payload);
+        $insertNodes([fileNode]);
+        if ($isRootOrShadowRoot(fileNode.getParentOrThrow())) {
+          $wrapNodeInElement(fileNode, $createParagraphNode).selectEnd();
         }
 
         return true;

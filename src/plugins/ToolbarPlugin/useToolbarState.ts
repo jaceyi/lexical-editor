@@ -76,7 +76,6 @@ export const useToolbarState = (editor: LexicalEditor): ToolbarState => {
     const node = getSelectedNode(selection);
     const parent = node.getParent();
 
-    // block type
     const elementKey = element.getKey();
     const elementDOM = editor.getElementByKey(elementKey);
     if (elementDOM !== null) {
@@ -90,7 +89,6 @@ export const useToolbarState = (editor: LexicalEditor): ToolbarState => {
       }
     }
 
-    // text format
     setTextFormat({
       isBold: selection.hasFormat('bold'),
       isItalic: selection.hasFormat('italic'),
@@ -98,7 +96,6 @@ export const useToolbarState = (editor: LexicalEditor): ToolbarState => {
       isStrikethrough: selection.hasFormat('strikethrough')
     });
 
-    // text style
     setTextStyle({
       fontColor: $getSelectionStyleValueForProperty(selection, 'color'),
       backgroundColor: $getSelectionStyleValueForProperty(selection, 'background-color'),
@@ -106,7 +103,6 @@ export const useToolbarState = (editor: LexicalEditor): ToolbarState => {
       fontFamily: $getSelectionStyleValueForProperty(selection, 'font-family')
     });
 
-    // link url
     if ($isLinkNode(parent)) {
       setLinkUrl(parent.getURL());
     } else if ($isLinkNode(node)) {
@@ -115,7 +111,6 @@ export const useToolbarState = (editor: LexicalEditor): ToolbarState => {
       setLinkUrl(null);
     }
 
-    // element align
     setElementFormat(
       ($isElementNode(node) ? node.getFormatType() : parent?.getFormatType()) || 'left'
     );

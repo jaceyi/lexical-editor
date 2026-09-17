@@ -2,11 +2,7 @@ import { useCallback } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { EDITOR_CLASSNAME_NAMESPACE } from '../utils/consts';
 
-/**
- * 查找父元素中包含 EDITOR_CLASSNAME_NAMESPACE 的元素
- * @param element 当前元素
- * @returns 父元素中包含 EDITOR_CLASSNAME_NAMESPACE 的元素
- */
+/** 从 element 向上找到第一个带编辑器命名空间的祖先元素 */
 const findParentElement = (element: HTMLElement): HTMLElement => {
   if (!element.parentElement || element === document.body) {
     return element;

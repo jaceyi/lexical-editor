@@ -10,25 +10,20 @@ import { useLocale } from '../../locale';
 
 const fontSizes = [12, 13, 14, 16, 18, 20, 24, 32, 40, 48];
 
+/** 工具栏字号标签：纯数字补上 px 单位，其他单位（em、rem、%）原样展示；未设置返回 null */
+export const getFontSizeLabel = (fontSize: string | null): string | null =>
+  !fontSize ? null : /^\d+(\.\d+)?$/.test(fontSize) ? `${fontSize}px` : fontSize;
+
 export interface DropdownFontSizeProps extends Omit<DropdownProps, 'children'> {
   fontSize: string | null;
 }
 
-/**
- * 字体大小下拉选择组件
- * 方法出入参数：
- * @param fontSize 当前选中的字体大小
- * 方法核心逻辑：渲染一个下拉菜单，包含预设的字体大小选项
- */
+/** 字体大小下拉：工具栏上显示当前字号，与字体下拉保持一致 */
 export const DropdownFontSize: React.FC<DropdownFontSizeProps> = ({ fontSize }) => {
   const [editor] = useLexicalComposerContext();
   const { getPopupContainer } = usePopupContainer();
   const locale = useLocale();
 
-  /**
-   * 更新字体大小
-   * @param size 选中的字体大小（带单位）
-   */
   const updateFontSize = (size: string | null) => {
     editor.update(() => {
       const selection = $getSelection();
@@ -40,9 +35,9 @@ export const DropdownFontSize: React.FC<DropdownFontSizeProps> = ({ fontSize }) 
     });
   };
 
-  /**
-   * 列表项配置数组
-   */
+  // 工具栏上展示当前字号；未设置或选区字号不统一时显示「默认」
+  const fontSizeLabel = getFontSizeLabel(fontSize) ?? locale.fontDefault;
+
   const menuItems = [
     {
       key: 'default',
@@ -51,14 +46,14 @@ export const DropdownFontSize: React.FC<DropdownFontSizeProps> = ({ fontSize }) 
           <span>{locale.fontDefault}</span>
         </div>
       ),
-      isSelected: fontSize === null,
+      isSelected: !fontSize,
       onClick: () => updateFontSize(null)
     },
     ...fontSizes.map(item => ({
       key: String(item),
       label: (
         <div className="theme__menuItemLabel">
-          <span>{`${item} px`}</span>
+          <span>{`${item}px`}</span>
         </div>
       ),
       isSelected: `${item}px` === fontSize,
@@ -74,6 +69,7 @@ export const DropdownFontSize: React.FC<DropdownFontSizeProps> = ({ fontSize }) 
     >
       <ToolbarItem title={locale.fontSize}>
         <FontSizeOutlined className="theme__icon" />
+        <span className="editor__toolbarFontSizeLabel">{fontSizeLabel}</span>
         <ExpandOutlined className="theme__iconExpand" />
       </ToolbarItem>
     </Dropdown>

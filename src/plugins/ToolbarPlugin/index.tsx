@@ -15,8 +15,8 @@ import {
 import { $patchStyleText, $setBlocksType } from '@lexical/selection';
 import { $findMatchingParent } from '@lexical/utils';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { INSERT_FILE_COMMAND } from '../FilePlugin';
 import { INSERT_IMAGE_COMMAND } from '../ImagePlugin';
-import { INSERT_LINK_COMMAND } from '../LinkPlugin';
 import { LinkPicker } from '../LinkPlugin/LinkPicker';
 import { EditorConfig } from '../../Editor';
 import {
@@ -26,6 +26,7 @@ import {
   TextStrikethroughOutlined,
   MentionOutlined,
   FileOutlined,
+  ImageOutlined,
   ExpandOutlined,
   TextColorOutlined,
   BackgroundColorOutlined,
@@ -153,20 +154,32 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
     [applyStyleText]
   );
 
+  const imageInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const onUpload: ChangeEventHandler<HTMLInputElement> = async e => {
+  const onUploadImage: ChangeEventHandler<HTMLInputElement> = async e => {
     try {
       const files = e.target.files;
       if (!files || !files.length || !typeGuards.isFunction(onUploadFile)) return;
       const file = files[0];
-      const image = await onUploadFile(file);
-      if (!image) return;
-      if (/^image\/.+$/.test(file.type)) {
-        editor.dispatchCommand(INSERT_IMAGE_COMMAND, { src: image.url, altText: image.name });
-      } else {
-        editor.dispatchCommand(INSERT_LINK_COMMAND, { url: image.url, title: image.name });
-      }
+      if (!/^image\/.+$/.test(file.type)) return;
+      const uploaded = await onUploadFile(file);
+      if (!uploaded) return;
+      editor.dispatchCommand(INSERT_IMAGE_COMMAND, { src: uploaded.url, altText: uploaded.name });
+    } catch {}
+  };
+
+  const onUploadFileBlock: ChangeEventHandler<HTMLInputElement> = async e => {
+    try {
+      const files = e.target.files;
+      if (!files || !files.length || !typeGuards.isFunction(onUploadFile)) return;
+      const file = files[0];
+      const uploaded = await onUploadFile(file);
+      if (!uploaded) return;
+      editor.dispatchCommand(INSERT_FILE_COMMAND, {
+        url: uploaded.url,
+        name: uploaded.name
+      });
     } catch {}
   };
 
@@ -192,6 +205,7 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
   const showGroupInsert =
     show(TOOLBAR_FEATURES.LINK) ||
     (show(TOOLBAR_FEATURES.MENTION) && hasMentions) ||
+    (show(TOOLBAR_FEATURES.IMAGE_UPLOAD) && typeGuards.isFunction(onUploadFile)) ||
     (show(TOOLBAR_FEATURES.FILE_UPLOAD) && typeGuards.isFunction(onUploadFile));
 
   const groupHasItems = [showGroupBlock, showGroupText, showGroupFont, showGroupInsert];
@@ -245,9 +259,15 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
           onColorChange={handleFontColorChange}
           getPopupContainer={getPopupContainer}
         >
-          <ToolbarItem title={locale.fontColor}>
+          <ToolbarItem title={locale.fontColor} isActive={Boolean(textStyle.fontColor)}>
             <TextColorOutlined className="theme__icon" />
             <ExpandOutlined className="theme__iconExpand" />
+            {textStyle.fontColor ? (
+              <span
+                className="editor__toolbarColorTip"
+                style={{ backgroundColor: textStyle.fontColor }}
+              />
+            ) : null}
           </ToolbarItem>
         </ColorPicker>
       )}
@@ -257,9 +277,15 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
           onColorChange={handleBackgroundColorChange}
           getPopupContainer={getPopupContainer}
         >
-          <ToolbarItem title={locale.backgroundColor}>
+          <ToolbarItem title={locale.backgroundColor} isActive={Boolean(textStyle.backgroundColor)}>
             <BackgroundColorOutlined className="theme__icon" />
             <ExpandOutlined className="theme__iconExpand" />
+            {textStyle.backgroundColor ? (
+              <span
+                className="editor__toolbarColorTip"
+                style={{ backgroundColor: textStyle.backgroundColor }}
+              />
+            ) : null}
           </ToolbarItem>
         </ColorPicker>
       )}
@@ -291,13 +317,26 @@ export const ToolbarPlugin: React.FC<ToolbarPluginProps> = ({ config = {} }) => 
           <MentionOutlined className="theme__icon" />
         </ToolbarItem>
       )}
+      {show(TOOLBAR_FEATURES.IMAGE_UPLOAD) && typeGuards.isFunction(onUploadFile) && (
+        <ToolbarItem title={locale.imageUpload} onClick={() => imageInputRef.current?.click()}>
+          <input
+            ref={imageInputRef}
+            type="file"
+            value=""
+            accept="image/*"
+            onChange={onUploadImage}
+            className="editor__toolbarFileInput"
+          />
+          <ImageOutlined className="theme__icon" />
+        </ToolbarItem>
+      )}
       {show(TOOLBAR_FEATURES.FILE_UPLOAD) && typeGuards.isFunction(onUploadFile) && (
         <ToolbarItem title={locale.fileUpload} onClick={() => fileInputRef.current?.click()}>
           <input
             ref={fileInputRef}
             type="file"
             value=""
-            onChange={onUpload}
+            onChange={onUploadFileBlock}
             className="editor__toolbarFileInput"
           />
           <FileOutlined className="theme__icon" />

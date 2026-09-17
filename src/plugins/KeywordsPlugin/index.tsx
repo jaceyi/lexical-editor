@@ -1,56 +1,39 @@
-import React, { useRef, useCallback, useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { useLexicalTextEntity } from '@lexical/react/useLexicalTextEntity';
-import { $createKeywordNode, KeywordNode } from '../../nodes/KeywordNode';
-import { TextNode } from 'lexical';
+import { KeywordNode } from '../../nodes/KeywordNode';
+import { escapeRegExp } from '../../utils/regex';
+import { registerKeywordTransform } from './registerKeywordTransform';
 
 export interface KeywordsPluginProps {
   keywords: string[] | RegExp;
 }
 
-export const KeywordsPlugin: React.FC<KeywordsPluginProps> = ({ keywords }) => {
-  const keywordRegexRef = useRef<RegExp | undefined>();
-  keywordRegexRef.current = useMemo(() => {
-    if (Array.isArray(keywords)) {
-      // array default to case insensitive
-      return new RegExp(`${keywords.join('|')}`, 'i');
-    } else if (keywords instanceof RegExp) {
-      return new RegExp(keywords);
-    }
-  }, [keywords]);
+/** 匹配关键字的正则统一带 g 标志，便于一次扫描出文本中的所有匹配 */
+export const createKeywordRegex = (keywords: string[] | RegExp): RegExp | null => {
+  if (Array.isArray(keywords)) {
+    // 数组默认忽略大小写；关键字按字面量转义，避免 `C++`、`(foo)` 直接让正则报错
+    return keywords.length ? new RegExp(keywords.map(escapeRegExp).join('|'), 'gi') : null;
+  }
+  if (keywords instanceof RegExp) {
+    return new RegExp(
+      keywords.source,
+      keywords.flags.includes('g') ? keywords.flags : `${keywords.flags}g`
+    );
+  }
+  return null;
+};
 
+export const KeywordsPlugin: React.FC<KeywordsPluginProps> = ({ keywords }) => {
   const [editor] = useLexicalComposerContext();
+  const keywordRegex = useMemo(() => createKeywordRegex(keywords), [keywords]);
 
   useEffect(() => {
     if (!editor.hasNodes([KeywordNode])) {
       throw new Error('KeywordsPlugin: KeywordNode not registered on editor');
     }
-  }, [editor]);
-
-  const createKeywordNode = useCallback((textNode: TextNode) => {
-    return $createKeywordNode(textNode.getTextContent());
-  }, []);
-
-  const getKeywordMatch = useCallback(
-    (text: string) => {
-      const keywordRegex = keywordRegexRef.current;
-      if (!keywordRegex) return null;
-      const match = keywordRegex.exec(text);
-
-      if (!match) return null;
-
-      const keywordLength = match[0].length;
-      const startOffset = match.index;
-      const endOffset = startOffset + keywordLength;
-      return {
-        end: endOffset,
-        start: startOffset
-      };
-    },
-    [keywordRegexRef]
-  );
-
-  useLexicalTextEntity(getKeywordMatch, KeywordNode, createKeywordNode);
+    if (!keywordRegex) return;
+    return registerKeywordTransform(editor, keywordRegex);
+  }, [editor, keywordRegex]);
 
   return null;
 };

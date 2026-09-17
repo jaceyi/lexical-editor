@@ -13,7 +13,12 @@ export interface Locale {
   formatPainterHint: string;
   clearStyle: string;
   mention: string;
+  imageUpload: string;
   fileUpload: string;
+  downloadFile: string;
+  renameFile: string;
+  renameFilePlaceholder: string;
+  deleteFile: string;
   hyperlink: string;
 
   // Block format

@@ -11,6 +11,7 @@ import {
   DROP_COMMAND,
   DRAGOVER_COMMAND
 } from 'lexical';
+import type { LexicalNode, RangeSelection } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $wrapNodeInElement } from '@lexical/utils';
 
@@ -29,6 +30,21 @@ export function setDragData(data: DragData | null) {
 export function getDragData(): DragData | null {
   return dragData;
 }
+
+const adjustSelectionAfterMove = (selection: RangeSelection, sourceNode: LexicalNode) => {
+  const sourceParent = sourceNode.getParent();
+  if (!sourceParent) return;
+
+  const sourceParentKey = sourceParent.getKey();
+  const sourceIndex = sourceNode.getIndexWithinParent();
+
+  // 落点选区在 sourceNode 移除前就已生成：同一父节点内前移时，其后的子节点偏移会左移 1
+  [selection.anchor, selection.focus].forEach(point => {
+    if (point.type === 'element' && point.key === sourceParentKey && point.offset > sourceIndex) {
+      point.set(point.key, point.offset - 1, 'element');
+    }
+  });
+};
 
 export const DraggableNodePlugin: React.FC = () => {
   const [editor] = useLexicalComposerContext();
@@ -61,6 +77,7 @@ export const DraggableNodePlugin: React.FC = () => {
           const selection = $createRangeSelectionFromDom(domSelection, editor);
           if (!selection) return;
 
+          adjustSelectionAfterMove(selection, sourceNode);
           sourceNode.remove();
 
           $setSelection(selection);

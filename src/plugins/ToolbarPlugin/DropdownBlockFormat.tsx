@@ -31,20 +31,12 @@ export interface DropdownBlockFormatProps extends Omit<DropdownProps, 'children'
   blockType: string;
 }
 
-/**
- * 块格式化下拉选择组件
- * 方法出入参数：
- * @param blockType 当前选中的块类型
- * 方法核心逻辑：渲染一个下拉菜单，包含各种文本块格式化选项（标题、列表、引用等）
- */
+/** 块类型下拉：在正文、标题、列表、引用之间切换当前块格式。 */
 export const DropdownBlockFormat: React.FC<DropdownBlockFormatProps> = ({ blockType }) => {
   const [editor] = useLexicalComposerContext();
   const { getPopupContainer } = usePopupContainer();
   const locale = useLocale();
 
-  /**
-   * 格式化为正文
-   */
   const formatParagraph = () => {
     editor.update(() => {
       const selection = $getSelection();
@@ -54,10 +46,6 @@ export const DropdownBlockFormat: React.FC<DropdownBlockFormatProps> = ({ blockT
     });
   };
 
-  /**
-   * 格式化为标题
-   * @param headingSize 标题等级
-   */
   const formatHeading = (headingSize: HeadingTagType) => {
     if (blockType !== headingSize) {
       editor.update(() => {
@@ -67,12 +55,8 @@ export const DropdownBlockFormat: React.FC<DropdownBlockFormatProps> = ({ blockT
     }
   };
 
-  /**
-   * 格式化为列表
-   * @param command Lexical 指令
-   * @param type 列表类型
-   */
-  const formatList = (command: LexicalCommand<unknown>, type: 'number' | 'bullet' | 'check') => {
+  // 已是该列表类型时再次触发，则取消列表
+  const formatList = (command: LexicalCommand<void>, type: 'number' | 'bullet' | 'check') => {
     if (blockType !== type) {
       editor.dispatchCommand(command, undefined);
     } else {
@@ -80,9 +64,6 @@ export const DropdownBlockFormat: React.FC<DropdownBlockFormatProps> = ({ blockT
     }
   };
 
-  /**
-   * 格式化为引用块
-   */
   const formatQuote = () => {
     if (blockType !== 'quote') {
       editor.update(() => {
@@ -92,9 +73,6 @@ export const DropdownBlockFormat: React.FC<DropdownBlockFormatProps> = ({ blockT
     }
   };
 
-  /**
-   * 列表项配置数组
-   */
   const menuItems = [
     {
       key: 'paragraph',

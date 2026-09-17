@@ -1,0 +1,12 @@
+# pnpm 工作区配置（pnpm 10 起包管理与工作区配置统一放在此文件，而不是 package.json 的 pnpm 字段）
+#
+# example 作为工作区成员，与库共用根目录的 pnpm-lock.yaml。
+packages:
+  - example
+
+# 下面两个依赖的构建脚本都会被 pnpm 默认拦截，这里显式声明处理方式：
+# - sass 依赖的 @parcel/watcher 只在 `sass --watch` 时使用，本仓库监听走 chokidar；
+# - esbuild（vite 依赖）的平台二进制由可选依赖提供，无需执行安装脚本。
+allowBuilds:
+  '@parcel/watcher': false
+  esbuild: false

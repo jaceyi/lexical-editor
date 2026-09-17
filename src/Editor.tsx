@@ -12,6 +12,7 @@ import { EditablePlugin } from './plugins/EditablePlugin';
 import { ReadHTMLValuePlugin } from './plugins/ReadHTMLValuePlugin';
 import { ReadJSONValuePlugin } from './plugins/ReadJSONValuePlugin';
 import { ToolbarPlugin } from './plugins/ToolbarPlugin';
+import { FilePlugin } from './plugins/FilePlugin';
 import { ImagePlugin } from './plugins/ImagePlugin';
 import { LinkPlugin as CustomLinkPlugin } from './plugins/LinkPlugin';
 import { DragDropPastePlugin } from './plugins/DragDropPastePlugin';
@@ -31,7 +32,7 @@ import clsx from 'clsx';
 import { EditorState, LexicalEditor } from 'lexical';
 import type { UploadFile } from './types';
 import { EDITOR_CLASSNAME_NAMESPACE, type ToolbarFeatureKey } from './utils/consts';
-import type { EditorThemeClasses as LexicalEditorThemeClasses } from 'lexical/LexicalEditor';
+import type { EditorThemeClasses as LexicalEditorThemeClasses } from 'lexical';
 import * as typeGuards from './utils/typeGuards';
 import { LocaleContext } from './locale/LocaleContext';
 import { zhCN, enUS } from './locale';
@@ -59,7 +60,7 @@ export interface EditorProps {
   config?: EditorConfig;
   theme?: EditorThemeClasses;
   themeMode?: EditorThemeMode;
-  locale?: LocaleKey | Locale;
+  locale?: LocaleKey | Partial<Locale>;
   className?: string;
   children?: ReactNode;
 }
@@ -95,8 +96,7 @@ const defaultLocale: LocaleKey = 'zh-CN';
 const localeMap: Record<string, Locale> = { 'zh-CN': zhCN, 'en-US': enUS };
 
 /**
- * Lexical 编辑器主组件
- * 提供 HTML 导入导出、插件加载及核心编辑功能。
+ * 编辑器主组件：装配节点、插件与主题，按 html/json 两种模式同步内容。
  */
 const Editor = React.forwardRef<EditorRef, EditorAllProps>(function Editor(
   {
@@ -118,9 +118,10 @@ const Editor = React.forwardRef<EditorRef, EditorAllProps>(function Editor(
   },
   ref
 ) {
-  const resolvedLocale = typeof locale === 'string' ? localeMap[locale] ?? zhCN : locale;
+  // 自定义语言包按 Key 覆盖默认语言（zh-CN），未提供的 Key 使用默认文案
+  const resolvedLocale =
+    typeof locale === 'string' ? (localeMap[locale] ?? zhCN) : { ...zhCN, ...locale };
   const resolvedPlaceholder = placeholder ?? resolvedLocale.placeholder;
-  // 处理编辑器内容变更，导出 HTML
   const handleChange = useCallback(
     (_: EditorState, editor: LexicalEditor) => {
       // 如果正在进行组合输入，则不触发 onChange
@@ -142,12 +143,11 @@ const Editor = React.forwardRef<EditorRef, EditorAllProps>(function Editor(
 
   const editorRef = useRef<LexicalEditor>(null);
 
-  // 暴露编辑器实例给父组件
   useImperativeHandle(ref, () => ({
     editor: editorRef.current
   }));
 
-  // 渲染提及插件
+  // 未配置提及或只读态下不挂载提及插件
   const mentionsPluginNode = useMemo(() => {
     const mentions = config.mentions;
     if (!isEditable || !mentions) return null;
@@ -158,7 +158,6 @@ const Editor = React.forwardRef<EditorRef, EditorAllProps>(function Editor(
     }
   }, [config.mentions, isEditable]);
 
-  // 编辑器初始配置
   const initialConfig = useMemo(() => {
     return {
       namespace,
@@ -177,6 +176,7 @@ const Editor = React.forwardRef<EditorRef, EditorAllProps>(function Editor(
           underlineStrikethrough: 'theme__textUnderlineStrikethrough'
         },
         textKeyword: 'theme__textKeyword',
+        nodeFile: 'theme__nodeFile',
         nodeImage: 'theme__nodeImage',
         nodeMention: 'theme__nodeMention',
         list: {
@@ -205,7 +205,6 @@ const Editor = React.forwardRef<EditorRef, EditorAllProps>(function Editor(
           )}
         >
           <LexicalComposer initialConfig={initialConfig}>
-            {/* 工具栏插件 */}
             {isEditable && config.toolbar !== false ? (
               <ToolbarPlugin
                 config={{ ...config, toolbar: config.toolbar as ToolbarFeatureKey[] | undefined }}
@@ -222,13 +221,13 @@ const Editor = React.forwardRef<EditorRef, EditorAllProps>(function Editor(
                 ErrorBoundary={LexicalErrorBoundary}
               />
             </div>
-            {/* 核心插件 */}
             <EditablePlugin isEditable={isEditable} />
             <OnChangePlugin onChange={handleChange} ignoreSelectionChange />
             <EditorRefPlugin editorRef={editorRef} />
             <AutoFocusPlugin autoFocus={autoFocus} />
             <HistoryPlugin />
             <DraggableNodePlugin />
+            <FilePlugin />
             <ImagePlugin />
             <ListPlugin />
             <CheckListPlugin />
@@ -241,13 +240,11 @@ const Editor = React.forwardRef<EditorRef, EditorAllProps>(function Editor(
                 value={value as EditorJSONValue}
               />
             )}
-            {/* 官方链接插件：负责消费 TOGGLE_LINK_COMMAND，实现“更新/取消链接” */}
+            {/* 官方链接插件：消费 TOGGLE_LINK_COMMAND，实现“更新/取消链接” */}
             <LexicalLinkPlugin />
             {/* 自定义链接插件：提供 INSERT_LINK_COMMAND 等扩展能力 */}
             <CustomLinkPlugin />
-            {/* 提及插件 */}
             {mentionsPluginNode}
-            {/* 条件加载功能插件 */}
             {typeGuards.isFunction(config.onUploadFile) && (
               <DragDropPastePlugin onUploadFile={config.onUploadFile} />
             )}

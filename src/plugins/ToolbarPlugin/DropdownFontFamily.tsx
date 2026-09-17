@@ -17,10 +17,7 @@ export interface DropdownFontFamilyProps extends Omit<DropdownProps, 'children'>
   fontFamily: string | null;
 }
 
-/**
- * 字体下拉选择组件
- * @param fontFamily 当前选中的字体族值
- */
+/** 字体下拉：工具栏上显示当前字体 */
 export const DropdownFontFamily: React.FC<DropdownFontFamilyProps> = ({ fontFamily }) => {
   const [editor] = useLexicalComposerContext();
   const { getPopupContainer } = usePopupContainer();

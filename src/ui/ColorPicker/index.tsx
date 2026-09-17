@@ -152,20 +152,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
   const [open, setOpen] = useState(false);
   const locale = useLocale();
 
-  /**
-   * 控制下拉框显隐。
-   * @param nextOpen 是否展示
-   * @returns void
-   */
-  const handleVisibleChange = useCallback((nextOpen: boolean) => {
-    setOpen(nextOpen);
-  }, []);
-
-  /**
-   * 处理颜色选择，空值代表清除。
-   * @param color 颜色 hex 或 null
-   * @returns void
-   */
+  // 选择颜色，传 null 表示清除样式
   const handleSelect = useCallback(
     (color: string | null) => {
       onColorChange(color);
@@ -214,8 +201,8 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
         trigger={['click']}
         overlay={overlayContent}
         placement={placement}
-        visible={open}
-        onVisibleChange={handleVisibleChange}
+        open={open}
+        onOpenChange={setOpen}
         autoDestroy
         {...restProps}
       />

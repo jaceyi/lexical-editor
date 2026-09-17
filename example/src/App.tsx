@@ -10,12 +10,14 @@ const onUploadFile: UploadFile = file => {
     reader.readAsDataURL(file);
   });
 };
+const config = {
+  onUploadFile,
+  keywords: ['javascript', 'react'],
+  mentions: ['Jace', 'Liliana', 'Chandra', 'Gideon', 'Nissa', 'Ajani']
+};
 
 const App = () => {
-  const [{ value: htmlOutput }, htmlEditorProps] = useHTMLHandle({
-    initialValue:
-      '<h2><span>Example</span></h2><p><span>Welcome </span><span data-lexical-mention="true" data-lexical-mention-trigger="@" data-lexical-mention-value="Jace">@Jace</span></p><ul class="theme__ul" __lexicallisttype="check"><li role="checkbox" tabindex="-1" aria-checked="true" value="1" class="theme__listItem theme__listItemChecked"><span>JavaScript</span></li><li role="checkbox" tabindex="-1" aria-checked="false" value="2" class="theme__listItem theme__listItemUnchecked"><span class="theme__textKeyword" data-lexical-keyword="true">React</span></li></ul>'
-  });
+  const [{ value: htmlOutput }, htmlEditorProps] = useHTMLHandle();
   console.log(htmlOutput);
 
   return (
@@ -23,14 +25,12 @@ const App = () => {
       <h2>Dev Example</h2>
       <Editor
         {...htmlEditorProps}
-        namespace="dev-editor"
+        // locale="en-US"
+        namespace="edit-editor"
         placeholder="开始输入..."
-        config={{
-          onUploadFile,
-          keywords: ['javascript', 'react'],
-          mentions: ['Jace', 'Liliana', 'Chandra', 'Gideon', 'Nissa', 'Ajani']
-        }}
+        config={config}
       />
+      <Editor namespace="read-editor" isEditable={false} config={config} value={htmlOutput} />
     </div>
   );
 };

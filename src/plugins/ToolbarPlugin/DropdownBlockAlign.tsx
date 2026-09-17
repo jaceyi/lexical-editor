@@ -17,20 +17,12 @@ export interface DropdownBlockAlignProps extends Omit<DropdownProps, 'children'>
   elementFormat: string;
 }
 
-/**
- * 块对齐方式下拉选择组件
- * 方法出入参数：
- * @param elementFormat 当前选中的对齐方式
- * 方法核心逻辑：渲染一个下拉菜单，包含左对齐、居中、右对齐、两端对齐选项
- */
+/** 块对齐方式下拉：左对齐、居中、右对齐、两端对齐 */
 export const DropdownBlockAlign: React.FC<DropdownBlockAlignProps> = ({ elementFormat }) => {
   const [editor] = useLexicalComposerContext();
   const { getPopupContainer } = usePopupContainer();
   const locale = useLocale();
 
-  /**
-   * 列表项配置数组
-   */
   const menuItems = [
     {
       key: 'left',

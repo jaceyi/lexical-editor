@@ -7,12 +7,12 @@
 [github-image]: https://badgen.net/badge/icon/lexical-editor?icon=github&label=Github&style=flat-square
 [github-url]: https://github.com/jaceyi/lexical-editor
 
-基于 [Lexical](https://lexical.dev/) 的 React 富文本编辑器，可快速上手。
+A React rich text editor built on [Lexical](https://lexical.dev/), ready to use out of the box.
 
-- 基础富文本能力：粗体、斜体、下划线、标题、引用、列表
-- 常用样式能力：颜色、字号、字体、对齐
-- 扩展能力：链接、图片/文件上传、@提及、关键词高亮
-- 双数据模式：`html` 字符串与 `json` 结构化数据
+- Basic rich text: bold, italic, underline, headings, quotes, lists
+- Common styling: color, font size, font family, alignment
+- Extensions: links, image/file upload, @mentions, keyword highlighting
+- Dual data modes: `html` strings and structured `json` data
 
 ## Docs
 
@@ -22,8 +22,6 @@
 
 ```bash
 npm install @jaceyi/lexical-editor
-# or
-yarn add @jaceyi/lexical-editor
 ```
 
 ## Example
@@ -47,9 +45,3 @@ const App = () => {
 
 export default App;
 ```
-
-> `JSON` 模式可使用 `useJSONHandle`，并将 `mode` 设置为 `json`。
-
-## License
-
-MIT

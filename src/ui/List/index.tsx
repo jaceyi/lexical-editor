@@ -14,14 +14,7 @@ export interface ListProps {
   className?: string;
 }
 
-/**
- * 通用列表容器组件：提供统一的菜单容器样式
- * 方法出入参数：
- * @param children 子组件（可选）
- * @param items 列表项配置数组（可选）
- * @param className 额外的样式类名
- * 方法核心逻辑：渲染一个 ul 容器，支持通过 children 或 items 渲染列表项
- */
+/** 菜单容器：既可按 items 配置渲染，也可直接传入 children */
 export const List: React.FC<ListProps> = ({ children, items, className }) => {
   return (
     <ul className={clsx('theme__menu', className)} role="listbox">

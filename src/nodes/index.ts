@@ -1,6 +1,7 @@
 import { ListNode, ListItemNode } from '@lexical/list';
 import { AutoLinkNode, LinkNode } from '@lexical/link';
 import { HeadingNode, QuoteNode } from '@lexical/rich-text';
+import { FileNode } from './FileNode';
 import { ImageNode } from './ImageNode';
 import { KeywordNode } from './KeywordNode';
 import { MentionNode } from './MentionNode';
@@ -15,6 +16,7 @@ export default [
   ListItemNode,
   AutoLinkNode,
   LinkNode,
+  FileNode,
   ImageNode,
   KeywordNode,
   MentionNode

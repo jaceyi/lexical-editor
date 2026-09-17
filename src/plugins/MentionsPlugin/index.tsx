@@ -2,13 +2,14 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { LexicalTypeaheadMenuPlugin } from '@lexical/react/LexicalTypeaheadMenuPlugin';
-import { TextNode } from 'lexical';
+import { $createTextNode, TextNode } from 'lexical';
 import { useCallback, useMemo, useState } from 'react';
 import { $createMentionNode } from '../../nodes/MentionNode';
 import { EDITOR_CLASSNAME_NAMESPACE } from '../../utils/consts';
 import * as typeGuards from '../../utils/typeGuards';
 import { List, ListItem } from '../../ui/List';
 import { MentionOption, MentionItem } from './MentionOption';
+import { createMentionTriggerRegex, getMentionTriggerMatch } from './mentionTrigger';
 
 export interface MentionsThemeClasses {
   container?: string;
@@ -25,9 +26,7 @@ export interface MentionsPluginProps {
 }
 
 /**
- * 提及（Mentions）插件：支持 @ 功能
- * 方法核心逻辑：使用 LexicalTypeaheadMenuPlugin 监听输入，匹配正则后展示列表。
- * 自定义 List 渲染：使用项目自实现的 List 组件替代外部 UI 库。
+ * 提及（Mentions）插件：输入触发字符后展示候选列表，选中后插入 MentionNode。
  */
 export const MentionsPlugin: React.FC<MentionsPluginProps> = ({
   mentions = [],
@@ -35,10 +34,9 @@ export const MentionsPlugin: React.FC<MentionsPluginProps> = ({
   validCharsLength = 50,
   suggestionListLength = 5
 }) => {
-  const _trigger = Array.isArray(trigger) ? trigger.join('|') : trigger;
-  const AtMentionsRegex = useMemo(
-    () => new RegExp(`(^|\\s)(${_trigger})((?:[^ ${_trigger}\\s]){0,${validCharsLength}})$`),
-    [_trigger, validCharsLength]
+  const mentionRegex = useMemo(
+    () => createMentionTriggerRegex(trigger, validCharsLength),
+    [trigger, validCharsLength]
   );
 
   const [editor] = useLexicalComposerContext();
@@ -47,10 +45,10 @@ export const MentionsPlugin: React.FC<MentionsPluginProps> = ({
 
   const options = useMemo(() => {
     if (!mentions.length || !queryString) return [];
-    const match = AtMentionsRegex.exec(queryString);
+    const match = getMentionTriggerMatch(mentionRegex, queryString);
 
     if (!match) return [];
-    const [, , trigger, inputText] = match;
+    const { trigger, query } = match;
     return mentions
       .filter(mention => {
         let text = '';
@@ -59,11 +57,11 @@ export const MentionsPlugin: React.FC<MentionsPluginProps> = ({
         } else {
           text = mention;
         }
-        return String(text).toLowerCase().includes(inputText.toLowerCase());
+        return String(text).toLowerCase().includes(query.toLowerCase());
       })
       .map(mention => new MentionOption(mention, trigger))
       .slice(0, suggestionListLength);
-  }, [mentions, queryString, AtMentionsRegex, suggestionListLength]);
+  }, [mentions, queryString, mentionRegex, suggestionListLength]);
 
   const onSelectOption = useCallback(
     (selectedOption: MentionOption, nodeToReplace: TextNode | null, closeMenu: () => void) => {
@@ -75,6 +73,10 @@ export const MentionsPlugin: React.FC<MentionsPluginProps> = ({
         });
         if (nodeToReplace) {
           nodeToReplace.replace(mentionNode);
+          // 空文本节点会被归一化移除，但能让光标落在提及之后（否则光标会回到段首）
+          const trailingTextNode = $createTextNode('');
+          mentionNode.insertAfter(trailingTextNode);
+          trailingTextNode.select(0, 0);
         }
         closeMenu();
       });
@@ -85,19 +87,18 @@ export const MentionsPlugin: React.FC<MentionsPluginProps> = ({
   const checkForMentionMatch = useCallback(
     (text: string) => {
       if (!mentions.length) return null;
-      const match = AtMentionsRegex.exec(text);
+      const match = getMentionTriggerMatch(mentionRegex, text);
 
-      if (match !== null) {
-        const matchingString = match[2] + match[3];
+      if (match) {
         return {
-          leadOffset: match.index + match[1].length,
-          matchingString,
-          replaceableString: matchingString
+          leadOffset: match.leadOffset,
+          matchingString: match.matchingString,
+          replaceableString: match.matchingString
         };
       }
       return null;
     },
-    [mentions, AtMentionsRegex]
+    [mentions.length, mentionRegex]
   );
 
   return (
@@ -107,6 +108,8 @@ export const MentionsPlugin: React.FC<MentionsPluginProps> = ({
       onSelectOption={onSelectOption}
       triggerFn={checkForMentionMatch}
       options={options}
+      // 提及是文本实体，Lexical 默认会忽略实体边界处的触发（如已插入的提及后紧跟 @），这里放开限制
+      ignoreEntityBoundary
       menuRenderFn={(
         anchorElementRef,
         { selectedIndex, selectOptionAndCleanUp, setHighlightedIndex }

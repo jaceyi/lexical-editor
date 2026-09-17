@@ -1,13 +1,13 @@
 import { useCallback } from 'react';
 import { NodeKey } from 'lexical';
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { useLexicalEditable } from '@lexical/react/useLexicalEditable';
 import { DRAG_DATA_FORMAT, setDragData } from './index';
 
 const DRAGGING_CLASS = 'node-dragging';
 
 export function useDraggable(nodeKey: NodeKey) {
-  const [editor] = useLexicalComposerContext();
-  const isEditable = editor.isEditable();
+  // 订阅可编辑状态，运行期切换 setEditable 时拖拽属性会同步更新
+  const isEditable = useLexicalEditable();
 
   const handleDragStart = useCallback(
     (event: React.DragEvent) => {

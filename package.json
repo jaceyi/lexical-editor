@@ -1,12 +1,15 @@
 {
   "name": "@jaceyi/lexical-editor",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "A React rich text editor based on Lexical, supporting HTML and JSON modes with extensible plugins.",
   "license": "MIT",
   "main": "lib/index.js",
   "type": "module",
   "typings": "lib/index.d.ts",
-  "repository": "git@github.com:jaceyi/lexical-editor.git",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jaceyi/lexical-editor.git"
+  },
   "homepage": "https://github.com/jaceyi/lexical-editor",
   "author": "Jace Yi <yijinchun@outlook.com>",
   "keywords": [
@@ -20,27 +23,37 @@
     "LICENSE",
     "lib"
   ],
+  "sideEffects": [
+    "**/*.css"
+  ],
   "exports": {
     ".": "./lib/index.js",
     "./style.css": "./lib/style.css"
   },
   "scripts": {
-    "build": "rm -rf ./lib && yarn build:ts && yarn build:style",
-    "build:ts": "yarn tsc",
-    "build:style": "sass --no-source-map --style compressed src/index.scss lib/style.css && yarn postcss --no-map lib/style.css --use=autoprefixer --output=lib/style.css",
-    "watch": "chokidar \"src/**/*\" -c \"yarn build\"",
-    "watch:ts": "chokidar \"src/**/*.{ts,tsx}\" -c \"yarn build:ts\"",
-    "watch:style": "chokidar \"src/**/*.scss\" -c \"yarn build:style\"",
+    "prepublishOnly": "pnpm run build",
+    "build": "rm -rf ./lib && pnpm run build:ts && pnpm run build:style",
+    "build:ts": "tsc",
+    "build:style": "sass --no-source-map --style compressed src/index.scss lib/style.css && postcss --no-map lib/style.css --use=autoprefixer --output=lib/style.css",
+    "watch": "chokidar \"src/**/*\" -c \"pnpm run build\"",
+    "watch:ts": "chokidar \"src/**/*.{ts,tsx}\" -c \"pnpm run build:ts\"",
+    "watch:style": "chokidar \"src/**/*.scss\" -c \"pnpm run build:style\"",
     "prettier": "prettier --write 'src/**/*.{ts,tsx,js,jsx,scss,css}'",
     "lint": "eslint 'src/**/*.{ts,tsx,js,jsx}' --quiet --fix"
   },
+  "packageManager": "pnpm@11.20.0",
   "dependencies": {
-    "@lexical/react": "^0.44.0",
-    "@lexical/utils": "^0.44.0",
-    "@rc-component/dropdown": "^1.0.2",
-    "@rc-component/tooltip": "^1.4.0",
+    "@lexical/html": "^0.50.0",
+    "@lexical/link": "^0.50.0",
+    "@lexical/list": "^0.50.0",
+    "@lexical/react": "^0.50.0",
+    "@lexical/rich-text": "^0.50.0",
+    "@lexical/selection": "^0.50.0",
+    "@lexical/utils": "^0.50.0",
+    "@rc-component/dropdown": "^2.0.0",
+    "@rc-component/tooltip": "^1.5.2",
     "clsx": "^2.1.1",
-    "lexical": "^0.44.0"
+    "lexical": "^0.50.0"
   },
   "devDependencies": {
     "@types/react": "^18.3.2",

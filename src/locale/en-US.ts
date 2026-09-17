@@ -13,7 +13,12 @@ export const enUS: Locale = {
   formatPainterHint: 'Double-click to reuse',
   clearStyle: 'Clear Formatting',
   mention: 'Mention',
+  imageUpload: 'Insert Image',
   fileUpload: 'Upload File',
+  downloadFile: 'Download File',
+  renameFile: 'Rename File',
+  renameFilePlaceholder: 'Enter file name',
+  deleteFile: 'Delete File',
   hyperlink: 'Link',
 
   blockType: 'Block Type',

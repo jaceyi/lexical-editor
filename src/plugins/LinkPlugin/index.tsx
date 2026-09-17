@@ -19,9 +19,9 @@ interface LinkPayload {
   attributes?: LinkAttributes;
 }
 
-export const INSERT_LINK_COMMAND = createCommand('INSERT_LINK_COMMAND');
+export const INSERT_LINK_COMMAND = createCommand<LinkPayload>('INSERT_LINK_COMMAND');
 
-export const AUTO_INSERT_LINK_COMMAND = createCommand('AUTO_INSERT_LINK_COMMAND');
+export const AUTO_INSERT_LINK_COMMAND = createCommand<LinkPayload>('AUTO_INSERT_LINK_COMMAND');
 
 export const LinkPlugin = () => {
   const [editor] = useLexicalComposerContext();

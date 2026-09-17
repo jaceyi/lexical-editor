@@ -13,7 +13,12 @@ export const zhCN: Locale = {
   formatPainterHint: '双击可重复使用',
   clearStyle: '清除样式',
   mention: '提及',
+  imageUpload: '插入图片',
   fileUpload: '文件上传',
+  downloadFile: '下载文件',
+  renameFile: '重命名文件',
+  renameFilePlaceholder: '请输入文件名',
+  deleteFile: '删除文件',
   hyperlink: '超链接',
 
   blockType: '块类型',

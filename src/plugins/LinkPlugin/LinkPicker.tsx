@@ -27,8 +27,8 @@ export const LinkPicker: React.FC<LinkPickerProps> = ({ linkUrl }) => {
     <Dropdown
       getPopupContainer={getPopupContainer}
       trigger={['click']}
-      visible={isOpen}
-      onVisibleChange={handleVisibleChange}
+      open={isOpen}
+      onOpenChange={handleVisibleChange}
       overlay={<LinkEditor linkUrl={linkUrl} onConfirm={closeDropdown} onCancel={closeDropdown} />}
     >
       <ToolbarItem title={locale.hyperlink} isActive={isOpen || linkUrl !== null}>

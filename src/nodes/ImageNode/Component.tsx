@@ -11,6 +11,7 @@ import {
 } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
+import { useLexicalEditable } from '@lexical/react/useLexicalEditable';
 import { mergeRegister } from '@lexical/utils';
 import { $isImageNode, $updateImageWidthHeight } from './index';
 import { useDraggable } from '../../plugins/DraggableNodePlugin/useDraggable';
@@ -64,19 +65,17 @@ export const ImageComponent: React.FC<ImageComponentProps> = ({
     return mergeRegister(
       editor.registerCommand(
         CLICK_COMMAND,
-        payload => {
-          const event = payload;
-          if (event.target === nodeRef.current || nodeRef.current?.contains(event.target as Node)) {
-            if (event.shiftKey) {
-              setSelected(!isSelected);
-            } else {
-              clearSelection();
-              setSelected(true);
-            }
-            return true;
-          }
+        event => {
+          const target = event.target as Node;
+          if (!nodeRef.current?.contains(target)) return false;
 
-          return false;
+          if (event.shiftKey) {
+            setSelected(!isSelected);
+          } else {
+            clearSelection();
+            setSelected(true);
+          }
+          return true;
         },
         COMMAND_PRIORITY_LOW
       ),
@@ -164,7 +163,7 @@ export const ImageComponent: React.FC<ImageComponentProps> = ({
     [editor, nodeKey]
   );
 
-  const isEditable = editor.isEditable();
+  const isEditable = useLexicalEditable();
   const showResizeHandle = isEditable && isSelected;
   const dragProps = useDraggable(nodeKey);
 

@@ -18,6 +18,7 @@ export const TOOLBAR_FEATURES = {
   BLOCK_ALIGN: 'blockAlign',
   LINK: 'link',
   MENTION: 'mention',
+  IMAGE_UPLOAD: 'imageUpload',
   FILE_UPLOAD: 'fileUpload'
 } as const;
 
