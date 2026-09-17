@@ -90,6 +90,31 @@ export interface EditorRef {
 const defaultNodes: InitialConfigType['nodes'] = [];
 const defaultConfig: EditorConfig = {};
 const defaultTheme: EditorThemeClasses = {};
+
+const defaultThemeClasses = {
+  text: {
+    bold: 'theme__textBold',
+    italic: 'theme__textItalic',
+    underline: 'theme__textUnderline',
+    strikethrough: 'theme__textStrikethrough',
+    underlineStrikethrough: 'theme__textUnderlineStrikethrough'
+  },
+  textKeyword: 'theme__textKeyword',
+  nodeFile: 'theme__nodeFile',
+  nodeImage: 'theme__nodeImage',
+  nodeMention: 'theme__nodeMention',
+  list: {
+    listitem: 'theme__listItem',
+    listitemChecked: 'theme__listItemChecked',
+    listitemUnchecked: 'theme__listItemUnchecked',
+    nested: {
+      listitem: 'theme__nestedListItem'
+    },
+    olDepth: ['theme__ol1', 'theme__ol2', 'theme__ol3', 'theme__ol4', 'theme__ol5'],
+    ul: 'theme__ul'
+  }
+};
+
 const defaultThemeMode: EditorThemeMode = 'light';
 const defaultLocale: LocaleKey = 'zh-CN';
 
@@ -168,28 +193,15 @@ const Editor = React.forwardRef<EditorRef, EditorAllProps>(function Editor(
       nodes: [...baseNodes, ...nodes],
       html: getHTMLConfig(),
       theme: {
-        text: {
-          bold: 'theme__textBold',
-          italic: 'theme__textItalic',
-          underline: 'theme__textUnderline',
-          strikethrough: 'theme__textStrikethrough',
-          underlineStrikethrough: 'theme__textUnderlineStrikethrough'
-        },
-        textKeyword: 'theme__textKeyword',
-        nodeFile: 'theme__nodeFile',
-        nodeImage: 'theme__nodeImage',
-        nodeMention: 'theme__nodeMention',
+        ...defaultThemeClasses,
+        ...theme,
+        // text 与 list 是嵌套对象，逐层合并，避免使用方只覆盖其中一个 class 就丢掉其余默认值
+        text: { ...defaultThemeClasses.text, ...theme?.text },
         list: {
-          listitem: 'theme__listItem',
-          listitemChecked: 'theme__listItemChecked',
-          listitemUnchecked: 'theme__listItemUnchecked',
-          nested: {
-            listitem: 'theme__nestedListItem'
-          },
-          olDepth: ['theme__ol1', 'theme__ol2', 'theme__ol3', 'theme__ol4', 'theme__ol5'],
-          ul: 'theme__ul'
-        },
-        ...theme
+          ...defaultThemeClasses.list,
+          ...theme?.list,
+          nested: { ...defaultThemeClasses.list.nested, ...theme?.list?.nested }
+        }
       }
     };
   }, [namespace, isEditable, theme, nodes]);

@@ -108,7 +108,14 @@ export const ImageComponent: React.FC<ImageComponentProps> = ({
       if (!img) return;
 
       const contentEditable = img.closest('[contenteditable="true"]');
-      const editorContentWidth = contentEditable ? contentEditable.clientWidth : Infinity;
+      // clientWidth 含左右 padding，减掉后才是正文实际的可用宽度
+      const contentStyle = contentEditable ? window.getComputedStyle(contentEditable) : null;
+      const contentPadding = contentStyle
+        ? parseFloat(contentStyle.paddingLeft) + parseFloat(contentStyle.paddingRight)
+        : 0;
+      const editorContentWidth = contentEditable
+        ? contentEditable.clientWidth - contentPadding
+        : Infinity;
 
       const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
 
